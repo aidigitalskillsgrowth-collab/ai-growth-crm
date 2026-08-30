@@ -89,7 +89,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('ivr');
+  const [activeTab, setActiveTab] = useState<string>('finance');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -734,7 +734,8 @@ export default function DashboardPage() {
                activeTab === 'workflow' ? 'AI Workflow Builder' :
                activeTab === 'inbox' ? 'AI Inbox & WhatsApp Suite' :
                activeTab === 'ivr' ? 'AI Sales & Outbound IVR' :
-               activeTab === 'calendar' ? 'Smart Calendar & Bookings' : activeTab.replace('_', ' ')}
+               activeTab === 'calendar' ? 'Smart Calendar & Bookings' :
+               activeTab === 'finance' ? 'AI Finance & Revenue' : activeTab.replace('_', ' ')}
             </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
@@ -965,7 +966,6 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* Left Column: Form with Razorpay Pay, WhatsApp Bill & Print */}
               <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2.5">
@@ -1028,7 +1028,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Right Column: Live Dynamic UPI QR Display Box */}
               <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-xl flex flex-col items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Live Instant Payment QR</span>
@@ -1064,37 +1063,6 @@ export default function DashboardPage() {
 
             </div>
 
-            {/* Multi-Gateway API Credentials Section */}
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
-                    <CreditCard size={18} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-sm">ALL MULTIPLE GATEWAYS & LIVE WEBHOOK INTEGRATION</h3>
-                    <p className="text-[11px] text-slate-400">क्रेडिट कार्ड, डेबिट कार्ड, नेटबँकिंग व EMI साठी गेटवे ॲक्टिव्हेट करा.</p>
-                  </div>
-                </div>
-                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">Multi-Gateway Ready</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
-                  <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Landmark size={14} className="text-blue-400" /> Razorpay Live Gateway</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
-                  <p className="text-[11px] text-slate-400">Credit Card, Debit Card, NetBanking & No-Cost EMI Support</p>
-                  <div className="flex gap-2"><input type="text" defaultValue={gateways.razorpayKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button></div>
-                </div>
-
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
-                  <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> Cashfree Auto-Settlements</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
-                  <p className="text-[11px] text-slate-400">Instant Merchant Bank Settlement & UPI Auto-Collect Webhook</p>
-                  <div className="flex gap-2"><input type="text" defaultValue={gateways.cashfreeAppId} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Cashfree क्रेडेन्शियल्स सेव्ह झाले!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Transactions Log */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl text-xs">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><Receipt size={15} className="text-emerald-400" /> Recent Payment Transactions & Settlements</h3>
@@ -1340,7 +1308,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 12. IVR CALLING BOT (AI SALES & IVR FULLY ENHANCED) */}
+        {/* 12. IVR CALLING BOT */}
         {activeTab === 'ivr' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
@@ -1445,31 +1413,86 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 13. FINANCE */}
+        {/* 13. FINANCE (AI FINANCE & REVENUE FULLY ENHANCED) */}
         {activeTab === 'finance' && (
-          <div className="space-y-5 text-xs">
-            <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2"><Wallet size={16} className="text-emerald-400" /> SaaS Billing & Analytics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-slate-400">MRR</span><p className="text-2xl font-black text-emerald-400 mt-1">₹45,900</p></div>
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-slate-400">Paid Clients</span><p className="text-2xl font-black text-blue-400 mt-1">24</p></div>
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-slate-400">Pending</span><p className="text-2xl font-black text-amber-400 mt-1">₹8,500</p></div>
+          <div className="space-y-6 text-xs">
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                    <Wallet size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">AI FINANCE & REVENUE ANALYTICS</h3>
+                    <p className="text-[11px] text-slate-400">महसूल (MRR), सबस्क्रिप्शन प्लान्स आणि क्लायंट बिलिंगचा संपूर्ण हिशोब.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
+                  Live MRR Dashboard
+                </span>
+              </div>
+
+              {/* Finance Metric Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Monthly Recurring Revenue (MRR)</span>
+                  <p className="text-2xl font-black text-emerald-400">₹45,900</p>
+                  <span className="text-[10px] text-emerald-500 font-bold block">+18.4% पिछले महीने से अधिक</span>
+                </div>
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Active SaaS Clients</span>
+                  <p className="text-2xl font-black text-blue-400">24 Paid</p>
+                  <span className="text-[10px] text-blue-400 font-bold block">100% Renewal Rate</span>
+                </div>
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Pending Settlements</span>
+                  <p className="text-2xl font-black text-amber-400">₹8,500</p>
+                  <span className="text-[10px] text-amber-400 font-bold block">Next payout in 24 hrs</span>
+                </div>
+              </div>
+
+              {/* SaaS Subscription Plans */}
+              <div className="pt-3">
+                <span className="font-bold text-white text-xs uppercase tracking-wider block mb-3">Active SaaS Subscription Tiers</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { name: 'Starter Growth Plan', price: '₹1,999 / mo', clients: '8 Clients', status: 'Active' },
+                    { name: 'Pro AI Automation Plan', price: '₹4,999 / mo', clients: '12 Clients', status: 'Popular' },
+                    { name: 'Enterprise Multi-Store', price: '₹9,999 / mo', clients: '4 Clients', status: 'VIP' }
+                  ].map((plan, idx) => (
+                    <div key={idx} className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-white text-xs">{plan.name}</span>
+                        <span className="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded-full font-bold">{plan.status}</span>
+                      </div>
+                      <p className="text-lg font-black text-emerald-400">{plan.price}</p>
+                      <p className="text-[11px] text-slate-400">{plan.clients} subscribed</p>
+                      <button onClick={() => alert(`${plan.name} चे इनव्हॉइस डाउनलोड होत आहे...`)} className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold text-[10px]">
+                        Download Invoices
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* 14. SOCIAL */}
         {activeTab === 'social' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs">
-            <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2"><Share2 size={16} className="text-blue-400" /> Social Media Auto-Poster</h3>
-            <textarea rows={3} defaultValue="💥 Ishwari Mobile कडून नवीन 5G स्मार्टफोन्सवर २०% सूट!" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none" />
-            <button onClick={() => alert('पोस्ट झाली!')} className="py-2 px-6 bg-blue-600 text-white font-bold rounded-xl">Publish Post</button>
+          <div className="space-y-6 text-xs">
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+              <h3 className="font-bold text-white uppercase text-xs flex items-center gap-2"><Share2 size={16} className="text-blue-400" /> Social Media Auto-Poster</h3>
+              <textarea rows={3} defaultValue="💥 Ishwari Mobile कडून नवीन 5G स्मार्टफोन्सवर २०% सूट!" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none" />
+              <button onClick={() => alert('पोस्ट झाली!')} className="py-2 px-6 bg-blue-600 text-white font-bold rounded-xl">Publish Post</button>
+            </div>
           </div>
         )}
 
         {/* 15. SETTINGS */}
         {activeTab === 'settings' && (
           <div className="max-w-4xl mx-auto w-full space-y-6 text-xs">
-            <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2"><Settings size={16} className="text-blue-400" /> Meta API Settings</h3>
+            <h3 className="font-bold text-white uppercase text-xs flex items-center gap-2"><Settings size={16} className="text-blue-400" /> Meta API Settings</h3>
             <form onSubmit={(e) => { e.preventDefault(); alert('सेव्ह झाले!'); }} className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4">
               <div><label className="text-slate-400 block mb-1">WhatsApp Phone Number ID</label><input type="text" defaultValue="1230282856843762" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
               <button type="submit" className="py-2.5 px-6 bg-blue-600 text-white font-bold rounded-xl">Save Settings</button>
@@ -1549,7 +1572,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size/></button>
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
