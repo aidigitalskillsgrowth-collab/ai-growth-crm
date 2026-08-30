@@ -63,6 +63,20 @@ interface Transaction {
   date: string;
 }
 
+// Razorpay SDK Script Loader
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<string>('payments');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
@@ -112,7 +126,7 @@ export default function DashboardPage() {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const stages = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
 
-  // Payment Setup States (Enhanced Multi-Gateway & Dynamic QR)
+  // Payment Setup States
   const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
   const [businessNameUpi, setBusinessNameUpi] = useState<string>('Ishwari Mobile & CSC');
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
@@ -130,10 +144,10 @@ export default function DashboardPage() {
     paytmMerchantId: 'MID_ISHWARI982347'
   });
 
-  // Recent Transactions History State
+  // Recent Transactions History
   const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Dynamic UPI QR', status: 'Success', date: 'आज, 12:45 PM' },
-    { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Razorpay PG', status: 'Success', date: 'आज, 11:10 AM' },
+    { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' },
+    { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Dynamic UPI QR', status: 'Success', date: 'आज, 11:10 AM' },
     { id: 'TXN-98212', customerName: 'ज्ञानेश्वर माने', phone: '9673112233', amount: 35000, gateway: 'Cashfree Webhook', status: 'Success', date: 'काल, 05:20 PM' },
     { id: 'TXN-98211', customerName: 'अमित देशमुख', phone: '9822334455', amount: 4500, gateway: 'WhatsApp UPI Link', status: 'Pending', date: 'काल, 03:40 PM' },
   ]);
@@ -143,6 +157,54 @@ export default function DashboardPage() {
   const upiIntent = `upi://pay?pa=${upiId.trim()}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
   const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
+
+  // Handle Razorpay Checkout Modal
+  const handleRazorpayPay = async () => {
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded) {
+      alert('Razorpay गेटवे लोड करण्यात अडचण आली. कृपया इंटरनेट कनेक्शन तपासा.');
+      return;
+    }
+
+    const options = {
+      key: gateways.razorpayKey || 'rzp_test_51MzAbcDefGhiJkl',
+      amount: Math.round(Number(amount || 1) * 100),
+      currency: 'INR',
+      name: businessNameUpi,
+      description: paymentDesc,
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&auto=format&fit=crop&q=80',
+      handler: function (response: any) {
+        const pId = response.razorpay_payment_id || `PAY-${Date.now().toString().slice(-6)}`;
+        alert(`🎉 Razorpay द्वारे ₹${amount} चे पेमेंट यशस्वी झाले!\nPayment ID: ${pId}`);
+        setTransactions(prev => [
+          {
+            id: pId,
+            customerName: customerName,
+            phone: customerPhone,
+            amount: Number(amount),
+            gateway: 'Razorpay Live',
+            status: 'Success',
+            date: 'आत्ताच'
+          },
+          ...prev
+        ]);
+      },
+      prefill: {
+        name: customerName,
+        contact: customerPhone,
+      },
+      theme: {
+        color: '#2563eb'
+      }
+    };
+
+    try {
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      alert('Razorpay Checkout उघडताना त्रुटी आली. कृपया API Key तपासा.');
+    }
+  };
 
   // Handle WhatsApp Bill Send
   const handleSendWhatsAppBill = () => {
@@ -530,37 +592,27 @@ export default function DashboardPage() {
         {/* ================= 2. GROWTH LEADS ================= */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-black text-white flex items-center gap-2">
-                    <Users size={20} className="text-blue-400" /> Growth Leads Directory ({filteredLeads.length} Leads)
-                  </h2>
-                  <p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन.</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg">
-                    <Plus size={15} /> + Add New Lead
-                  </button>
-                  <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5">
-                    <Upload size={14} /> Import CSV (Upload)
-                  </button>
-                  <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5">
-                    <Download size={14} /> Export CSV (Download)
-                  </button>
-                </div>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl flex flex-wrap justify-between items-center">
+              <div>
+                <h2 className="text-lg font-black text-white flex items-center gap-2"><Users size={20} className="text-blue-400" /> Growth Leads Directory ({filteredLeads.length} Leads)</h2>
+                <p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"><Plus size={15} /> + Add Lead</button>
+                <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5"><Upload size={14} /> Import CSV</button>
+                <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5"><Download size={14} /> Export CSV</button>
               </div>
             </div>
 
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[850px] text-xs">
-                  <thead className="bg-[#080c18] text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
                     <tr>
                       <th className="p-4">Customer Details</th>
                       <th className="p-4">Service Required</th>
                       <th className="p-4">Deal Value</th>
-                      <th className="p-4">Pipeline Status</th>
+                      <th className="p-4">Status</th>
                       <th className="p-4 text-center">Instant Actions</th>
                       <th className="p-4 text-center">Manage</th>
                     </tr>
@@ -639,39 +691,26 @@ export default function DashboardPage() {
         {/* ================= 4. WEBSITE & FUNNELS ================= */}
         {activeTab === 'website' && (
           <div className="space-y-6">
-            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 lg:p-6 space-y-4 shadow-2xl">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-black">
-                    <Sparkles size={20} />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2>
-                    <p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन १ सेकंदात पूर्ण वेबसाईट बनवा.</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md">
-                    <Eye size={14} /> Full Screen Live Preview
-                  </button>
-                  <div className="flex items-center gap-1.5 bg-[#080b12] p-1.5 rounded-2xl border border-slate-800 text-xs">
-                    <button onClick={() => setDeviceView('Desktop')} className={`px-3 py-1 rounded-xl font-bold ${deviceView === 'Desktop' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>Desktop</button>
-                    <button onClick={() => setDeviceView('Mobile')} className={`px-3 py-1 rounded-xl font-bold ${deviceView === 'Mobile' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>Mobile</button>
-                  </div>
-                </div>
+            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 space-y-4 shadow-2xl flex flex-wrap justify-between items-center">
+              <div>
+                <h2 className="text-base font-black text-white flex items-center gap-2"><Sparkles size={18} className="text-blue-400" /> AI Voice & Prompt 5-Star Website Generator</h2>
+                <p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन १ सेकंदात पूर्ण वेबसाईट बनवा.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Live Preview</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ================= 5. PAYMENT GATEWAYS (ALL MULTI-GATEWAY & LIVE DYNAMIC QR) ================= */}
+        {/* ================= 5. PAYMENT GATEWAYS (RAZORPAY LIVE INTEGRATION + DYNAMIC QR) ================= */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             
-            {/* Top Grid: Dynamic UPI Generator & Live QR Code */}
+            {/* Top Grid: Dynamic UPI & Razorpay Checkout Generator */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* Left Column: UPI & Payment Request Form */}
+              {/* Left Column: Form with Razorpay Pay, WhatsApp Bill & Print */}
               <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2.5">
@@ -680,7 +719,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & PAYMENT REQUEST GENERATOR</h3>
-                      <p className="text-[11px] text-slate-400">Google Pay, PhonePe, Paytm, BHIM द्वारे ०% कमिशनने पेमेंट स्वीकारा.</p>
+                      <p className="text-[11px] text-slate-400">Google Pay, PhonePe, Paytm, BHIM किंवा थेट Razorpay द्वारे पेमेंट स्वीकारा.</p>
                     </div>
                   </div>
                   <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
@@ -751,19 +790,28 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* 1-Click Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* 1-Click Action Buttons with Live Razorpay Pay Button */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                  <button 
+                    type="button" 
+                    onClick={handleRazorpayPay}
+                    className="py-3 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/30 transition text-xs cursor-pointer"
+                  >
+                    <CreditCard size={15} /> Pay with Razorpay
+                  </button>
+
                   <button 
                     type="button" 
                     onClick={handleSendWhatsAppBill}
-                    className="py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition text-xs cursor-pointer"
+                    className="py-3 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition text-xs cursor-pointer"
                   >
-                    <Send size={15} /> Send Bill on WhatsApp
+                    <Send size={15} /> Send WhatsApp Bill
                   </button>
+
                   <button 
                     type="button" 
                     onClick={handlePrintReceipt}
-                    className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition text-xs cursor-pointer"
+                    className="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5 transition text-xs cursor-pointer"
                   >
                     <Printer size={15} /> Print Receipt
                   </button>
@@ -774,7 +822,7 @@ export default function DashboardPage() {
               <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-xl flex flex-col items-center justify-between">
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Live Instant Payment QR</span>
-                  <p className="text-xs text-slate-300">कोणत्याही UPI ॲपने स्कॅन करून लगेच पैसे भरा</p>
+                  <p className="text-xs text-slate-300">GPay, PhonePe, Paytm ने स्कॅन करून लगेच पैसे भरा</p>
                 </div>
 
                 {/* LIVE DYNAMIC QR IMAGE */}
@@ -830,7 +878,7 @@ export default function DashboardPage() {
                 <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white text-xs flex items-center gap-1.5"><Landmark size={14} className="text-blue-400" /> Razorpay Live Gateway</span>
-                    <span className="text-[10px] text-emerald-400 font-bold">Active</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">Active & Integrated</span>
                   </div>
                   <p className="text-[11px] text-slate-400">Credit Card, Debit Card, NetBanking & No-Cost EMI Support</p>
                   <div className="flex gap-2">
@@ -1086,57 +1134,23 @@ export default function DashboardPage() {
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-400 block mb-1 font-bold">ग्राहकाचे नाव *</label>
+                    <label className="text-slate-400 block mb-1 font-bold">नाव *</label>
                     <input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1 font-bold">मोबाईल नंबर *</label>
+                    <label className="text-slate-400 block mb-1 font-bold">मोबाईल *</label>
                     <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
+                    <label className="text-slate-400 block mb-1 font-bold">सर्व्हिस</label>
                     <input type="text" value={leadForm.service} onChange={(e) => setLeadForm({ ...leadForm, service: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                   </div>
                   <div>
                     <label className="text-slate-400 block mb-1 font-bold">अपेक्षित रक्कम (₹)</label>
                     <input type="number" value={leadForm.deal_value} onChange={(e) => setLeadForm({ ...leadForm, deal_value: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold outline-none" />
                   </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="text-slate-400 block mb-1 font-bold">Status</label>
-                    <select value={leadForm.status} onChange={(e) => setLeadForm({ ...leadForm, status: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
-                      <option value="New Lead">New Lead</option>
-                      <option value="Contacted">Contacted</option>
-                      <option value="Payment Sent">Payment Sent</option>
-                      <option value="Won">Won</option>
-                      <option value="Lost">Lost</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-slate-400 block mb-1 font-bold">Source</label>
-                    <select value={leadForm.source} onChange={(e) => setLeadForm({ ...leadForm, source: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
-                      <option value="Website">Website</option>
-                      <option value="Meta Lead Ad">Meta Lead Ad</option>
-                      <option value="WhatsApp Direct">WhatsApp Direct</option>
-                      <option value="Referral">Referral</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-slate-400 block mb-1 font-bold">Sentiment</label>
-                    <select value={leadForm.sentiment} onChange={(e) => setLeadForm({ ...leadForm, sentiment: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
-                      <option value="Highly Interested">Highly Interested</option>
-                      <option value="Interested">Interested</option>
-                      <option value="Follow-up">Follow-up</option>
-                      <option value="Positive">Positive</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-slate-400 block mb-1 font-bold">फॉलो-अप नोट्स</label>
-                  <textarea rows={2} value={leadForm.notes} onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" />
                 </div>
                 <div className="flex gap-2.5 pt-2">
                   <button type="button" onClick={() => setIsLeadModalOpen(false)} className="flex-1 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl">रद्द करा</button>
