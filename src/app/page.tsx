@@ -79,7 +79,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('payments');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -234,202 +234,6 @@ export default function DashboardPage() {
         { name: 'ज्ञानेश्वर माने', avatar: avatars.male1, location: 'सांगली', review: 'रूट कॅनल करताना अजिबात त्रास झाला नाही. डॉक्टरांचे बोलणे खूप दिलासा देणारे आहे.', rating: 5 },
         { name: 'सुप्रिया भोसले', avatar: avatars.female2, location: 'मिरज', review: 'सांधेदुखीवर इथे खूप चांगला गुण आला. अत्यंत स्वच्छ रुग्णालय.', rating: 5 }
       ]
-    },
-    'Real Estate & Property': {
-      id: 'Real Estate & Property',
-      businessName: 'रॉयल हेरिटेज लक्झरी होम्स & व्हिलाज',
-      tagline: 'प्रिमियम २ व ३ BHK लक्झरी फ्लॅट्स आणि कमर्शियल दुकाने',
-      headline: 'तुमच्या स्वप्नातील लक्झरी घर - मोफत क्लबहाऊस आणि ०% ब्रोकरेज!',
-      subheadline: 'प्राइम लोकेशन, २५+ जागतिक दर्जाच्या सोयीसुविधा आणि बँकांकडून ९०% पर्यंत होम लोन उपलब्ध.',
-      heroImage: industryImages.property,
-      phone: '9822334455',
-      email: 'sales@royalheritagehomes.com',
-      address: 'हायवे टच, ग्रीन व्हॅली, सांगली',
-      timing: 'सकाळी ९:०० ते संध्याकाळी ७:००',
-      primaryCta: 'मोफत साईट व्हिजिट बुक करा',
-      badge: '★ RERA रजिस्टर्ड प्रोजेक्ट',
-      services: [
-        { title: '२ BHK प्रिमियम अपार्टमेंट', desc: 'विशाल बाल्कनी, मॉड्युलर किचन आणि सुरक्षित कव्हर्ड कार पार्किंग.', price: '₹३८ लाख पासून' },
-        { title: '३ BHK लक्झरी पेंटहाऊस', desc: 'प्रायव्हेट टेरेस गार्डन, मास्टर बेडरूम आणि लाइफटाइम क्लब अ‍ॅक्सेस.', price: '₹५८ लाख पासून' },
-        { title: 'मेन रोड टच कमर्शियल शॉप्स', desc: 'भरभराटीच्या बिझनेससाठी मोक्याच्या ठिकाणी दुकाने आणि ऑफिसेस.', price: '₹२५ लाख पासून' }
-      ],
-      stats: [
-        { label: 'हँडओव्हर फ्लॅट्स', value: '६५०+' },
-        { label: 'रेरा नोंदणीकृत', value: '१००%' },
-        { label: 'बँक लोन सुविधा', value: '९०%' }
-      ],
-      testimonials: [
-        { name: 'विकास मोरे', avatar: avatars.male2, location: 'पुणे', review: 'बांधकामाची गुणवत्ता अप्रतिम आहे आणि वेळेआधी पझेशन मिळाले. १ रुपयाही ब्रोकरेज घेतले नाही.', rating: 5 },
-        { name: 'स्नेहल पवार', avatar: avatars.female1, location: 'सांगली', review: 'साईट व्हिजिटपासून ते लोन मंजूर होईपर्यंत सर्व मदत टीमने केली.', rating: 5 }
-      ]
-    },
-    'Gym & Fitness': {
-      id: 'Gym & Fitness',
-      businessName: 'पॉवरफिट युनिव्हर्सल जिम & क्रॉसफिट स्टुडिओ',
-      tagline: 'बॉडी ट्रान्सफॉर्मेशन, स्ट्रेंथ आणि पर्सनल फिटनेस क्लब',
-      headline: '९० दिवसांत बॉडी ट्रान्सफॉर्मेशन करा - सर्टिफाइड फिटनेस कोचेसकडून!',
-      subheadline: 'आधुनिक इम्पोर्टेड उपकरणे, स्टीम बाथ, न्यूट्रिशन डाएट प्लॅन आणि १:१ पर्सनल ट्रेनिंग उपलब्ध.',
-      heroImage: industryImages.gym,
-      phone: '9890123456',
-      email: 'fit@powerfitgym.com',
-      address: 'जिमखाना रोड, सांगली',
-      timing: 'सकाळी ५:३० ते रात्री १०:००',
-      primaryCta: '३ दिवस मोफत ट्रायल पास मिळवा',
-      badge: '★ सर्टिफाइड फिटनेस ट्रेनर्स',
-      services: [
-        { title: 'वेट लॉस आणि फॅट बर्निंग प्रोग्रॅम', desc: 'कार्डिओ, झुम्बा आणि स्पेशल न्यूट्रिशन डाएट गायडन्स.', price: '₹१,२९९ / महिना' },
-        { title: 'मसल बिल्डिंग & हेवी स्ट्रेंथ', desc: 'इम्पोर्टेड मशिन्स, हेवी वेट्स आणि व्हे प्रोटीन कन्सल्टन्सी.', price: '₹१,४९९ / महिना' },
-        { title: '१:१ पर्सनल कोचिंग बॅच', desc: 'प्रमाणित कोचकडून वैयक्तिक लक्ष आणि १००% गॅरंटीड रिझल्ट्स.', price: '₹३,९९९ / महिना' }
-      ],
-      stats: [
-        { label: 'ट्रान्सफॉर्मेशन्स', value: '३,०००+' },
-        { label: 'प्रमाणित ट्रेनर्स', value: '१२+' },
-        { label: 'गुगल रेटिंग', value: '५.० ★' }
-      ],
-      testimonials: [
-        { name: 'रोहन शिंदे', avatar: avatars.male1, location: 'सांगली', review: 'मी ३ महिन्यांत १२ किलो वजन कमी केले. ट्रेनर्स खूप सपोर्टिव्ह आणि शिस्तबद्ध आहेत.', rating: 5 },
-        { name: 'दिनेश गायकवाड', avatar: avatars.male2, location: 'मिरज', review: 'जिममधील वातावरण आणि उपकरणे खूपच आंतरराष्ट्रीय दर्जाची आहेत.', rating: 5 }
-      ]
-    },
-    'Coaching Academy': {
-      id: 'Coaching Academy',
-      businessName: 'अ‍ॅपेक्स AI & डिजिटल करिअर अकॅडमी',
-      tagline: '१००% प्रॅक्टिकल डिजिटल मार्केटिंग, AI स्किल्स आणि कोडिंग',
-      headline: 'AI आणि डिजिटल मार्केटिंग शिका आणि घरबसल्या दरमहा ₹५०,०००+ कमवा!',
-      subheadline: 'लाइव्ह प्रोजेक्ट्सवर प्रॅक्टिकल ट्रेनिंग, १००% जॉब प्लेसमेंट असिस्टन्स आणि मोफत प्रिमियम सॉफ्टवेअर टूल्स.',
-      heroImage: industryImages.academy,
-      phone: '9860127890',
-      email: 'admissions@apexacademy.com',
-      address: 'विश्रामबाग, कॉलेज कॉर्नर, सांगली',
-      timing: 'सकाळी ८:०० ते संध्याकाळी ८:००',
-      primaryCta: 'मोफत डेमो क्लास बुक करा',
-      badge: '★ सरकारी मान्यताप्राप्त संस्था',
-      services: [
-        { title: 'Meta Ads & Google Ads मास्टरक्लास', desc: 'स्थानिक व्यवसायांसाठी जाहिराती चालवून दररोज लीड्स कशा मिळवायच्या ते शिका.', price: '₹४,९९९' },
-        { title: 'ChatGPT, Canva & AI टूल्स कोर्स', desc: 'सर्व आधुनिक AI टूल्सचा वापर करून बिझनेस ऑटोमेशनचे प्रॅक्टिकल शिक्षण.', price: '₹३,४९९' },
-        { title: '३ महिन्यांचा करिअर मास्टर डिप्लोमा', desc: '१००% जॉब आणि फ्रीलान्सिंग क्लायंट मिळवण्याच्या संपूर्ण मार्गदर्शनासह.', price: '₹९,९९९' }
-      ],
-      stats: [
-        { label: 'प्रशिक्षित विद्यार्थी', value: '२,२००+' },
-        { label: 'जॉब प्लेसमेंट दर', value: '९६%' },
-        { label: 'प्रॅक्टिकल प्रोजेक्ट्स', value: '५०+' }
-      ],
-      testimonials: [
-        { name: 'पूजा कुलकर्णी', avatar: avatars.female1, location: 'सांगली', review: 'कोर्स संपताच मला ₹३०,००० ची डिजिटल मार्केटिंग जॉब मिळाली. अत्यंत सोप्या भाषेत शिकवले जाते.', rating: 5 },
-        { name: 'सुप्रिया भोसले', avatar: avatars.female2, location: 'मिरज', review: 'घरी बसून फ्रीलान्सिंग कसे करायचे याचे अतिशय मोलाचे मार्गदर्शन मिळाले.', rating: 5 }
-      ]
-    },
-    'Restaurant & Cafe': {
-      id: 'Restaurant & Cafe',
-      businessName: 'हॉटेल शिवनेरी & फॅमिली रेस्टॉरंट',
-      tagline: 'अस्सल महाराष्ट्रीयन घरगुती चव, स्पेशल थाळी आणि बिर्याणी',
-      headline: 'अस्सल गावरान चव आणि मराठमोळे आदरातिथ्य - हॉटेल शिवनेरी!',
-      subheadline: 'स्पेशल मटण/चिकन थाळी, तांबडा-पांढरा रस्सा, अस्सल शाकाहारी जेवण आणि कौटुंबिक बैठक व्यवस्था.',
-      heroImage: industryImages.restaurant,
-      phone: '9730445566',
-      email: 'order@hotelshivneri.com',
-      address: 'हायवे कॉर्नर, मिरज रोड, सांगली',
-      timing: 'सकाळी ११:०० ते रात्री ११:००',
-      primaryCta: 'तुमचे टेबल / ऑर्डर बुक करा',
-      badge: '★ FSSAI प्रमाणित स्वच्छता',
-      services: [
-        { title: 'स्पेशल शिवनेरी मटण थाळी', desc: 'तांबडा-पांढरा रस्सा, चुलीवरची बाजरीची भाकरी, मटण सुक्का आणि इंद्रायणी भात.', price: '₹३५०' },
-        { title: 'महाराजा स्पेशल व्हेज थाळी', desc: '२ स्पेशल भाज्या, गरमागरम चपाती, डाळ तडका, गोड शिरा आणि पापड.', price: '₹२२०' },
-        { title: 'कौटुंबिक बर्थडे & पार्टी हॉल', desc: '५० ते १५० लोकांसाठी स्पेशल वातानुकूलित हॉल आणि केटरिंग व्यवस्था.', price: 'स्पेशल डिस्काउंट' }
-      ],
-      stats: [
-        { label: 'आनंदी खवय्ये', value: '६०,०००+' },
-        { label: 'स्पेशल डिशेस', value: '४५+' },
-        { label: 'चवीची गॅरंटी', value: '१००%' }
-      ],
-      testimonials: [
-        { name: 'अनिल काळे', avatar: avatars.male2, location: 'सांगली', review: 'तांबडा पांढरा रस्सा आणि बाजरीची भाकरी एक नंबर होती! फॅमिलीसाठी सर्वोत्तम हॉटेल.', rating: 5 },
-        { name: 'किरण थोरात', avatar: avatars.male1, location: 'मिरज', review: 'सर्व्हिस खूप तत्पर आहे आणि जेवणाची चव अगदी घरगुती आहे.', rating: 5 }
-      ]
-    },
-    'Auto Garage': {
-      id: 'Auto Garage',
-      businessName: 'स्पीड ऑटोकेअर & मल्टीब्रँड कार सर्व्हिस',
-      tagline: 'कम्प्लिट कार वॉश, डेंटिंग, पेंटिंग, AC आणि इंजिन रिपेअरिंग',
-      headline: 'तुमच्या गाडीची विश्वासार्ह आणि आधुनिक सर्व्हिसिंग - मोफत डोअरस्टेप पिकअप!',
-      subheadline: 'ओरिजिनल स्पेअर पार्ट्स, कम्प्युटराइज्ड स्कॅनिंग, कॅशलेस इन्शुरन्स क्लेम आणि अनुभवी मेकॅनिक्स.',
-      heroImage: industryImages.garage,
-      phone: '9823998877',
-      email: 'service@speedautocare.com',
-      address: 'एमआयडीसी, कुपवाड रोड, सांगली',
-      timing: 'सकाळी ९:०० ते रात्री ८:०० (रविवार सुरू)',
-      primaryCta: 'सर्व्हिसिंग स्लॉट बुक करा',
-      badge: '★ ओरिजिनल OEM स्पेअर पार्ट्स',
-      services: [
-        { title: 'कम्प्लिट जनरल सर्व्हिसिंग', desc: 'सिंथेटिक इंजिन ऑईल चेंज, ऑईल फिल्टर, ब्रेक क्लिनिंग आणि ४०-पॉईंट चेकअप.', price: '₹१,४९९ पासून' },
-        { title: 'फोम वॉश & इंटिरियर डीप क्लीन', desc: 'हाय-प्रेशर अंडरबॉडी वॉश, व्हॅक्यूम क्लीनिंग आणि डॅशबोर्ड पॉलिशिंग.', price: '₹४९९ पासून' },
-        { title: 'कम्प्युटर डेंटिंग & पेंटिंग', desc: 'कम्प्युटराइज्ड कलर मॅचिंग, स्क्रॅच रिमूव्हल आणि कॅशलेस इन्शुरन्स काम.', price: 'बेस्ट प्राईस' }
-      ],
-      stats: [
-        { label: 'गाड्यांची सर्व्हिसिंग', value: '६,०००+' },
-        { label: 'अनुभवी मेकॅनिक', value: '१५+' },
-        { label: 'समाधानी ग्राहक', value: '९९%' }
-      ],
-      testimonials: [
-        { name: 'महेश जाधव', avatar: avatars.male1, location: 'सांगली', review: 'माझ्या कारचा आवाज एका तासात शोधून गाडी एकदम स्मूथ करून दिली. वाजवी दर आहेत.', rating: 5 },
-        { name: 'राहुल सावंत', avatar: avatars.male2, location: 'कुपवाड', review: 'फोम वॉशिंग आणि इंटिरियर क्लिनिंग इतकी छान केली की गाडी शोरूमसारखी नवीन वाटत आहे.', rating: 5 }
-      ]
-    },
-    'Beauty Parlour': {
-      id: 'Beauty Parlour',
-      businessName: 'रुपम ब्रायडल & ब्युटी मेकओव्हर स्टुडिओ',
-      tagline: 'प्रोफेसनल ब्रायडल मेकअप, हेअर स्पा आणि स्किन केअर ट्रीटमेंट्स',
-      headline: 'तुमच्या खास दिवशी मिळवा स्वप्नवत आणि आकर्षक लूक - प्रिमियम ब्रायडल मेकअप!',
-      subheadline: 'HD आणि एअरब्रश मेकअप, प्री-ब्रायडल पॅकेजेस, हेअर स्मूथनिंग आणि इंटरनॅशनल ब्रँड्सची स्किन केअर.',
-      heroImage: industryImages.beauty,
-      phone: '9765432109',
-      email: 'bridal@rupambeauty.com',
-      address: 'गांधी चौक, सांगली',
-      timing: 'सकाळी १०:०० ते संध्याकाळी ८:००',
-      primaryCta: 'ब्रायडल स्लॉट बुक करा',
-      badge: '★ इंटरनॅशनल प्रमाणित आर्टिस्ट्स',
-      services: [
-        { title: 'HD & एअरब्रश ब्रायडल मेकअप', desc: 'वॉटरप्रूफ मेकअप, हेअरस्टाईल, साडी ड्रेपिंग आणि ज्वेलरी सेटिंगसह परिपूर्ण लूक.', price: '₹६,९९९ पासून' },
-        { title: 'स्किन ब्राईटनिंग & ग्लो फेशियल', desc: 'इंटरनॅशनल ब्रँड्सचे डी-टॅन, हायड्रा फेशियल आणि इन्स्टंट ग्लो थेरपी.', price: '₹८९९ पासून' },
-        { title: 'केराटिन & हेअर स्मूथनिंग', desc: 'सिल्की, चमकदार आणि मजबूत केसांसाठी प्रिमियम हेअर स्पा ट्रीटमेंट.', price: '₹१,९९९ पासून' }
-      ],
-      stats: [
-        { label: 'नवरींचे मेकओव्हर', value: '१,५००+' },
-        { label: 'प्रमाणित आर्टिस्ट्स', value: '८+' },
-        { label: '५-स्टार रेटिंग', value: '१००%' }
-      ],
-      testimonials: [
-        { name: 'स्नेहल पवार', avatar: avatars.female1, location: 'सांगली', review: 'माझ्या लग्नात सर्वांनी मेकअपचे खूप कौतुक केले. खूप नॅचरल लूक दिला होता!', rating: 5 },
-        { name: 'प्रियांका शिंदे', avatar: avatars.female2, location: 'मिरज', review: 'सर्व्हिस खूप तत्पर आहे आणि प्रॉडक्ट्स १००% ओरिजिनल वापरतात.', rating: 5 }
-      ]
-    },
-    'Digital Agency & AI': {
-      id: 'Digital Agency & AI',
-      businessName: 'महाग्रोथ मेटा ॲड्स & AI सोल्युशन्स',
-      tagline: 'स्थानिक व्यवसायांची विक्री Meta Lead Ads द्वारे १० पटीने वाढवा',
-      headline: 'तुमच्या बिझनेससाठी दररोज ५०+ थेट ग्राहक आणि कॉल्स मिळवा - १००% गॅरंटी!',
-      subheadline: 'Facebook & Instagram हाय-कन्व्हर्टिंग लीड्स ॲड्स, WhatsApp ऑटोमेशन बॉट आणि १ दिवसात तयार होणारी ५-स्टार वेबसाइट.',
-      heroImage: industryImages.agency,
-      phone: '9876543210',
-      email: 'growth@mahagrowth.in',
-      address: 'आयटी पार्क, कॉलेज रोड, सांगली',
-      timing: 'सकाळी ९:०० ते संध्याकाळी ७:००',
-      primaryCta: 'मोफत मार्केटिंग ऑडिट मिळवा',
-      badge: '★ Meta अधिकृत मीडिया पार्टनर',
-      services: [
-        { title: 'Meta Lead Ads मोहीम', desc: 'तुमच्या परिसरातील ग्राहकांसाठी टार्गेटेड जाहिराती आणि थेट फोन कॉल्स.', price: '₹४,९९९ / महिना' },
-        { title: 'WhatsApp AI ऑटोमेशन बॉट', desc: '२४ तास ग्राहकांना आपोआप उत्तरे देणारा आणि पेमेंट लिंक पाठवणारा बॉट.', price: '₹२,९९९' },
-        { title: 'हाय-कन्व्हर्टिंग लँडिंग पेज', desc: 'मोबाईल-फ्रेंडली, जलद उघडणारी आणि थेट WhatsApp जोडलेली आधुनिक वेबसाइट.', price: '₹३,४९९' }
-      ],
-      stats: [
-        { label: 'वाढवलेले व्यवसाय', value: '१८०+' },
-        { label: 'सरासरी ROI', value: '१०X' },
-        { label: 'व्युवसाय महसूल वाढ', value: '३००%' }
-      ],
-      testimonials: [
-        { name: 'ईश्वरी मोबाईल', avatar: avatars.male1, location: 'सांगली', review: 'महाग्रोथने मेटा ॲड्स सुरू केल्यावर आमच्या दुकानात दररोज नवीन ग्राहकांची गर्दी होत आहे!', rating: 5 },
-        { name: 'संजीवनी क्लिनिक', avatar: avatars.female1, location: 'मिरज', review: 'दररोज १०+ नवीन रुग्णांच्या अपॉइंटमेंट्स आपोआप बुक होत आहेत. अप्रतिम निकाल!', rating: 5 }
-      ]
     }
   };
 
@@ -576,7 +380,7 @@ export default function DashboardPage() {
     }
   };
 
-  // ================= 8. TEMPLATES GENERATOR STATES =================
+  // Templates Generator States
   const [customTemplateName, setCustomTemplateName] = useState('');
   const [customTemplateText, setCustomTemplateText] = useState('');
   const [savedTemplates, setSavedTemplates] = useState([
@@ -597,7 +401,7 @@ export default function DashboardPage() {
     alert('नवीन मेसेज टेम्पलेट यशस्वीरीत्या तयार झाले!');
   };
 
-  // ================= 9. WORKFLOW BUILDER GENERATOR STATES =================
+  // Workflow Builder States
   const [workflowTrigger, setWorkflowTrigger] = useState('New Inbound Lead (Website / Meta Ads)');
   const [workflowAction, setWorkflowAction] = useState('Send Welcome WhatsApp + Dynamic QR');
   const [customWorkflows, setCustomWorkflows] = useState([
@@ -611,13 +415,13 @@ export default function DashboardPage() {
     alert('नवीन ऑटोमेशन वर्कफ्लो यशस्वीरीत्या तयार झाला!');
   };
 
-  // ================= 7. META AD ACCOUNT LOGIN STATE =================
+  // Meta Ad Account Login State
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount, setMetaAdAccount] = useState('act_982347892347');
   const [adBudget, setAdBudget] = useState(500);
   const [targetLocation, setTargetLocation] = useState('सांगली व मिरज (१० किमी परिसर)');
 
-  // ================= AI CHATBOT STATES =================
+  // AI Chatbot States
   const [botConfig, setBotConfig] = useState({
     name: 'Ishwari AI Assistant',
     personality: 'Professional & Friendly',
@@ -651,7 +455,7 @@ export default function DashboardPage() {
     }, 400);
   };
 
-  // ================= AI INBOX / WHATSAPP STATES =================
+  // AI Inbox / WhatsApp States
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
   const [inboxText, setInboxText] = useState<string>('');
   const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({
@@ -883,7 +687,8 @@ export default function DashboardPage() {
                activeTab === 'templates' ? 'Templates & Messenger' :
                activeTab === 'workflow' ? 'AI Workflow Builder' :
                activeTab === 'inbox' ? 'AI Inbox & WhatsApp Suite' :
-               activeTab === 'ivr' ? 'AI Sales & Outbound IVR' : activeTab.replace('_', ' ')}
+               activeTab === 'ivr' ? 'AI Sales & Outbound IVR' :
+               activeTab === 'calendar' ? 'Smart Calendar & Bookings' : activeTab.replace('_', ' ')}
             </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
@@ -896,7 +701,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* 1. GROWTH DASHBOARD (FULLY RESTORED WITH CHARTS & FEED) */}
+        {/* 1. GROWTH DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
@@ -976,24 +781,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-
-            {/* AI Activity Feed & Follow-ups */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2"><Sparkles size={14} className="text-blue-400" /> Real-time AI Agent Activity</h3>
-                <div className="space-y-2 text-xs">
-                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between"><span className="text-slate-300">🤖 AI Bot ने <b>रविराज पाटील</b> सोबत WhatsApp संभाषण पूर्ण केले.</span><span className="text-[10px] text-slate-500">2 min ago</span></div>
-                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between"><span className="text-slate-300">📞 AI Voice Agent ने <b>सचिन कांबळे</b> ला कॉल करून अपॉइंटमेंट बुक केली.</span><span className="text-[10px] text-slate-500">12 min ago</span></div>
-                </div>
-              </div>
-
-              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2"><Calendar size={14} className="text-amber-400" /> Today's Scheduled Follow-ups</h3>
-                <div className="space-y-2 text-xs">
-                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between items-center"><div><p className="font-bold text-white">अमित देशमुख (₹4,500)</p><span className="text-[10px] text-slate-400">स्क्रीन रिपेअर पेमेंट फॉलो-अप</span></div><button onClick={() => alert('रिमाइंडर पाठवला!')} className="px-2.5 py-1 bg-amber-600/20 text-amber-400 rounded-lg font-bold text-[10px]">Send Reminder</button></div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1041,7 +828,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 3. PIPELINE KANBAN (CSV IMPORT/EXPORT RESTORED) */}
+        {/* 3. PIPELINE KANBAN */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -1073,7 +860,7 @@ export default function DashboardPage() {
         {/* 4. WEBSITE & FUNNELS */}
         {activeTab === 'website' && (
           <div className="space-y-6">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 space-y-4 shadow-2xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
@@ -1129,47 +916,162 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 5. PAYMENT GATEWAYS */}
+        {/* 5. PAYMENT GATEWAYS (FULLY RESTORED & FUNCTIONAL) */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Left Column: Form with Razorpay Pay, WhatsApp Bill & Print */}
               <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & RAZORPAY CHECKOUT</h3>
-                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">Live 0% Commission</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                      <QrCode size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & RAZORPAY CHECKOUT</h3>
+                      <p className="text-[11px] text-slate-400">Google Pay, PhonePe, Paytm, BHIM किंवा थेट Razorpay द्वारे पेमेंट स्वीकारा.</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
+                    Live 0% Commission
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div><label className="text-slate-300 block mb-1 font-bold">UPI ID *</label><input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
-                  <div><label className="text-slate-300 block mb-1 font-bold">Business Name</label><input type="text" value={businessNameUpi} onChange={(e) => setBusinessNameUpi(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Your Working UPI ID *</label>
+                    <input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Business Name on UPI</label>
+                    <input type="text" value={businessNameUpi} onChange={(e) => setBusinessNameUpi(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div><label className="text-slate-300 block mb-1 font-bold">Customer Name</label><input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                  <div><label className="text-slate-300 block mb-1 font-bold">Customer WhatsApp</label><input type="text" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Customer Full Name</label>
+                    <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Customer WhatsApp Number</label>
+                    <input type="text" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div><label className="text-slate-300 block mb-1 font-bold">Description</label><input type="text" value={paymentDesc} onChange={(e) => setPaymentDesc(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                  <div><label className="text-slate-300 block mb-1 font-bold">Amount (₹) *</label><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-black text-base outline-none" /></div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Service / Product Description</label>
+                    <input type="text" value={paymentDesc} onChange={(e) => setPaymentDesc(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Amount to Collect (₹) *</label>
+                    <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-black text-base outline-none focus:border-emerald-500" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-                  <button type="button" onClick={handleRazorpayPay} className="py-3 px-3 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg"><CreditCard size={15} /> Pay with Razorpay</button>
-                  <button type="button" onClick={handleSendWhatsAppBill} className="py-3 px-3 bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg"><Send size={15} /> Send WhatsApp Bill</button>
-                  <button type="button" onClick={handlePrintReceipt} className="py-3 px-3 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5"><Printer size={15} /> Print Receipt</button>
+                  <button type="button" onClick={handleRazorpayPay} className="py-3 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/35 transition text-xs cursor-pointer">
+                    <CreditCard size={15} /> Pay with Razorpay
+                  </button>
+                  <button type="button" onClick={handleSendWhatsAppBill} className="py-3 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/35 transition text-xs cursor-pointer">
+                    <Send size={15} /> Send WhatsApp Bill
+                  </button>
+                  <button type="button" onClick={handlePrintReceipt} className="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5 transition text-xs cursor-pointer">
+                    <Printer size={15} /> Print Receipt
+                  </button>
                 </div>
               </div>
 
+              {/* Right Column: Live Dynamic UPI QR Display Box */}
               <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-xl flex flex-col items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Live Instant Payment QR</span>
-                <div className="p-4 bg-white rounded-2xl shadow-2xl inline-block border-4 border-slate-800">
-                  <img src={qrUrl} alt="QR" className="w-48 h-48 block rounded-lg mx-auto" />
-                  <div className="mt-2 pt-2 border-t border-slate-200 flex justify-center items-center gap-2 text-[10px] text-slate-700 font-bold"><span>GPay</span> • <span>PhonePe</span> • <span>Paytm</span></div>
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Live Instant Payment QR</span>
+                  <p className="text-xs text-slate-300">GPay, PhonePe, Paytm ने स्कॅन करून लगेच पैसे भरा</p>
                 </div>
-                <button onClick={() => { navigator.clipboard.writeText(livePayUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 text-xs shadow-lg">
-                  {copied ? <Check size={14} /> : <Copy size={14} />} <span>{copied ? 'लिंक कॉपी झाली!' : 'Copy Direct UPI Link'}</span>
+
+                <div className="p-4 bg-white rounded-2xl shadow-2xl inline-block border-4 border-slate-800">
+                  <img src={qrUrl} alt="Live Dynamic UPI QR" className="w-48 h-48 block rounded-lg mx-auto" />
+                  <div className="mt-2 pt-2 border-t border-slate-200 flex justify-center items-center gap-2 text-[10px] text-slate-700 font-bold">
+                    <span>GPay</span> • <span>PhonePe</span> • <span>Paytm</span> • <span>BHIM</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 w-full">
+                  <div className="p-3 bg-[#080b12] rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <span className="text-slate-400">स्वीकारावयाची रक्कम:</span>
+                    <span className="font-black text-emerald-400 text-base">₹{Number(amount || 0).toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => { 
+                    navigator.clipboard.writeText(livePayUrl); 
+                    setCopied(true); 
+                    setTimeout(() => setCopied(false), 2000); 
+                  }} 
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 text-xs shadow-lg shadow-blue-600/30 transition cursor-pointer"
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />} 
+                  <span>{copied ? 'UPI पेमेंट लिंक कॉपी झाली!' : 'Copy Direct UPI Payment Link'}</span>
                 </button>
+              </div>
+
+            </div>
+
+            {/* Multi-Gateway API Credentials Section */}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+                    <CreditCard size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">ALL MULTIPLE GATEWAYS & LIVE WEBHOOK INTEGRATION</h3>
+                    <p className="text-[11px] text-slate-400">क्रेडिट कार्ड, डेबिट कार्ड, नेटबँकिंग व EMI साठी गेटवे ॲक्टिव्हेट करा.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">Multi-Gateway Ready</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Landmark size={14} className="text-blue-400" /> Razorpay Live Gateway</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
+                  <p className="text-[11px] text-slate-400">Credit Card, Debit Card, NetBanking & No-Cost EMI Support</p>
+                  <div className="flex gap-2"><input type="text" defaultValue={gateways.razorpayKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Save</button></div>
+                </div>
+
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> Cashfree Auto-Settlements</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
+                  <p className="text-[11px] text-slate-400">Instant Merchant Bank Settlement & UPI Auto-Collect Webhook</p>
+                  <div className="flex gap-2"><input type="text" defaultValue={gateways.cashfreeAppId} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Cashfree क्रेडेन्शियल्स सेव्ह झाले!')} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Save</button></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transactions Log */}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl text-xs">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><Receipt size={15} className="text-emerald-400" /> Recent Payment Transactions & Settlements</h3>
+                <span className="text-[10px] text-slate-400">Total Settled: <b className="text-white">₹45,200</b></span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[700px]">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]"><tr><th className="p-3">Txn ID</th><th className="p-3">Customer</th><th className="p-3">Amount</th><th className="p-3">Method / Gateway</th><th className="p-3">Date & Time</th><th className="p-3 text-center">Status</th></tr></thead>
+                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    {transactions.map((txn) => (
+                      <tr key={txn.id} className="hover:bg-slate-800/30">
+                        <td className="p-3 font-mono font-bold text-blue-400">{txn.id}</td>
+                        <td className="p-3"><p className="font-bold text-white">{txn.customerName}</p><span className="text-[10px] text-slate-400">{txn.phone}</span></td>
+                        <td className="p-3 font-black text-white text-sm">₹{txn.amount.toLocaleString('en-IN')}</td>
+                        <td className="p-3 font-medium">{txn.gateway}</td>
+                        <td className="p-3 text-slate-400 font-mono text-[11px]">{txn.date}</td>
+                        <td className="p-3 text-center"><span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${txn.status === 'Success' ? 'bg-emerald-950 text-emerald-400 border-emerald-600/40' : 'bg-amber-950 text-amber-400'}`}>{txn.status === 'Success' ? '● Paid' : txn.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1206,7 +1108,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 7. META AD LAUNCHER (ACCOUNT LOGIN & CAMPAIGN RUNNER) */}
+        {/* 7. META AD LAUNCHER */}
         {activeTab === 'meta_ads' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
@@ -1350,14 +1252,32 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 11. CALENDAR */}
+        {/* 11. SMART CALENDAR */}
         {activeTab === 'calendar' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs">
-            <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2"><Calendar size={16} className="text-blue-400" /> Scheduled Appointments</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {['11:00 AM - सचिन कांबळे (5G Phone)', '02:00 PM - अमित देशमुख (Repairing)', '05:30 PM - प्रियांका शिंदे (Clinic)'].map((s, i) => (
-                <div key={i} className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl font-bold text-blue-400">{s}</div>
-              ))}
+          <div className="space-y-6 text-xs">
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2"><Calendar size={16} className="text-blue-400" /> Smart Calendar & Booking Schedule</h3>
+                <button onClick={() => alert('नवीन अपॉइंटमेंट स्लॉट जोडला गेला!')} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">+ Book Slot</button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { time: '11:00 AM - 11:30 AM', name: 'सचिन कांबळे', service: '5G Smartphone Buy', status: 'Confirmed' },
+                  { time: '02:00 PM - 02:45 PM', name: 'अमित देशमुख', service: 'Screen Repair', status: 'Pending' },
+                  { time: '05:30 PM - 06:15 PM', name: 'प्रियांका शिंदे', service: 'Skin Treatment', status: 'Confirmed' }
+                ].map((slot, idx) => (
+                  <div key={idx} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-2">
+                    <span className="text-[10px] text-blue-400 font-bold font-mono">{slot.time}</span>
+                    <p className="font-bold text-white text-sm">{slot.name}</p>
+                    <p className="text-[11px] text-slate-400">{slot.service}</p>
+                    <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center">
+                      <span className="text-[10px] text-emerald-400 font-bold">● {slot.status}</span>
+                      <button onClick={() => alert(`${slot.name} च्या स्लॉटची रिशेड्यूल लिंक पाठवली!`)} className="text-[10px] text-blue-400 hover:underline font-bold">Reschedule</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
