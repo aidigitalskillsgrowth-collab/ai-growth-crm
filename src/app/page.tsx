@@ -12,7 +12,7 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Mic, MicOff, Star, ShieldCheck, Stethoscope, Building2, SmartphoneCharging,
   Dumbbell, GraduationCap, UtensilsCrossed, Wrench, Sparkle, Briefcase, Scale,
-  Image as ImageIcon, Loader2, Award, HeartHandshake, Mail, FileText as FileIcon
+  Image as ImageIcon, Loader2
 } from 'lucide-react';
 
 interface Lead {
@@ -50,8 +50,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<string>('website');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [copied, setCopied] = useState<boolean>(false);
 
-  // 10 Comprehensive 5-Star Business Landing Page Templates Database
+  // 10 Comprehensive 5-Star Templates
   const templatesDb: Record<string, TemplateData> = {
     'CSC & Online Services': {
       id: 'CSC & Online Services',
@@ -133,8 +134,8 @@ export default function DashboardPage() {
         { label: 'अनुभवी डॉक्टर्स', value: '१०+' }
       ],
       testimonials: [
-        { name: 'रविराज पाटील', review: 'रूट कॅनल करताना अजिबात त्रास झाला नाही. डॉक्टरांचे बोलणे आणि क्लिनिकची स्वच्छता अप्रतिम आहे.', rating: 5 },
-        { name: 'प्रियांका शिंदे', review: 'माझ्या आईच्या सांधेदुखीवर इथे खूप चांगला गुण आला. अत्यंत विश्वासार्ह रुग्णालय.', rating: 5 }
+        { name: 'रविराज पाटील', review: 'रूट कॅनल करताना अजिबात त्रास झाला नाही. क्लिनिकची स्वच्छता अप्रतिम आहे.', rating: 5 },
+        { name: 'प्रियांका शिंदे', review: 'आईच्या सांधेदुखीवर इथे खूप चांगला गुण आला. अत्यंत विश्वासार्ह रुग्णालय.', rating: 5 }
       ]
     },
     'Real Estate & Property': {
@@ -161,8 +162,8 @@ export default function DashboardPage() {
         { label: 'बँक लोन सुविधा', value: '९०%' }
       ],
       testimonials: [
-        { name: 'ज्ञानेश्वर माने', review: 'बांधकामाची गुणवत्ता अप्रतिम आहे आणि वेळेआधी पझेशन मिळाले. खूप चांगला अनुभव!', rating: 5 },
-        { name: 'विकास मोरे', review: 'साईट व्हिजिटपासून ते लोन मंजूर होईपर्यंत सर्व मदत टीमने केली. १ रुपयाही ब्रोकरेज घेतले नाही.', rating: 5 }
+        { name: 'ज्ञानेश्वर माने', review: 'बांधकामाची गुणवत्ता अप्रतिम आहे आणि वेळेआधी पझेशन मिळाले.', rating: 5 },
+        { name: 'विकास मोरे', review: 'साईट व्हिजिटपासून ते लोन मंजूर होईपर्यंत सर्व मदत केली.', rating: 5 }
       ]
     },
     'Gym & Fitness': {
@@ -189,7 +190,7 @@ export default function DashboardPage() {
         { label: 'गुगल रेटिंग', value: '५.० ★' }
       ],
       testimonials: [
-        { name: 'रोहन शिंदे', review: 'मी ३ महिन्यांत १२ किलो वजन कमी केले. ट्रेनर्स खूप सपोर्टिव्ह आणि शिस्तबद्ध आहेत.', rating: 5 },
+        { name: 'रोहन शिंदे', review: 'मी ३ महिन्यांत १२ किलो वजन कमी केले. ट्रेनर्स खूप सपोर्टिव्ह आहेत.', rating: 5 },
         { name: 'दिनेश गायकवाड', review: 'जिममधील वातावरण आणि उपकरणे खूपच आंतरराष्ट्रीय दर्जाची आहेत.', rating: 5 }
       ]
     },
@@ -217,8 +218,8 @@ export default function DashboardPage() {
         { label: 'प्रॅक्टिकल प्रोजेक्ट्स', value: '५०+' }
       ],
       testimonials: [
-        { name: 'पूजा कुलकर्णी', review: 'कोर्स संपताच मला ₹३०,००० ची डिजिटल मार्केटिंग जॉब मिळाली. अत्यंत सोप्या मराठी भाषेत शिकवले जाते.', rating: 5 },
-        { name: 'सुप्रिया भोसले', review: 'घरी बसून फ्रीलान्सिंग कसे करायचे याचे अतिशय मोलाचे मार्गदर्शन मिळाले.', rating: 5 }
+        { name: 'पूजा कुलकर्णी', review: 'कोर्स संपताच मला ₹३०,००० ची डिजिटल मार्केटिंग जॉब मिळाली.', rating: 5 },
+        { name: 'सुप्रिया भोसले', review: 'घरी बसून फ्रीलान्सिंग कसे करायचे याचे मोलाचे मार्गदर्शन मिळाले.', rating: 5 }
       ]
     },
     'Restaurant & Cafe': {
@@ -245,8 +246,8 @@ export default function DashboardPage() {
         { label: 'चवीची गॅरंटी', value: '१००%' }
       ],
       testimonials: [
-        { name: 'अनिल काळे', review: 'तांबडा पांढरा रस्सा आणि बाजरीची भाकरी एक नंबर होती! फॅमिलीसाठी सांगलीतील सर्वोत्तम हॉटेल.', rating: 5 },
-        { name: 'किरण थोरात', review: 'सर्व्हिस खूप तत्पर आहे आणि जेवणाची चव अगदी घरगुती आहे.' rating: 5 }
+        { name: 'अनिल काळे', review: 'तांबडा पांढरा रस्सा आणि बाजरीची भाकरी एक नंबर होती! उत्तम हॉटेल.', rating: 5 },
+        { name: 'किरण थोरात', review: 'सर्व्हिस खूप तत्पर आहे आणि जेवणाची चव अगदी घरगुती आहे.', rating: 5 }
       ]
     },
     'Auto Garage': {
@@ -273,8 +274,8 @@ export default function DashboardPage() {
         { label: 'समाधानी ग्राहक', value: '९९%' }
       ],
       testimonials: [
-        { name: 'महेश जाधव', review: 'माझ्या कारचा आवाज एका तासात शोधून गाडी एकदम स्मूथ करून दिली. खूप वाजवी दर आहेत.', rating: 5 },
-        { name: 'राहुल सावंत', review: 'फोम वॉशिंग आणि इंटिरियर क्लिनिंग इतकी छान केली की गाडी अगदी शोरूमसारखी नवीन वाटत आहे.', rating: 5 }
+        { name: 'महेश जाधव', review: 'माझ्या कारचा आवाज एका तासात शोधून गाडी एकदम स्मूथ करून दिली.', rating: 5 },
+        { name: 'राहुल सावंत', review: 'फोम वॉशिंग आणि इंटिरियर क्लिनिंग इतकी छान केली की गाडी नवीन वाटते.', rating: 5 }
       ]
     },
     'Beauty Parlour': {
@@ -301,7 +302,7 @@ export default function DashboardPage() {
         { label: '५-स्टार रेटिंग', value: '१००%' }
       ],
       testimonials: [
-        { name: 'स्नेहल पवार', review: 'माझ्या लग्नात सर्वांनी मेकअपचे खूप कौतुक केले. खूप नॅचरल आणि मनमोहक लूक दिला होता!', rating: 5 },
+        { name: 'स्नेहल पवार', review: 'माझ्या लग्नात सर्वांनी मेकअपचे खूप कौतुक केले. खूप नॅचरल लूक दिला!', rating: 5 },
         { name: 'प्रियांका शिंदे', review: 'सर्व्हिस खूप तत्पर आहे आणि प्रॉडक्ट्स १००% ओरिजिनल वापरतात.', rating: 5 }
       ]
     },
@@ -329,8 +330,8 @@ export default function DashboardPage() {
         { label: 'व्युवसाय महसूल वाढ', value: '३००%' }
       ],
       testimonials: [
-        { name: 'ईश्वरी मोबाईल', review: 'महाग्रोथने मेटा ॲड्स सुरू केल्यावर आमच्या दुकानात दररोज नवीन ग्राहकांची गर्दी होत आहे!', rating: 5 },
-        { name: 'संजीवनी क्लिनिक', review: 'दररोज १०+ नवीन रुग्णांच्या अपॉइंटमेंट्स आपोआप बुक होत आहेत. अप्रतिम निकाल!', rating: 5 }
+        { name: 'ईश्वरी मोबाईल', review: 'महाग्रोथने मेटा ॲड्स सुरू केल्यावर आमच्या दुकानात दररोज नवीन ग्राहक येत आहेत!', rating: 5 },
+        { name: 'संजीवनी क्लिनिक', review: 'दररोज १०+ नवीन रुग्णांच्या अपॉइंटमेंट्स आपोआप बुक होत आहेत.', rating: 5 }
       ]
     }
   };
@@ -338,12 +339,11 @@ export default function DashboardPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('CSC & Online Services');
   const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['CSC & Online Services']);
 
-  // AI Prompt & Continuous Voice Mic State
+  // Prompt & Voice Mic State
   const [promptInput, setPromptInput] = useState<string>('csc center sathi ५-स्टार वेबसाइट बनवा');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Voice Mic Logic (Continuous Marathi / English Speech Recognition)
   const toggleVoiceRecording = () => {
     if (isListening) {
       setIsListening(false);
@@ -351,7 +351,7 @@ export default function DashboardPage() {
     }
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('तुमच्या ब्राऊझरमध्ये Voice Mic सपोर्ट नाही. कृपया Google Chrome ब्राऊझर वापरा.');
+      alert('तुमच्या ब्राऊझरमध्ये Voice Mic सपोर्ट नाही. Google Chrome वापरा.');
       return;
     }
     const recognition = new SpeechRecognition();
@@ -371,10 +371,9 @@ export default function DashboardPage() {
     recognition.start();
   };
 
-  // TRUE DYNAMIC AI GENERATOR LOGIC
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) {
-      alert('कृपया माईकवर बोला किंवा व्यवसायाचा प्रॉम्प्ट टाईप करा!');
+      alert('कृपया माईकवर बोला किंवा प्रॉम्प्ट टाईप करा!');
       return;
     }
     setIsGenerating(true);
@@ -383,7 +382,6 @@ export default function DashboardPage() {
       const lower = promptInput.toLowerCase();
       let matchedKey = '';
 
-      // Check keywords accurately
       if (lower.includes('csc') || lower.includes('सेतू') || lower.includes('दाखले') || lower.includes('online') || lower.includes('ऑनलाईन') || lower.includes('पॅन') || lower.includes('आधार') || lower.includes('सरकारी')) {
         matchedKey = 'CSC & Online Services';
       } else if (lower.includes('doctor') || lower.includes('clinic') || lower.includes('दवाखाना') || lower.includes('दात') || lower.includes('डेंटल') || lower.includes('हॉस्पिटल')) {
@@ -410,7 +408,6 @@ export default function DashboardPage() {
         setSelectedTemplate(matchedKey);
         setCurrentSite(templatesDb[matchedKey]);
       } else {
-        // Dynamic generation for any unique prompt (e.g. किराणा दुकान, सोलर)
         const customTitle = promptInput.replace(/५-स्टार|वेबसाइट|बनवा|करा|sathi|साठी|landing page|website/gi, '').trim() || 'डिजिटल बिझनेस हब';
         const dynamicSite: TemplateData = {
           id: 'Custom AI Generated',
@@ -445,10 +442,9 @@ export default function DashboardPage() {
       }
 
       setIsGenerating(false);
-    }, 400);
+    }, 300);
   };
 
-  // Custom Image Upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -461,6 +457,31 @@ export default function DashboardPage() {
     }
   };
 
+  // Leads Data (For Dashboard & Leads View)
+  const [leads, setLeads] = useState<Lead[]>([
+    { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Dental Clinic Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested' },
+    { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: '5G Smartphone Buy', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested' },
+    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Screen Repair', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up' },
+    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Skin Treatment', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive' },
+    { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'Orthopedic Visit', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold' },
+    { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Bridal Makeup Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested' },
+    { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Full Health Checkup', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested' },
+    { id: '8', name: 'महेश जाधव', phone: '9552114477', service: 'Car Full Servicing', deal_value: 1200, status: 'Won', source: 'Referral', sentiment: 'Positive' },
+    { id: '9', name: 'पूजा कुलकर्णी', phone: '9890665544', service: 'Digital Marketing Course', deal_value: 6000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested' },
+    { id: '10', name: 'किरण थोरात', phone: '9371889900', service: 'GST Registration', deal_value: 500, status: 'Contacted', source: 'WhatsApp Direct', sentiment: 'Follow-up' },
+    { id: '11', name: 'दिनेश गायकवाड', phone: '9860127890', service: 'Gym 3-Month Plan', deal_value: 1000, status: 'Won', source: 'Instagram Ad', sentiment: 'Positive' },
+    { id: '12', name: 'सुप्रिया भोसले', phone: '9158334455', service: 'Cosmetic Filling', deal_value: 2500, status: 'Payment Sent', source: 'Website', sentiment: 'Interested' },
+    { id: '13', name: 'रोहन शिंदे', phone: '9730445566', service: '2 BHK Flat Enquiry', deal_value: 4000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested' },
+    { id: '14', name: 'अनिल काळे', phone: '9823998877', service: 'Family Dining Special', deal_value: 1500, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Positive' },
+    { id: '15', name: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Dental Implant Pro', deal_value: 35000, status: 'Won', source: 'Website', sentiment: 'Positive' },
+  ]);
+
+  // Payment State
+  const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
+  const [amount, setAmount] = useState<string>('999');
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(`upi://pay?pa=${upiId}&am=${amount}&cu=INR`)}`;
+  const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&am=${amount}`;
+
   const SidebarComp = Sidebar as any;
 
   return (
@@ -469,17 +490,19 @@ export default function DashboardPage() {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
-        {/* Header */}
+        {/* Top Bar */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
-            <h1 className="text-xl font-black text-white shrink-0 capitalize">Website & Funnels</h1>
+            <h1 className="text-xl font-black text-white shrink-0 capitalize">
+              {activeTab === 'dashboard' ? 'Growth Dashboard' : activeTab === 'leads' ? 'Growth Leads' : activeTab === 'website' ? 'Website & Funnels' : activeTab.replace('_', ' ')}
+            </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search templates or settings..."
+                placeholder="Search CRM..."
                 className="bg-transparent text-white outline-none w-full"
               />
             </div>
@@ -492,397 +515,467 @@ export default function DashboardPage() {
           </button>
         </header>
 
-        {/* ================= 5-STAR AI WEBSITE BUILDER ================= */}
-        <div className="space-y-6">
-          
-          {/* Top Prompt & Voice Mic Bar */}
-          <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 lg:p-6 space-y-4 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-black">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-white flex items-center gap-2">
-                    AI Voice & Prompt 5-Star Website Generator
-                  </h2>
-                  <p className="text-xs text-slate-400">माईकवर सलग बोलून किंवा कोणताही प्रॉम्प्ट टाईप करून १ सेकंदात पूर्ण वेबसाईट बनवा.</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 bg-[#080b12] p-1.5 rounded-2xl border border-slate-800 text-xs">
-                <button 
-                  onClick={() => setDeviceView('Desktop')} 
-                  className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${deviceView === 'Desktop' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
-                >
-                  <Monitor size={14} /> Desktop View
-                </button>
-                <button 
-                  onClick={() => setDeviceView('Mobile')} 
-                  className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${deviceView === 'Mobile' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
-                >
-                  <Smartphone size={14} /> Mobile View
-                </button>
-              </div>
-            </div>
-
-            {/* Input Prompt Box & Continuous Voice Mic Button */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700/90 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-inner">
-                <Sparkles size={18} className="text-blue-400 shrink-0 animate-pulse" />
-                <input
-                  type="text"
-                  value={promptInput}
-                  onChange={(e) => setPromptInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()}
-                  placeholder="उदा. 'csc center sathi ५-स्टार वेबसाइट बनवा' किंवा 'क्लिनिकसाठी लँडिंग पेज तयार करा'..."
-                  className="bg-transparent text-white text-xs outline-none w-full font-medium placeholder:text-slate-500"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={toggleVoiceRecording}
-                className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition shadow-lg cursor-pointer ${
-                  isListening 
-                    ? 'bg-rose-600 text-white border-rose-500 animate-pulse ring-4 ring-rose-600/30' 
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                }`}
-              >
-                {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
-                <span>{isListening ? 'बोलणे चालू आहे...' : 'Continuous Marathi Mic'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleGenerateWebsite}
-                disabled={isGenerating}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer"
-              >
-                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                <span>{isGenerating ? 'तयार होत आहे...' : 'Generate 5-Star Website'}</span>
-              </button>
-            </div>
-
-            {/* 10 Business Templates Buttons */}
-            <div className="space-y-2 pt-2 border-t border-slate-800/80">
-              <span className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">
-                १० रेडीमेड ५-स्टार व्यावसायिक टेम्पलेट्स (१-क्लिकने निवडा):
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                {Object.keys(templatesDb).map((key) => {
-                  const isSelected = selectedTemplate === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => { setSelectedTemplate(key); setCurrentSite(templatesDb[key]); }}
-                      className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold transition text-left border cursor-pointer ${
-                        isSelected 
-                          ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/20 font-bold scale-[1.02]' 
-                          : 'bg-[#080b12] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
-                      }`}
-                    >
-                      <span className="truncate text-[11px]">{key}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Split Screen: Section Customizer & 5-Star Live Preview */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ================= 1. WEBSITE & FUNNELS ================= */}
+        {activeTab === 'website' && (
+          <div className="space-y-6">
             
-            {/* Left Side: Real-time Section Editor */}
-            <div className="lg:col-span-4 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs max-h-[850px] overflow-y-auto shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-1.5">
-                  <Edit3 size={14} className="text-blue-400" /> Live Content Editor
-                </h3>
-                <span className="text-[10px] text-emerald-400 font-bold">Auto-Sync On</span>
-              </div>
-
-              {/* Image Upload */}
-              <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                <label className="text-slate-300 font-bold block flex items-center gap-1.5 text-[11px]">
-                  <ImageIcon size={14} className="text-blue-400" /> स्वतःचा बॅनर फोटो अपलोड करा
-                </label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleImageUpload} 
-                  className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white cursor-pointer" 
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-400 block mb-1 font-bold">Business Name</label>
-                <input 
-                  type="text" 
-                  value={currentSite.businessName} 
-                  onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-400 block mb-1 font-bold">Tagline</label>
-                <input 
-                  type="text" 
-                  value={currentSite.tagline} 
-                  onChange={(e) => setCurrentSite({ ...currentSite, tagline: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-400 block mb-1 font-bold">Main Headline (H1)</label>
-                <textarea 
-                  rows={2} 
-                  value={currentSite.headline} 
-                  onChange={(e) => setCurrentSite({ ...currentSite, headline: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 resize-none" 
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-400 block mb-1 font-bold">Subheadline Description</label>
-                <textarea 
-                  rows={3} 
-                  value={currentSite.subheadline} 
-                  onChange={(e) => setCurrentSite({ ...currentSite, subheadline: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 resize-none" 
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-slate-400 block mb-1 font-bold">WhatsApp / Phone</label>
-                  <input 
-                    type="text" 
-                    value={currentSite.phone} 
-                    onChange={(e) => setCurrentSite({ ...currentSite, phone: e.target.value })} 
-                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white font-mono outline-none" 
-                  />
+            {/* Top Prompt & Voice Mic Bar */}
+            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 lg:p-6 space-y-4 shadow-2xl">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-black">
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-white flex items-center gap-2">
+                      AI Voice & Prompt 5-Star Website Generator
+                    </h2>
+                    <p className="text-xs text-slate-400">माईकवर सलग बोलून किंवा कोणताही प्रॉम्प्ट टाईप करून १ सेकंदात पूर्ण वेबसाईट बनवा.</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-slate-400 block mb-1 font-bold">Primary Button Text</label>
-                  <input 
-                    type="text" 
-                    value={currentSite.primaryCta} 
-                    onChange={(e) => setCurrentSite({ ...currentSite, primaryCta: e.target.value })} 
-                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none" 
-                  />
+
+                <div className="flex items-center gap-1.5 bg-[#080b12] p-1.5 rounded-2xl border border-slate-800 text-xs">
+                  <button 
+                    onClick={() => setDeviceView('Desktop')} 
+                    className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${deviceView === 'Desktop' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    <Monitor size={14} /> Desktop View
+                  </button>
+                  <button 
+                    onClick={() => setDeviceView('Mobile')} 
+                    className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${deviceView === 'Mobile' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    <Smartphone size={14} /> Mobile View
+                  </button>
                 </div>
               </div>
 
-              <div>
-                <label className="text-slate-400 block mb-1 font-bold">Shop / Center Address</label>
-                <input 
-                  type="text" 
-                  value={currentSite.address} 
-                  onChange={(e) => setCurrentSite({ ...currentSite, address: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" 
-                />
+              {/* Input Prompt Box & Continuous Voice Mic Button */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700/90 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-inner">
+                  <Sparkles size={18} className="text-blue-400 shrink-0 animate-pulse" />
+                  <input
+                    type="text"
+                    value={promptInput}
+                    onChange={(e) => setPromptInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()}
+                    placeholder="उदा. 'csc center sathi ५-स्टार वेबसाइट बनवा' किंवा 'क्लिनिकसाठी लँडिंग पेज तयार करा'..."
+                    className="bg-transparent text-white text-xs outline-none w-full font-medium placeholder:text-slate-500"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={toggleVoiceRecording}
+                  className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition shadow-lg cursor-pointer ${
+                    isListening 
+                      ? 'bg-rose-600 text-white border-rose-500 animate-pulse ring-4 ring-rose-600/30' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                  }`}
+                >
+                  {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
+                  <span>{isListening ? 'बोलणे चालू आहे...' : 'Continuous Marathi Mic'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleGenerateWebsite}
+                  disabled={isGenerating}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer"
+                >
+                  {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  <span>{isGenerating ? 'तयार होत आहे...' : 'Generate 5-Star Website'}</span>
+                </button>
+              </div>
+
+              {/* 10 Business Templates Buttons */}
+              <div className="space-y-2 pt-2 border-t border-slate-800/80">
+                <span className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">
+                  १० रेडीमेड ५-स्टार व्यावसायिक टेम्पलेट्स (१-क्लिकने निवडा):
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                  {Object.keys(templatesDb).map((key) => {
+                    const isSelected = selectedTemplate === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => { setSelectedTemplate(key); setCurrentSite(templatesDb[key]); }}
+                        className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-semibold transition text-left border cursor-pointer ${
+                          isSelected 
+                            ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/20 font-bold scale-[1.02]' 
+                            : 'bg-[#080b12] text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <span className="truncate text-[11px]">{key}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            {/* Right Side: Full 5-Star Multi-Section Live Webpage Preview */}
-            <div className="lg:col-span-8 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-              <div className="flex justify-between text-xs border-b border-slate-800 pb-3 items-center">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  <span className="font-mono text-slate-300 text-[11px]">Live Preview Screen</span>
+            {/* Split Screen: Section Customizer & 5-Star Live Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Left Side: Real-time Section Editor */}
+              <div className="lg:col-span-4 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs max-h-[850px] overflow-y-auto shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-1.5">
+                    <Edit3 size={14} className="text-blue-400" /> Live Content Editor
+                  </h3>
+                  <span className="text-[10px] text-emerald-400 font-bold">Auto-Sync On</span>
                 </div>
-                <span className="text-[11px] text-blue-400 font-bold">★ ५-स्टार लेआउट</span>
-              </div>
 
-              {/* 5-STAR WEBPAGE CANVAS */}
-              <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
-                
-                {/* 1. TOP HEADER & NAVIGATION */}
-                <header className="bg-[#0b101d] border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center sticky top-0 z-20">
+                <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <label className="text-slate-300 font-bold block flex items-center gap-1.5 text-[11px]">
+                    <ImageIcon size={14} className="text-blue-400" /> स्वतःचा बॅनर फोटो अपलोड करा
+                  </label>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white cursor-pointer" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">Business Name</label>
+                  <input 
+                    type="text" 
+                    value={currentSite.businessName} 
+                    onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">Tagline</label>
+                  <input 
+                    type="text" 
+                    value={currentSite.tagline} 
+                    onChange={(e) => setCurrentSite({ ...currentSite, tagline: e.target.value })} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">Main Headline (H1)</label>
+                  <textarea 
+                    rows={2} 
+                    value={currentSite.headline} 
+                    onChange={(e) => setCurrentSite({ ...currentSite, headline: e.target.value })} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 resize-none" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">Subheadline Description</label>
+                  <textarea 
+                    rows={3} 
+                    value={currentSite.subheadline} 
+                    onChange={(e) => setCurrentSite({ ...currentSite, subheadline: e.target.value })} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 resize-none" 
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <h4 className="font-black text-white text-sm tracking-wide leading-tight">{currentSite.businessName}</h4>
-                    <span className="text-[10px] text-blue-400 font-semibold">{currentSite.tagline}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <a 
-                      href={`https://wa.me/91${currentSite.phone}?text=${encodeURIComponent(`नमस्कार, मला ${currentSite.businessName} कडून माहिती हवी आहे.`)}`}
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md shadow-emerald-600/20"
-                    >
-                      <MessageSquare size={12} /> WhatsApp
-                    </a>
-                    <a 
-                      href={`tel:${currentSite.phone}`}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md shadow-blue-600/20"
-                    >
-                      <Phone size={12} /> कॉल करा
-                    </a>
-                  </div>
-                </header>
-
-                {/* 2. HERO SECTION WITH BADGE & OFFER */}
-                <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-4">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold">
-                    <Sparkles size={12} /> {currentSite.badge}
-                  </div>
-                  
-                  <h1 className="text-xl md:text-2xl font-black text-white leading-snug">
-                    {currentSite.headline}
-                  </h1>
-
-                  <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-2xl">
-                    {currentSite.subheadline}
-                  </p>
-
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl group">
-                    <img 
-                      src={currentSite.heroImage} 
-                      alt="Hero Banner" 
-                      className="w-full h-52 md:h-64 object-cover group-hover:scale-105 transition duration-500" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                      <a 
-                        href={`https://wa.me/91${currentSite.phone}`}
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/40 flex items-center gap-2"
-                      >
-                        <Zap size={14} /> {currentSite.primaryCta}
-                      </a>
-                    </div>
-                  </div>
-                </section>
-
-                {/* 3. TRUST & STATS METRICS COUNTER */}
-                <section className="grid grid-cols-3 gap-2 px-6 py-4 bg-[#0b101e] border-y border-slate-800 text-center">
-                  {currentSite.stats.map((st, i) => (
-                    <div key={i} className="p-2">
-                      <p className="text-lg md:text-xl font-black text-blue-400">{st.value}</p>
-                      <span className="text-[10px] md:text-xs text-slate-400 font-medium block mt-0.5">{st.label}</span>
-                    </div>
-                  ))}
-                </section>
-
-                {/* 4. CORE SERVICES & PACKAGES */}
-                <section className="p-6 md:p-8 space-y-4 text-left">
-                  <div className="text-center space-y-1 mb-5">
-                    <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा</span>
-                    <h3 className="text-base md:text-lg font-black text-white">लोकप्रिय उत्पादने आणि सेवा पॅकेजेस</h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                    {currentSite.services.map((srv, idx) => (
-                      <div key={idx} className="p-4 rounded-2xl bg-[#0d1424] border border-slate-800 hover:border-blue-500/60 transition space-y-2 flex flex-col justify-between shadow-md">
-                        <div className="space-y-1">
-                          <span className="w-6 h-6 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs mb-1">0{idx + 1}</span>
-                          <h4 className="font-bold text-white text-xs leading-snug">{srv.title}</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed">{srv.desc}</p>
-                        </div>
-                        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                          <span className="font-black text-emerald-400 text-xs">{srv.price}</span>
-                          <a 
-                            href={`https://wa.me/91${currentSite.phone}?text=${encodeURIComponent(`मला ${srv.title} बद्दल माहिती हवी आहे.`)}`}
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="text-[10px] font-bold text-blue-400 hover:underline flex items-center gap-0.5"
-                          >
-                            चौकशी करा <ArrowRight size={11} />
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* 5. 5-STAR TESTIMONIALS & REVIEWS */}
-                <section className="p-6 md:p-8 bg-[#0a0f1d] border-t border-slate-800 space-y-4 text-left">
-                  <div className="text-center space-y-1 mb-4">
-                    <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">ग्राहकांचा विश्वास</span>
-                    <h3 className="text-base font-black text-white">समाधानी ग्राहकांचे ५-स्टार रिव्ह्यू</h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {currentSite.testimonials.map((t, idx) => (
-                      <div key={idx} className="p-4 rounded-2xl bg-[#080b12] border border-slate-800 space-y-2 shadow-inner">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-white text-xs">{t.name}</span>
-                          <div className="flex text-amber-400 gap-0.5">
-                            {[...Array(t.rating)].map((_, r) => (
-                              <Star key={r} size={11} fill="currentColor" />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-[11px] text-slate-300 italic leading-relaxed">"{t.review}"</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* 6. INSTANT INQUIRY LEAD CAPTURE FORM */}
-                <section className="p-6 md:p-8 bg-gradient-to-b from-[#0a0f1d] to-[#0e1628] border-t border-slate-800 text-left space-y-3">
-                  <div className="text-center space-y-1 mb-3">
-                    <h3 className="text-base font-black text-white">विशेष ऑफरसाठी नाव नोंदवा</h3>
-                    <p className="text-[11px] text-slate-400">खालील फॉर्म भरा, आमची टीम तुम्हाला १० मिनिटांत संपर्क करेल.</p>
-                  </div>
-
-                  <form 
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      alert('धन्यवाद! आपली चौकशी यशस्वीरीत्या नोंदवली गेली आहे.');
-                    }} 
-                    className="space-y-2.5 max-w-md mx-auto text-xs"
-                  >
+                    <label className="text-slate-400 block mb-1 font-bold">WhatsApp / Phone</label>
                     <input 
                       type="text" 
-                      required 
-                      placeholder="आपले पूर्ण नाव" 
-                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
+                      value={currentSite.phone} 
+                      onChange={(e) => setCurrentSite({ ...currentSite, phone: e.target.value })} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white font-mono outline-none" 
                     />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">Primary Button Text</label>
                     <input 
-                      type="tel" 
-                      required 
-                      placeholder="आपला १० अंकी मोबाईल नंबर" 
-                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 font-mono" 
+                      type="text" 
+                      value={currentSite.primaryCta} 
+                      onChange={(e) => setCurrentSite({ ...currentSite, primaryCta: e.target.value })} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none" 
                     />
-                    <button 
-                      type="submit" 
-                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <CheckCircle2 size={14} /> इन्स्टंट ऑफर क्लेम करा
-                    </button>
-                  </form>
-                </section>
+                  </div>
+                </div>
 
-                {/* 7. COMPLETE FOOTER */}
-                <footer className="bg-[#05070c] border-t border-slate-800 p-6 text-left space-y-4 text-xs">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">Shop / Center Address</label>
+                  <input 
+                    type="text" 
+                    value={currentSite.address} 
+                    onChange={(e) => setCurrentSite({ ...currentSite, address: e.target.value })} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" 
+                  />
+                </div>
+              </div>
+
+              {/* Right Side: Full 5-Star Multi-Section Live Webpage Preview */}
+              <div className="lg:col-span-8 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                <div className="flex justify-between text-xs border-b border-slate-800 pb-3 items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span className="font-mono text-slate-300 text-[11px]">Live Preview Screen</span>
+                  </div>
+                  <span className="text-[11px] text-blue-400 font-bold">★ ५-स्टार लेआउट</span>
+                </div>
+
+                {/* 5-STAR WEBPAGE CANVAS */}
+                <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
+                  
+                  {/* 1. TOP HEADER & NAVIGATION */}
+                  <header className="bg-[#0b101d] border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center sticky top-0 z-20">
                     <div>
-                      <h5 className="font-bold text-white text-sm">{currentSite.businessName}</h5>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{currentSite.address}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">वेळ: <b className="text-slate-300">{currentSite.timing}</b></p>
+                      <h4 className="font-black text-white text-sm tracking-wide leading-tight">{currentSite.businessName}</h4>
+                      <span className="text-[10px] text-blue-400 font-semibold">{currentSite.tagline}</span>
                     </div>
-                    <div className="space-y-1.5 md:text-right">
-                      <span className="text-[11px] text-slate-400 block">थेट संपर्क व चौकशी:</span>
-                      <p className="font-mono text-blue-400 font-bold">+91 {currentSite.phone}</p>
-                      <p className="text-[11px] text-slate-400">{currentSite.email}</p>
+                    <div className="flex items-center gap-2">
+                      <a 
+                        href={`https://wa.me/91${currentSite.phone}?text=${encodeURIComponent(`नमस्कार, मला ${currentSite.businessName} कडून माहिती हवी आहे.`)}`}
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md shadow-emerald-600/20"
+                      >
+                        <MessageSquare size={12} /> WhatsApp
+                      </a>
+                      <a 
+                        href={`tel:${currentSite.phone}`}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md shadow-blue-600/20"
+                      >
+                        <Phone size={12} /> कॉल करा
+                      </a>
                     </div>
-                  </div>
-                  <div className="pt-3 border-t border-slate-800/80 flex justify-between text-[10px] text-slate-500 items-center">
-                    <span>© {new Date().getFullYear()} {currentSite.businessName}. सर्व हक्क राखीव.</span>
-                    <span className="text-blue-400">Powered by AI Growth OS</span>
-                  </div>
-                </footer>
+                  </header>
 
+                  {/* 2. HERO SECTION WITH BADGE & OFFER */}
+                  <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-4">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold">
+                      <Sparkles size={12} /> {currentSite.badge}
+                    </div>
+                    
+                    <h1 className="text-xl md:text-2xl font-black text-white leading-snug">
+                      {currentSite.headline}
+                    </h1>
+
+                    <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                      {currentSite.subheadline}
+                    </p>
+
+                    <div className="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl group">
+                      <img 
+                        src={currentSite.heroImage} 
+                        alt="Hero Banner" 
+                        className="w-full h-52 md:h-64 object-cover group-hover:scale-105 transition duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                        <a 
+                          href={`https://wa.me/91${currentSite.phone}`}
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/40 flex items-center gap-2"
+                        >
+                          <Zap size={14} /> {currentSite.primaryCta}
+                        </a>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* 3. TRUST & STATS METRICS COUNTER */}
+                  <section className="grid grid-cols-3 gap-2 px-6 py-4 bg-[#0b101e] border-y border-slate-800 text-center">
+                    {currentSite.stats.map((st, i) => (
+                      <div key={i} className="p-2">
+                        <p className="text-lg md:text-xl font-black text-blue-400">{st.value}</p>
+                        <span className="text-[10px] md:text-xs text-slate-400 font-medium block mt-0.5">{st.label}</span>
+                      </div>
+                    ))}
+                  </section>
+
+                  {/* 4. CORE SERVICES & PACKAGES */}
+                  <section className="p-6 md:p-8 space-y-4 text-left">
+                    <div className="text-center space-y-1 mb-5">
+                      <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा</span>
+                      <h3 className="text-base md:text-lg font-black text-white">लोकप्रिय उत्पादने आणि सेवा पॅकेजेस</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                      {currentSite.services.map((srv, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-[#0d1424] border border-slate-800 hover:border-blue-500/60 transition space-y-2 flex flex-col justify-between shadow-md">
+                          <div className="space-y-1">
+                            <span className="w-6 h-6 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs mb-1">0{idx + 1}</span>
+                            <h4 className="font-bold text-white text-xs leading-snug">{srv.title}</h4>
+                            <p className="text-[11px] text-slate-400 leading-relaxed">{srv.desc}</p>
+                          </div>
+                          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                            <span className="font-black text-emerald-400 text-xs">{srv.price}</span>
+                            <a 
+                              href={`https://wa.me/91${currentSite.phone}?text=${encodeURIComponent(`मला ${srv.title} बद्दल माहिती हवी आहे.`)}`}
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-[10px] font-bold text-blue-400 hover:underline flex items-center gap-0.5"
+                            >
+                              चौकशी करा <ArrowRight size={11} />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* 5. 5-STAR TESTIMONIALS & REVIEWS */}
+                  <section className="p-6 md:p-8 bg-[#0a0f1d] border-t border-slate-800 space-y-4 text-left">
+                    <div className="text-center space-y-1 mb-4">
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">ग्राहकांचा विश्वास</span>
+                      <h3 className="text-base font-black text-white">समाधानी ग्राहकांचे ५-स्टार रिव्ह्यू</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {currentSite.testimonials.map((t, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-[#080b12] border border-slate-800 space-y-2 shadow-inner">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-white text-xs">{t.name}</span>
+                            <div className="flex text-amber-400 gap-0.5">
+                              {[...Array(t.rating)].map((_, r) => (
+                                <Star key={r} size={11} fill="currentColor" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-slate-300 italic leading-relaxed">"{t.review}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* 6. INSTANT INQUIRY LEAD CAPTURE FORM */}
+                  <section className="p-6 md:p-8 bg-gradient-to-b from-[#0a0f1d] to-[#0e1628] border-t border-slate-800 text-left space-y-3">
+                    <div className="text-center space-y-1 mb-3">
+                      <h3 className="text-base font-black text-white">विशेष ऑफरसाठी नाव नोंदवा</h3>
+                      <p className="text-[11px] text-slate-400">खालील फॉर्म भरा, आमची टीम तुम्हाला १० मिनिटांत संपर्क करेल.</p>
+                    </div>
+
+                    <form 
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        alert('धन्यवाद! आपली चौकशी यशस्वीरीत्या नोंदवली गेली आहे.');
+                      }} 
+                      className="space-y-2.5 max-w-md mx-auto text-xs"
+                    >
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="आपले पूर्ण नाव" 
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
+                      />
+                      <input 
+                        type="tel" 
+                        required 
+                        placeholder="आपला १० अंकी मोबाईल नंबर" 
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 font-mono" 
+                      />
+                      <button 
+                        type="submit" 
+                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <CheckCircle2 size={14} /> इन्स्टंट ऑफर क्लेम करा
+                      </button>
+                    </form>
+                  </section>
+
+                  {/* 7. COMPLETE FOOTER */}
+                  <footer className="bg-[#05070c] border-t border-slate-800 p-6 text-left space-y-4 text-xs">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h5 className="font-bold text-white text-sm">{currentSite.businessName}</h5>
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{currentSite.address}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">वेळ: <b className="text-slate-300">{currentSite.timing}</b></p>
+                      </div>
+                      <div className="space-y-1.5 md:text-right">
+                        <span className="text-[11px] text-slate-400 block">थेट संपर्क व चौकशी:</span>
+                        <p className="font-mono text-blue-400 font-bold">+91 {currentSite.phone}</p>
+                        <p className="text-[11px] text-slate-400">{currentSite.email}</p>
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-slate-800/80 flex justify-between text-[10px] text-slate-500 items-center">
+                      <span>© {new Date().getFullYear()} {currentSite.businessName}. सर्व हक्क राखीव.</span>
+                      <span className="text-blue-400">Powered by AI Growth OS</span>
+                    </div>
+                  </footer>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ================= 2. GROWTH DASHBOARD ================= */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5"><TrendingUp size={14} className="text-emerald-400" /> Revenue Growth</span>
+                <p className="text-2xl font-black text-white">₹1,48,500</p>
+              </div>
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <span className="text-xs font-bold text-slate-300 block flex items-center gap-1.5"><Target size={14} className="text-blue-400" /> Lead Source Distribution</span>
+                <p className="text-xs text-slate-400">Meta Ads: <b className="text-blue-400">55%</b> | Website: <b className="text-emerald-400">30%</b></p>
+              </div>
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <span className="text-xs font-bold text-slate-300 block flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> AI Bot Automation</span>
+                <p className="text-2xl font-black text-emerald-400">82.4% Answer Rate</p>
               </div>
             </div>
-
           </div>
-        </div>
+        )}
+
+        {/* ================= 3. GROWTH LEADS ================= */}
+        {activeTab === 'leads' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-5">
+            <h2 className="text-lg font-black text-white mb-4">Growth Leads Directory (15 Contacts)</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#080c18] text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                  <tr>
+                    <th className="p-3">Customer</th>
+                    <th className="p-3">Phone</th>
+                    <th className="p-3">Service</th>
+                    <th className="p-3">Deal Value</th>
+                    <th className="p-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                  {leads.map((l) => (
+                    <tr key={l.id} className="hover:bg-slate-800/30">
+                      <td className="p-3 font-bold text-white">{l.name}</td>
+                      <td className="p-3 font-mono">{l.phone}</td>
+                      <td className="p-3">{l.service}</td>
+                      <td className="p-3 font-bold text-emerald-400">₹{l.deal_value}</td>
+                      <td className="p-3"><span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 text-[10px] font-bold">{l.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ================= 4. PAYMENTS GATEWAY ================= */}
+        {activeTab === 'payments' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs">
+              <h3 className="font-bold text-white uppercase text-[11px]">Instant UPI QR & Link Generator</h3>
+              <div><label className="text-slate-400 block mb-1">Working UPI ID</label><input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+              <div><label className="text-slate-400 block mb-1">Amount (₹)</label><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold text-base outline-none" /></div>
+            </div>
+            <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4">
+              <div className="p-3 bg-white rounded-2xl shadow-xl inline-block"><img src={qrUrl} alt="Live QR" className="w-44 h-44 block rounded-lg" /></div>
+              <p className="text-sm font-black text-white">रक्कम: ₹{amount}</p>
+              <button onClick={() => { navigator.clipboard.writeText(livePayUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2">
+                {copied ? <Check size={14} /> : <Copy size={14} />} <span>{copied ? 'लिंक कॉपी झाली!' : 'Copy Payment Link'}</span>
+              </button>
+            </div>
+          </div>
+        )}
 
       </main>
     </div>
