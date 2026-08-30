@@ -10,8 +10,8 @@ import {
   GitBranch, Calendar, Wallet, Share2, Settings, Play, ArrowRight,
   Clock, MapPin, Phone, Edit3, Trash2, Filter, X, CheckSquare, Tag,
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
-  Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, FileSpreadsheet,
-  CreditCard, ShieldCheck, Printer, ArrowDownLeft, AlertCircle
+  Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
+  CreditCard, Landmark, ShieldCheck, DollarSign, Receipt
 } from 'lucide-react';
 
 interface Testimonial {
@@ -57,12 +57,10 @@ interface Transaction {
   id: string;
   customerName: string;
   phone: string;
-  service: string;
   amount: number;
-  method: string;
+  gateway: string;
   status: 'Success' | 'Pending' | 'Failed';
-  time: string;
-  utr?: string;
+  date: string;
 }
 
 export default function DashboardPage() {
@@ -113,6 +111,95 @@ export default function DashboardPage() {
 
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const stages = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
+
+  // Payment Setup States (Enhanced Multi-Gateway & Dynamic QR)
+  const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
+  const [businessNameUpi, setBusinessNameUpi] = useState<string>('Ishwari Mobile & CSC');
+  const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
+  const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
+  const [paymentDesc, setPaymentDesc] = useState<string>('5G Smartphone Advance Payment');
+  const [amount, setAmount] = useState<string>('2500');
+
+  // Multi-Gateway API Credentials State
+  const [gateways, setGateways] = useState({
+    razorpayKey: 'rzp_live_98xK19873219472',
+    razorpaySecret: '••••••••••••••••••••••••',
+    cashfreeAppId: 'CF_APP_892348923489',
+    cashfreeSecret: '••••••••••••••••••••••••',
+    stripeKey: 'pk_live_51MzAbcDefGhiJklMnOp',
+    paytmMerchantId: 'MID_ISHWARI982347'
+  });
+
+  // Recent Transactions History State
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Dynamic UPI QR', status: 'Success', date: 'आज, 12:45 PM' },
+    { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Razorpay PG', status: 'Success', date: 'आज, 11:10 AM' },
+    { id: 'TXN-98212', customerName: 'ज्ञानेश्वर माने', phone: '9673112233', amount: 35000, gateway: 'Cashfree Webhook', status: 'Success', date: 'काल, 05:20 PM' },
+    { id: 'TXN-98211', customerName: 'अमित देशमुख', phone: '9822334455', amount: 4500, gateway: 'WhatsApp UPI Link', status: 'Pending', date: 'काल, 03:40 PM' },
+  ]);
+
+  // Clean UPI Intent & Live Working QR URL
+  const cleanAmt = (Number(amount) || 1).toFixed(2);
+  const upiIntent = `upi://pay?pa=${upiId.trim()}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
+  const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
+
+  // Handle WhatsApp Bill Send
+  const handleSendWhatsAppBill = () => {
+    if (!customerPhone.trim()) {
+      alert('कृपया ग्राहकाचा व्हॉट्सॲप नंबर टाका!');
+      return;
+    }
+    const msg = `🧾 *पेमेंट इनव्हॉइस - ${businessNameUpi}*\n\n` +
+      `👤 *ग्राहक नाव:* ${customerName}\n` +
+      `📦 *तपशील / सेवा:* ${paymentDesc}\n` +
+      `💰 *एकूण रक्कम:* ₹${amount}\n\n` +
+      `📲 *थेट UPI द्वारे भरण्यासाठी खालील लिंकवर क्लिक करा:*\n${livePayUrl}\n\n` +
+      `_UPI ID: ${upiId} (GPay/PhonePe/Paytm/BHIM)_ \n\n` +
+      `धन्यवाद! 🙏`;
+    window.open(`https://wa.me/91${customerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  // Handle Print Receipt
+  const handlePrintReceipt = () => {
+    const printWindow = window.open('', '', 'width=600,height=700');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Payment Receipt - ${customerName}</title>
+            <style>
+              body { font-family: sans-serif; padding: 25px; color: #111; line-height: 1.5; }
+              .header { text-align: center; border-bottom: 2px dashed #888; padding-bottom: 12px; margin-bottom: 15px; }
+              .title { font-size: 20px; font-weight: bold; }
+              .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+              .amount { font-size: 22px; font-weight: bold; color: #059669; text-align: center; margin: 20px 0; border: 1px solid #10b981; padding: 10px; border-radius: 8px; }
+              .footer { text-align: center; font-size: 11px; color: #666; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="title">${businessNameUpi}</div>
+              <div>अधिकृत पेमेंट पावती / Invoice</div>
+              <div>दिनांक: ${new Date().toLocaleDateString('mr-IN')}</div>
+            </div>
+            <div class="row"><span>ग्राहक नाव:</span><b>${customerName}</b></div>
+            <div class="row"><span>मोबाईल नंबर:</span><b>+91 ${customerPhone}</b></div>
+            <div class="row"><span>सेवा / उत्पादन:</span><b>${paymentDesc}</b></div>
+            <div class="row"><span>UPI ID:</span><b>${upiId}</b></div>
+            <div class="amount">प्राप्त रक्कम: ₹${amount}</div>
+            <div class="row"><span>पेमेंट स्टेटस:</span><b style="color:green;">✔ VERIFIED SUCCESSFUL</b></div>
+            <div class="footer">
+              हे डिजिटल बिल AI Growth CRM द्वारे तयार केले आहे.<br/>
+              भेट दिल्याबद्दल धन्यवाद!
+            </div>
+            <script>window.print();</script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  };
 
   // Industry Stock Images & Avatars
   const industryImages = {
@@ -194,38 +281,6 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // ================= PAYMENT GATEWAYS COMPLETE STATE =================
-  const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
-  const [payeeName, setPayeeName] = useState<string>('Ishwari Mobile & CSC');
-  const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
-  const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
-  const [serviceDesc, setServiceDesc] = useState<string>('5G Smartphone Advance Payment');
-  const [amount, setAmount] = useState<string>('2500');
-
-  // Gateways API Config State
-  const [gateways, setGateways] = useState({
-    razorpayKey: 'rzp_live_981247098234',
-    razorpaySecret: '••••••••••••••••',
-    cashfreeAppId: 'CF_APP_92817234',
-    stripePublishable: 'pk_live_51OzX...',
-    webhookSecret: 'whsec_981723948'
-  });
-
-  // Recent Transactions Database
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: 'TXN-90812', customerName: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Dental Implant Advance', amount: 35000, method: 'PhonePe UPI', status: 'Success', time: 'आज, 11:45 AM', utr: '423987123901' },
-    { id: 'TXN-90811', customerName: 'प्रियांका शिंदे', phone: '9765432109', service: 'Skin Treatment Full', amount: 3200, method: 'Google Pay', status: 'Success', time: 'आज, 10:20 AM', utr: '423987123855' },
-    { id: 'TXN-90810', customerName: 'अमित देशमुख', phone: '9822334455', service: 'Screen Repair Booking', amount: 4500, method: 'UPI Intent Link', status: 'Pending', time: 'काल, 04:30 PM' },
-    { id: 'TXN-90809', customerName: 'दिनेश गायकवाड', phone: '9860127890', service: 'Gym 3-Month Plan', amount: 1000, method: 'Paytm UPI', status: 'Success', time: 'काल, 02:15 PM', utr: '423987123712' },
-    { id: 'TXN-90808', customerName: 'विकास मोरे', phone: '9988776655', service: 'Orthopedic Visit Fee', amount: 800, method: 'Razorpay Card', status: 'Failed', time: '28 Aug' },
-  ]);
-
-  // Dynamic UPI Intent Calculation
-  const cleanAmt = (Number(amount) || 1).toFixed(2);
-  const upiIntent = `upi://pay?pa=${upiId.trim()}&pn=${encodeURIComponent(payeeName)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(serviceDesc)}`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
-  const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${cleanAmt}&tn=${encodeURIComponent(serviceDesc)}`;
-
   // Chatbot State
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string }[]>([
     { sender: 'bot', text: 'नमस्कार! Ishwari AI मध्ये आपले स्वागत आहे. मी आपली काय मदत करू शकतो?' }
@@ -259,7 +314,7 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  // Drag and Drop Kanban
+  // Kanban Drag-and-Drop
   const handleDragStart = (e: React.DragEvent, leadId: string) => {
     e.dataTransfer.setData('leadId', leadId);
   };
@@ -274,7 +329,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Leads Filter Logic
   const filteredLeads = leads.filter(l => {
     const matchSearch = l.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         l.phone.includes(searchTerm) || 
@@ -370,10 +424,7 @@ export default function DashboardPage() {
       const text = evt.target?.result as string;
       if (!text) return;
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      if (lines.length <= 1) {
-        alert('CSV फाईल रिकामी आहे किंवा फॉरमॅट चुकीचा आहे.');
-        return;
-      }
+      if (lines.length <= 1) return;
       const imported: Lead[] = [];
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(',').map(p => p.replace(/"/g, '').trim());
@@ -394,80 +445,10 @@ export default function DashboardPage() {
       }
       if (imported.length > 0) {
         setLeads(prev => [...imported, ...prev]);
-        alert(`${imported.length} नवीन कॉन्टॅक्ट्स यशस्वीरीत्या सिस्टीममध्ये अपलोड झाले!`);
+        alert(`${imported.length} कॉन्टॅक्ट्स यशस्वीरीत्या आयात झाले!`);
       }
     };
     reader.readAsText(file);
-  };
-
-  const handleGenerateWebsite = () => {
-    if (!promptInput.trim()) {
-      alert('कृपया माईकवर बोला किंवा प्रॉम्प्ट टाईप करा!');
-      return;
-    }
-    setIsGenerating(true);
-    setTimeout(() => {
-      const lower = promptInput.toLowerCase();
-      let matchedKey = '';
-
-      if (lower.includes('csc') || lower.includes('सेतू') || lower.includes('दाखले') || lower.includes('online') || lower.includes('ऑनलाईन') || lower.includes('पॅन') || lower.includes('आधार') || lower.includes('सरकारी')) {
-        matchedKey = 'CSC & Online Services';
-      } else if (lower.includes('mobile') || lower.includes('मोबाईल') || lower.includes('फोन') || lower.includes('smartphone')) {
-        matchedKey = 'Mobile & Electronics';
-      } else if (lower.includes('doctor') || lower.includes('clinic') || lower.includes('दवाखाना')) {
-        matchedKey = 'Doctor & Clinic';
-      }
-
-      if (matchedKey && templatesDb[matchedKey]) {
-        setSelectedTemplate(matchedKey);
-        setCurrentSite(templatesDb[matchedKey]);
-      }
-      setIsGenerating(false);
-    }, 400);
-  };
-
-  const toggleVoiceRecording = () => {
-    if (typeof window === 'undefined') return;
-    if (isListening) {
-      setIsListening(false);
-      return;
-    }
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('तुमच्या ब्राऊझरमध्ये Voice Mic सपोर्ट नाही. कृपया Google Chrome वापरा.');
-      return;
-    }
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'mr-IN';
-      recognition.onstart = () => setIsListening(true);
-      recognition.onresult = (event: any) => {
-        let currentTranscript = '';
-        for (let i = event.results.length - 1; i < event.results.length; i++) {
-          currentTranscript += event.results[i][0].transcript;
-        }
-        if (currentTranscript) setPromptInput(currentTranscript);
-      };
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
-      recognition.start();
-    } catch (e) {
-      setIsListening(false);
-    }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCurrentSite(prev => ({ ...prev, heroImage: reader.result as string }));
-        alert('स्वतःचा फोटो यशस्वीरीत्या वेबसाईटवर सेट झाला!');
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const SidebarComp = Sidebar as any;
@@ -476,14 +457,7 @@ export default function DashboardPage() {
     <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans antialiased overflow-hidden">
       <SidebarComp activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Hidden File Input for CSV Upload */}
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        accept=".csv" 
-        onChange={handleImportCSV} 
-        className="hidden" 
-      />
+      <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImportCSV} className="hidden" />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
@@ -491,11 +465,10 @@ export default function DashboardPage() {
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
-              {activeTab === 'dashboard' ? 'Growth Dashboard' : 
+              {activeTab === 'payments' ? 'Payment Gateways & UPI' : 
+               activeTab === 'dashboard' ? 'Growth Dashboard' : 
                activeTab === 'leads' ? 'Growth Leads' : 
-               activeTab === 'pipeline' ? 'Growth CRM & Pipeline' :
-               activeTab === 'payments' ? 'Payment Gateways & UPI Suite' :
-               activeTab.replace('_', ' ')}
+               activeTab === 'pipeline' ? 'Growth CRM & Pipeline' : activeTab.replace('_', ' ')}
             </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
@@ -503,17 +476,17 @@ export default function DashboardPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search payments, transactions, leads..."
+                placeholder="Search payments, UPI, leads, transactions..."
                 className="bg-transparent text-white outline-none w-full"
               />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => setActiveTab('payments')}
-              className="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-emerald-600 hover:text-white transition"
+              onClick={handleOpenAddModal}
+              className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition"
             >
-              <QrCode size={13} /> Quick Pay QR
+              + Add Lead
             </button>
             <button 
               onClick={() => window.location.reload()}
@@ -533,13 +506,13 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-slate-200">AI Quick Actions:</span>
               </div>
               <div className="flex flex-wrap items-center gap-2.5 text-xs">
-                <button onClick={handleOpenAddModal} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 transition">
+                <button onClick={handleOpenAddModal} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20">
                   <Plus size={14} /> + Add New Lead
                 </button>
-                <button onClick={() => alert(`सर्व ${leads.length} ग्राहकांना WhatsApp ब्रॉडकास्ट मेसेज पाठवला जात आहे...`)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold flex items-center gap-1.5 transition">
+                <button onClick={() => alert(`सर्व ${leads.length} ग्राहकांना WhatsApp ब्रॉडकास्ट मेसेज पाठवला जात आहे...`)} className="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold flex items-center gap-1.5 transition">
                   <Send size={14} /> WhatsApp Broadcast ({leads.length})
                 </button>
-                <button onClick={() => setActiveTab('payments')} className="px-3.5 py-2 bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-xl font-bold flex items-center gap-1.5 transition">
+                <button onClick={() => setActiveTab('payments')} className="px-3.5 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 rounded-xl font-bold flex items-center gap-1.5 transition">
                   <QrCode size={14} /> Quick Payment QR
                 </button>
               </div>
@@ -551,40 +524,6 @@ export default function DashboardPage() {
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-[11px] text-slate-400 block">Deals Won (Paid)</span><p className="text-2xl font-black text-emerald-400 mt-0.5">{leads.filter(l => l.status === 'Won').length}</p></div>
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-[11px] text-slate-400 block">Pipeline Value</span><p className="text-2xl font-black text-amber-400 mt-0.5">₹{leads.reduce((acc, c) => acc + c.deal_value, 0).toLocaleString('en-IN')}</p></div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300">Revenue Growth</span>
-                <p className="text-2xl font-black text-white">₹1,48,500</p>
-                <div className="h-16 flex items-end gap-1.5 pt-2">
-                  {[40, 65, 50, 85, 70, 95, 100].map((h, i) => (
-                    <div key={i} className="flex-1 bg-slate-800 rounded-t-md relative overflow-hidden" style={{ height: `${h}%` }}>
-                      <div className="absolute inset-0 bg-blue-600 opacity-80"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300 block">Lead Source Distribution</span>
-                <div className="space-y-2 pt-1 text-xs">
-                  <div>
-                    <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Meta Ads</span><span className="text-blue-400 font-bold">55%</span></div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-blue-500 h-full w-[55%]"></div></div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Website & Funnels</span><span className="text-indigo-400 font-bold">30%</span></div>
-                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full w-[30%]"></div></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300 block">AI Voice Agent Success</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">82.4% Answer Rate</p>
-                <p className="text-xs text-slate-400">Positive Sentiment Score: <span className="text-white font-bold">76%</span></p>
-              </div>
-            </div>
           </div>
         )}
 
@@ -594,24 +533,21 @@ export default function DashboardPage() {
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-black text-white flex items-center gap-2"><Users size={20} className="text-blue-400" /> Growth Leads Directory ({filteredLeads.length} Leads)</h2>
-                  <p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन, CSV आयात/निर्यात आणि थेट संवाद.</p>
+                  <h2 className="text-lg font-black text-white flex items-center gap-2">
+                    <Users size={20} className="text-blue-400" /> Growth Leads Directory ({filteredLeads.length} Leads)
+                  </h2>
+                  <p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"><Plus size={15} /> + Add New Lead</button>
-                  <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5"><Upload size={14} /> Import CSV</button>
-                  <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5"><Download size={14} /> Export CSV</button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between pt-2 border-t border-slate-800 gap-3 text-xs">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-slate-400 font-bold flex items-center gap-1"><Filter size={13} /> Status:</span>
-                  {['All', 'New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'].map((stg) => (
-                    <button key={stg} onClick={() => setStatusFilter(stg)} className={`px-3 py-1.5 rounded-xl font-medium transition ${statusFilter === stg ? 'bg-blue-600 text-white font-bold' : 'bg-[#080b12] text-slate-400 border border-slate-800'}`}>
-                      {stg} {stg === 'All' ? `(${leads.length})` : `(${leads.filter(l => l.status === stg).length})`}
-                    </button>
-                  ))}
+                  <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                    <Plus size={15} /> + Add New Lead
+                  </button>
+                  <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                    <Upload size={14} /> Import CSV (Upload)
+                  </button>
+                  <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                    <Download size={14} /> Export CSV (Download)
+                  </button>
                 </div>
               </div>
             </div>
@@ -625,15 +561,17 @@ export default function DashboardPage() {
                       <th className="p-4">Service Required</th>
                       <th className="p-4">Deal Value</th>
                       <th className="p-4">Pipeline Status</th>
-                      <th className="p-4">Source & Notes</th>
-                      <th className="p-4 text-center">Instant 1-Click Actions</th>
+                      <th className="p-4 text-center">Instant Actions</th>
                       <th className="p-4 text-center">Manage</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
                     {filteredLeads.map((lead) => (
                       <tr key={lead.id} className="hover:bg-slate-800/30 transition">
-                        <td className="p-4"><p className="font-bold text-white text-sm">{lead.name}</p><p className="text-[11px] text-slate-400 font-mono">+91 {lead.phone}</p></td>
+                        <td className="p-4">
+                          <p className="font-bold text-white text-sm">{lead.name}</p>
+                          <p className="text-[11px] text-slate-400 font-mono">+91 {lead.phone}</p>
+                        </td>
                         <td className="p-4">{lead.service}</td>
                         <td className="p-4 font-black text-white text-sm">₹{lead.deal_value.toLocaleString('en-IN')}</td>
                         <td className="p-4">
@@ -641,7 +579,6 @@ export default function DashboardPage() {
                             {stages.filter(s => s !== 'All').map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </td>
-                        <td className="p-4 max-w-[180px]"><span className="inline-block px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-semibold">{lead.source}</span></td>
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <a href={`https://wa.me/91${lead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1 shadow-md"><MessageSquare size={13} /> WhatsApp</a>
@@ -666,17 +603,14 @@ export default function DashboardPage() {
         {/* ================= 3. GROWTH CRM & PIPELINE ================= */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-black text-white flex items-center gap-2"><Layers size={20} className="text-blue-400" /> Growth CRM & Interactive Pipeline</h2>
-                  <p className="text-xs text-slate-400">कार्ड ओढून (Drag) पुढच्या टप्प्यात (Drop) टाका.</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"><Plus size={15} /> + Add Deal</button>
-                  <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5"><Upload size={14} /> Import CSV</button>
-                  <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 rounded-xl text-xs font-bold flex items-center gap-1.5"><Download size={14} /> Export CSV</button>
-                </div>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl flex flex-wrap justify-between items-center">
+              <div>
+                <h2 className="text-lg font-black text-white flex items-center gap-2"><Layers size={20} className="text-blue-400" /> Growth CRM & Interactive Pipeline</h2>
+                <p className="text-xs text-slate-400">कार्ड ओढून (Drag) पुढच्या टप्प्यात (Drop) टाका.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleOpenAddModal} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg"><Plus size={15} /> + Add Deal</button>
+                <button onClick={handleExportCSV} className="px-3.5 py-2 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5"><Download size={14} /> Export CSV</button>
               </div>
             </div>
 
@@ -685,7 +619,7 @@ export default function DashboardPage() {
                 <div key={stg} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, stg)} className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-3 min-h-[450px]">
                   <div className="flex justify-between border-b border-slate-800 pb-2 items-center">
                     <span className="font-bold text-xs text-white uppercase">{stg}</span>
-                    <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{leads.filter(l => l.status === stg).length}</span>
+                    <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{leads.filter(l => l.status === stg).length} Deals</span>
                   </div>
                   <div className="space-y-2.5">
                     {leads.filter(l => l.status === stg).map((l) => (
@@ -708,307 +642,286 @@ export default function DashboardPage() {
             <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 lg:p-6 space-y-4 shadow-2xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
-                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2><p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन १ सेकंदात पूर्ण वेबसाईट बनवा.</p></div>
+                  <div className="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-black">
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2>
+                    <p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन १ सेकंदात पूर्ण वेबसाईट बनवा.</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Live Preview</button>
+                  <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md">
+                    <Eye size={14} /> Full Screen Live Preview
+                  </button>
                   <div className="flex items-center gap-1.5 bg-[#080b12] p-1.5 rounded-2xl border border-slate-800 text-xs">
                     <button onClick={() => setDeviceView('Desktop')} className={`px-3 py-1 rounded-xl font-bold ${deviceView === 'Desktop' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>Desktop</button>
                     <button onClick={() => setDeviceView('Mobile')} className={`px-3 py-1 rounded-xl font-bold ${deviceView === 'Mobile' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>Mobile</button>
                   </div>
                 </div>
               </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700/90 rounded-2xl px-4 py-3 flex items-center gap-3">
-                  <Sparkles size={18} className="text-blue-400 shrink-0 animate-pulse" />
-                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'csc center sathi ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
-                </div>
-                <button type="button" onClick={toggleVoiceRecording} className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border ${isListening ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-200'}`}>{isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}<span>{isListening ? 'बोलणे चालू...' : 'Continuous Marathi Mic'}</span></button>
-                <button type="button" onClick={handleGenerateWebsite} disabled={isGenerating} className="px-6 py-3 bg-blue-600 text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg">{isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}<span>Generate Website</span></button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-4 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs max-h-[850px] overflow-y-auto">
-                <h3 className="font-bold text-white uppercase text-[11px]">Live Content Editor</h3>
-                <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <label className="text-slate-300 font-bold block text-[11px]">स्वतःचा बॅनर फोटो अपलोड करा</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white" />
-                </div>
-                <div><label className="text-slate-400 block mb-1">Business Name</label><input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                <div><label className="text-slate-400 block mb-1">Headline</label><textarea rows={2} value={currentSite.headline} onChange={(e) => setCurrentSite({ ...currentSite, headline: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" /></div>
-                <div><label className="text-slate-400 block mb-1">Subheadline</label><textarea rows={3} value={currentSite.subheadline} onChange={(e) => setCurrentSite({ ...currentSite, subheadline: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" /></div>
-                <div><label className="text-slate-400 block mb-1">WhatsApp / Phone</label><input type="text" value={currentSite.phone} onChange={(e) => setCurrentSite({ ...currentSite, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white font-mono outline-none" /></div>
-              </div>
-              <div className="lg:col-span-8 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
-                <div className="flex justify-between text-xs border-b border-slate-800 pb-3 items-center">
-                  <span className="font-mono text-slate-300 text-[11px]">Live Preview Screen</span>
-                  <button onClick={() => setIsPreviewModalOpen(true)} className="text-[11px] text-blue-400 font-bold hover:underline flex items-center gap-1"><Eye size={13} /> Full Screen View</button>
-                </div>
-                <div className="p-4 bg-[#07090e] rounded-2xl border border-slate-800 space-y-4">
-                  <h3 className="text-xl font-black text-white">{currentSite.businessName}</h3>
-                  <p className="text-xs text-slate-300">{currentSite.headline}</p>
-                  <img src={currentSite.heroImage} alt="Hero" className="w-full h-48 object-cover rounded-xl" />
-                </div>
-              </div>
             </div>
           </div>
         )}
 
-        {/* ================= 5. COMPLETE PAYMENT GATEWAYS (ALL) ================= */}
+        {/* ================= 5. PAYMENT GATEWAYS (ALL MULTI-GATEWAY & LIVE DYNAMIC QR) ================= */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             
-            {/* Payment Metrics & Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 block">Total Payments Received</span>
-                <p className="text-2xl font-black text-emerald-400 mt-0.5">₹39,200</p>
-              </div>
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 block">Successful Settlements</span>
-                <p className="text-2xl font-black text-white mt-0.5">3 Transactions</p>
-              </div>
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 block">Pending Invoices</span>
-                <p className="text-2xl font-black text-amber-400 mt-0.5">₹4,500</p>
-              </div>
-              <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 block">UPI Auto-Confirm Status</span>
-                <p className="text-xs font-black text-emerald-400 mt-1.5 flex items-center gap-1"><ShieldCheck size={14} /> 100% Active</p>
-              </div>
-            </div>
-
-            {/* Split Screen: Instant Dynamic UPI Generator & WhatsApp Billing */}
+            {/* Top Grid: Dynamic UPI Generator & Live QR Code */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* Left Column: Generator Form & Gateway API Keys */}
-              <div className="lg:col-span-7 space-y-6">
-                
-                {/* Dynamic Payment Invoice Form */}
-                <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs shadow-xl">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2">
-                      <QrCode size={16} className="text-emerald-400" /> Dynamic Multi-UPI & Payment Request Generator
-                    </h3>
-                    <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">Live 0% Commission</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Your Working UPI ID *</label>
-                      <input 
-                        type="text" 
-                        value={upiId} 
-                        onChange={(e) => setUpiId(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" 
-                      />
+              {/* Left Column: UPI & Payment Request Form */}
+              <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                      <QrCode size={18} />
                     </div>
                     <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Business Name on UPI</label>
-                      <input 
-                        type="text" 
-                        value={payeeName} 
-                        onChange={(e) => setPayeeName(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
-                      />
+                      <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & PAYMENT REQUEST GENERATOR</h3>
+                      <p className="text-[11px] text-slate-400">Google Pay, PhonePe, Paytm, BHIM द्वारे ०% कमिशनने पेमेंट स्वीकारा.</p>
                     </div>
                   </div>
+                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
+                    Live 0% Commission
+                  </span>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Customer Full Name</label>
-                      <input 
-                        type="text" 
-                        value={customerName} 
-                        onChange={(e) => setCustomerName(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Customer WhatsApp Number</label>
-                      <input 
-                        type="text" 
-                        value={customerPhone} 
-                        onChange={(e) => setCustomerPhone(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" 
-                      />
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Your Working UPI ID *</label>
+                    <input 
+                      type="text" 
+                      value={upiId} 
+                      onChange={(e) => setUpiId(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" 
+                    />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Service / Product Description</label>
-                      <input 
-                        type="text" 
-                        value={serviceDesc} 
-                        onChange={(e) => setServiceDesc(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-bold">Amount to Collect (₹) *</label>
-                      <input 
-                        type="number" 
-                        value={amount} 
-                        onChange={(e) => setAmount(e.target.value)} 
-                        className="w-full bg-[#080b12] border border-emerald-500/50 rounded-xl p-2.5 text-emerald-400 font-black text-base outline-none" 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex flex-wrap gap-2.5">
-                    <a
-                      href={`https://wa.me/91${customerPhone}?text=${encodeURIComponent(`नमस्कार ${customerName} जी, ${payeeName} कडून आपल्या ${serviceDesc} साठी ₹${amount} चे पेमेंट बिल तयार केले आहे. खालील लिंकवर क्लिक करून Google Pay, PhonePe किंवा Paytm ने सुरक्षित पेमेंट करा:\n\n👉 पेमेंट लिंक: ${livePayUrl}\n\nधन्यवाद!`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex-1 min-w-[200px] py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-center"
-                    >
-                      <Send size={15} /> Send Bill on WhatsApp
-                    </a>
-
-                    <button 
-                      type="button" 
-                      onClick={() => alert(`ग्राहक ${customerName} साठी ₹${amount} ची इनव्हॉइस पावती तयार झाली आहे.`)}
-                      className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl flex items-center gap-1.5 transition"
-                    >
-                      <Printer size={15} /> Print Receipt
-                    </button>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Business Name on UPI</label>
+                    <input 
+                      type="text" 
+                      value={businessNameUpi} 
+                      onChange={(e) => setBusinessNameUpi(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
+                    />
                   </div>
                 </div>
 
-                {/* Gateway Integration Configurations (Razorpay, Cashfree, Stripe) */}
-                <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs shadow-xl">
-                  <h3 className="font-bold text-white uppercase text-[11px] flex items-center gap-2">
-                    <CreditCard size={16} className="text-blue-400" /> Multiple Gateway API Credentials & Webhook
-                  </h3>
-
-                  <div className="space-y-3">
-                    <div className="p-3 bg-[#080b12] border border-slate-800 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div>
-                        <span className="font-bold text-white block">Razorpay Live Gateway</span>
-                        <span className="text-[10px] text-slate-400">Credit Card, NetBanking & EMI Support</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="password" 
-                          value={gateways.razorpayKey} 
-                          onChange={(e) => setGateways({ ...gateways, razorpayKey: e.target.value })}
-                          className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono outline-none" 
-                        />
-                        <button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-lg">Save</button>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-[#080b12] border border-slate-800 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div>
-                        <span className="font-bold text-white block">Cashfree Auto-Payouts</span>
-                        <span className="text-[10px] text-slate-400">Instant Merchant Settlement Webhook</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="password" 
-                          value={gateways.cashfreeAppId} 
-                          onChange={(e) => setGateways({ ...gateways, cashfreeAppId: e.target.value })}
-                          className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-mono outline-none" 
-                        />
-                        <button onClick={() => alert('Cashfree की सेव्ह झाली!')} className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-lg">Save</button>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Customer Full Name</label>
+                    <input 
+                      type="text" 
+                      value={customerName} 
+                      onChange={(e) => setCustomerName(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Customer WhatsApp Number</label>
+                    <input 
+                      type="text" 
+                      value={customerPhone} 
+                      onChange={(e) => setCustomerPhone(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" 
+                    />
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Service / Product Description</label>
+                    <input 
+                      type="text" 
+                      value={paymentDesc} 
+                      onChange={(e) => setPaymentDesc(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">Amount to Collect (₹) *</label>
+                    <input 
+                      type="number" 
+                      value={amount} 
+                      onChange={(e) => setAmount(e.target.value)} 
+                      className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-black text-base outline-none focus:border-emerald-500" 
+                    />
+                  </div>
+                </div>
+
+                {/* 1-Click Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <button 
+                    type="button" 
+                    onClick={handleSendWhatsAppBill}
+                    className="py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition text-xs cursor-pointer"
+                  >
+                    <Send size={15} /> Send Bill on WhatsApp
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={handlePrintReceipt}
+                    className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition text-xs cursor-pointer"
+                  >
+                    <Printer size={15} /> Print Receipt
+                  </button>
+                </div>
               </div>
 
-              {/* Right Column: Live Dynamic QR Canvas & Direct Apps */}
-              <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3 text-xs">
-                  <span className="font-bold text-white">Live Scanner Canvas</span>
-                  <span className="text-[10px] text-emerald-400 font-bold">Auto-Amount Locked</span>
+              {/* Right Column: Live Dynamic UPI QR Display Box */}
+              <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-xl flex flex-col items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Live Instant Payment QR</span>
+                  <p className="text-xs text-slate-300">कोणत्याही UPI ॲपने स्कॅन करून लगेच पैसे भरा</p>
                 </div>
 
-                <div className="p-4 bg-white rounded-3xl shadow-2xl inline-block border-4 border-slate-800">
-                  <img src={qrUrl} alt="Instant QR Code" className="w-56 h-56 block rounded-xl" />
+                {/* LIVE DYNAMIC QR IMAGE */}
+                <div className="p-4 bg-white rounded-2xl shadow-2xl inline-block border-4 border-slate-800 relative group">
+                  <img src={qrUrl} alt="Live Dynamic UPI QR" className="w-48 h-48 block rounded-lg mx-auto" />
+                  <div className="mt-2 pt-2 border-t border-slate-200 flex justify-center items-center gap-2 text-[10px] text-slate-700 font-bold">
+                    <span>GPay</span> • <span>PhonePe</span> • <span>Paytm</span> • <span>BHIM</span>
+                  </div>
                 </div>
 
-                <div>
-                  <span className="text-xs text-slate-400 block">स्कॅन करून भरावयाची रक्कम:</span>
-                  <p className="text-3xl font-black text-emerald-400 mt-0.5">₹{amount}</p>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">{upiId}</p>
-                </div>
-
-                {/* Direct App Launch Intent Links */}
-                <div className="grid grid-cols-3 gap-2 pt-1 text-[11px]">
-                  <a href={upiIntent} className="p-2.5 bg-[#080b12] border border-slate-800 hover:border-emerald-500 rounded-xl font-bold text-slate-200 transition">
-                    PhonePe
-                  </a>
-                  <a href={upiIntent} className="p-2.5 bg-[#080b12] border border-slate-800 hover:border-blue-500 rounded-xl font-bold text-slate-200 transition">
-                    GPay
-                  </a>
-                  <a href={upiIntent} className="p-2.5 bg-[#080b12] border border-slate-800 hover:border-cyan-500 rounded-xl font-bold text-slate-200 transition">
-                    Paytm
-                  </a>
+                <div className="space-y-1 w-full">
+                  <div className="p-3 bg-[#080b12] rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <span className="text-slate-400">स्वीकारावयाची रक्कम:</span>
+                    <span className="font-black text-emerald-400 text-base">₹{Number(amount || 0).toLocaleString('en-IN')}</span>
+                  </div>
                 </div>
 
                 <button 
-                  type="button" 
                   onClick={() => { 
                     navigator.clipboard.writeText(livePayUrl); 
                     setCopied(true); 
                     setTimeout(() => setCopied(false), 2000); 
                   }} 
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition text-xs"
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 text-xs shadow-lg shadow-blue-600/30 transition cursor-pointer"
                 >
-                  {copied ? <Check size={15} /> : <Copy size={15} />}
-                  <span>{copied ? 'पेमेंट लिंक कॉपी झाली!' : 'Copy Direct Payment Link'}</span>
+                  {copied ? <Check size={14} /> : <Copy size={14} />} 
+                  <span>{copied ? 'UPI पेमेंट लिंक कॉपी झाली!' : 'Copy Direct UPI Payment Link'}</span>
                 </button>
               </div>
 
             </div>
 
-            {/* Live Transaction Settlement History Log */}
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Activity size={16} className="text-emerald-400" /> Recent Transactions & Live Settlement History
+            {/* Middle Section: ALL MULTIPLE GATEWAY API CREDENTIALS & WEBHOOKS */}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+                    <CreditCard size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">ALL MULTIPLE GATEWAYS & LIVE WEBHOOK INTEGRATION</h3>
+                    <p className="text-[11px] text-slate-400">क्रेडिट कार्ड, डेबिट कार्ड, नेटबँकिंग व EMI साठी गेटवे ॲक्टिव्हेट करा.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">
+                  Multi-Gateway Ready
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                
+                {/* 1. Razorpay Live Gateway */}
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5"><Landmark size={14} className="text-blue-400" /> Razorpay Live Gateway</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">Active</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Credit Card, Debit Card, NetBanking & No-Cost EMI Support</p>
+                  <div className="flex gap-2">
+                    <input type="text" defaultValue={gateways.razorpayKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" />
+                    <button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button>
+                  </div>
+                </div>
+
+                {/* 2. Cashfree Payments & Payouts */}
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> Cashfree Auto-Settlements</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">Active</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Instant Merchant Bank Settlement & UPI Auto-Collect Webhook</p>
+                  <div className="flex gap-2">
+                    <input type="text" defaultValue={gateways.cashfreeAppId} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" />
+                    <button onClick={() => alert('Cashfree क्रेडेन्शियल्स सेव्ह झाले!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button>
+                  </div>
+                </div>
+
+                {/* 3. Stripe Global Gateway */}
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5"><DollarSign size={14} className="text-purple-400" /> Stripe International Gateway</span>
+                    <span className="text-[10px] text-blue-400 font-bold">Connected</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Global International Customers, USD Payments & Apple Pay</p>
+                  <div className="flex gap-2">
+                    <input type="text" defaultValue={gateways.stripeKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" />
+                    <button onClick={() => alert('Stripe की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button>
+                  </div>
+                </div>
+
+                {/* 4. Paytm Merchant & Direct Webhook */}
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5"><ShieldCheck size={14} className="text-emerald-400" /> Paytm Merchant & Webhook URL</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">200 OK</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">ऑटोमॅटिक पेमेंट व्हेरिफिकेशन आणि लीड स्टेटस 'Won' करणे</p>
+                  <div className="flex gap-2">
+                    <input readOnly value="https://ai-growth-crm-nine.vercel.app/api/pay-webhook" className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono text-[11px] outline-none" />
+                    <button onClick={() => alert('Webhook कॉपी झाला!')} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs">Copy</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Bottom Section: RECENT SETTLED TRANSACTIONS LOG */}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl text-xs">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2">
+                  <Receipt size={15} className="text-emerald-400" /> Recent Payment Transactions & Settlements
                 </h3>
-                <span className="text-xs text-slate-400">एकूण {transactions.length} व्यवहार</span>
+                <span className="text-[10px] text-slate-400">Total Settled: <b className="text-white">₹45,200</b></span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[700px] text-xs">
-                  <thead className="bg-[#080c18] text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                <table className="w-full text-left min-w-[700px]">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
                     <tr>
-                      <th className="p-3.5">Txn ID / Customer</th>
-                      <th className="p-3.5">Service Details</th>
-                      <th className="p-3.5">Amount (₹)</th>
-                      <th className="p-3.5">Payment Method</th>
-                      <th className="p-3.5">Status</th>
-                      <th className="p-3.5">UTR / Reference</th>
+                      <th className="p-3">Txn ID</th>
+                      <th className="p-3">Customer</th>
+                      <th className="p-3">Amount</th>
+                      <th className="p-3">Method / Gateway</th>
+                      <th className="p-3">Date & Time</th>
+                      <th className="p-3 text-center">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                    {transactions.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-slate-800/30 transition">
-                        <td className="p-3.5">
-                          <p className="font-bold text-white">{tx.customerName}</p>
-                          <span className="text-[10px] text-slate-500 font-mono">{tx.id} • {tx.time}</span>
+                    {transactions.map((txn) => (
+                      <tr key={txn.id} className="hover:bg-slate-800/30">
+                        <td className="p-3 font-mono font-bold text-blue-400">{txn.id}</td>
+                        <td className="p-3">
+                          <p className="font-bold text-white">{txn.customerName}</p>
+                          <span className="text-[10px] text-slate-400">{txn.phone}</span>
                         </td>
-                        <td className="p-3.5 text-slate-300">{tx.service}</td>
-                        <td className="p-3.5 font-black text-white text-sm">₹{tx.amount.toLocaleString('en-IN')}</td>
-                        <td className="p-3.5 font-medium">{tx.method}</td>
-                        <td className="p-3.5">
+                        <td className="p-3 font-black text-white text-sm">₹{txn.amount.toLocaleString('en-IN')}</td>
+                        <td className="p-3 font-medium">{txn.gateway}</td>
+                        <td className="p-3 text-slate-400 font-mono text-[11px]">{txn.date}</td>
+                        <td className="p-3 text-center">
                           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                            tx.status === 'Success' ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/30' :
-                            tx.status === 'Pending' ? 'bg-amber-950/80 text-amber-400 border-amber-500/30' :
-                            'bg-rose-950/80 text-rose-400 border-rose-500/30'
+                            txn.status === 'Success' ? 'bg-emerald-950 text-emerald-400 border-emerald-600/40' :
+                            txn.status === 'Pending' ? 'bg-amber-950 text-amber-400 border-amber-600/40' :
+                            'bg-rose-950 text-rose-400 border-rose-600/40'
                           }`}>
-                            {tx.status}
+                            {txn.status === 'Success' ? '● Paid' : txn.status}
                           </span>
                         </td>
-                        <td className="p-3.5 font-mono text-[11px] text-slate-400">{tx.utr || '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1028,7 +941,6 @@ export default function DashboardPage() {
               <div><label className="text-slate-400 block mb-1">System Prompt</label><textarea rows={4} defaultValue="तुम्ही Ishwari Mobile चे स्मार्ट असिस्टंट आहात. ग्राहकांना मराठीत नम्रतेने उत्तरे द्या." className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" /></div>
               <button onClick={() => alert('सेटिंग्स सेव्ह झाल्या!')} className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl">Save Prompts</button>
             </div>
-
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 text-xs flex flex-col justify-between h-[420px]">
               <h3 className="font-bold text-white uppercase text-[11px]">Live Simulator</h3>
               <div className="bg-[#080b12] p-4 rounded-2xl border border-slate-800 space-y-2 h-60 overflow-y-auto">
@@ -1073,7 +985,7 @@ export default function DashboardPage() {
             <h3 className="font-bold text-white uppercase text-[11px] flex items-center justify-center gap-2"><GitBranch size={16} className="text-blue-400" /> Automation Nodes</h3>
             <div className="p-3 bg-blue-950/60 border border-blue-600/50 rounded-xl font-bold text-blue-300 max-w-md mx-auto">1. Trigger: New Lead Inbound from Meta Ads / Website</div>
             <div className="text-slate-500 font-bold">↓ (Instant)</div>
-            <div className="p-3 bg-emerald-950/60 border border-emerald-600/50 rounded-xl font-bold text-emerald-300 max-w-md mx-auto">2. Action: Send Welcome WhatsApp Message</div>
+            <div className="p-3 bg-emerald-950/60 border border-emerald-600/50 rounded-xl font-bold text-emerald-300 max-w-md mx-auto">2. Action: Send Welcome WhatsApp Message & Payment QR</div>
           </div>
         )}
 
@@ -1168,7 +1080,7 @@ export default function DashboardPage() {
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Inbound Lead'}</h3>
+                <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Lead'}</h3>
                 <button onClick={() => setIsLeadModalOpen(false)} className="text-slate-400 hover:text-white p-1"><X size={18} /></button>
               </div>
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
@@ -1231,25 +1143,6 @@ export default function DashboardPage() {
                   <button type="submit" className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg">{editingLead ? 'बदल सेव्ह करा' : 'लीड सेव्ह करा'}</button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
-
-        {/* FULLSCREEN PREVIEW MODAL */}
-        {isPreviewModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 md:p-6 animate-in fade-in duration-200">
-            <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-              <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
-                <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Live Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="p-4 bg-[#07090e] rounded-2xl border border-slate-800 space-y-4">
-                  <h3 className="text-xl font-black text-white">{currentSite.businessName}</h3>
-                  <p className="text-xs text-slate-300">{currentSite.headline}</p>
-                  <img src={currentSite.heroImage} alt="Hero" className="w-full h-48 object-cover rounded-xl" />
-                </div>
-              </div>
             </div>
           </div>
         )}
