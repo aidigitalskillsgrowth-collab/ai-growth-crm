@@ -16,9 +16,9 @@ import {
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
 
-// Supabase Real Client Initialization
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-supabase-project.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+// Supabase Real Client Initialization (Your Project Credentials)
+const supabaseUrl = 'https://yvaqrcdqehybzznpwaeb.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -172,7 +172,7 @@ export default function DashboardPage() {
   const handleSupabaseForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authEmail.trim()) {
-      setAuthError('कृपया तुमचा नोंदणीकृत ईमेल टाка!');
+      setAuthError('कृपया तुमचा नोंदणीकृत ईमेल टाका!');
       return;
     }
     setAuthLoading(true);
