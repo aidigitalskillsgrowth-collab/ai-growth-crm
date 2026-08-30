@@ -16,9 +16,9 @@ import {
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
 
-// Real Supabase Client Initialization with your verified Anon Key
+// Supabase Direct Client Initialization (No extra file needed)
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIxlvcmxlIjoiYW5vbiIsImlhdCI6MTc4NzI5NTUxMCwiZXhwIjoyMTAyODcxNTEwfQ.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -103,7 +103,7 @@ export default function DashboardPage() {
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>('');
 
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('payments');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -339,7 +339,7 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Payment Setup States
+  // Payment Setup States (Razorpay & Cashfree Integrated)
   const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
   const [businessNameUpi, setBusinessNameUpi] = useState<string>('Ishwari Mobile & CSC');
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
@@ -348,7 +348,7 @@ export default function DashboardPage() {
   const [amount, setAmount] = useState<string>('2500');
   const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
-  // Multi-Gateway API Credentials State
+  // Multi-Gateway API Credentials State (Razorpay, Cashfree, Stripe, Paytm)
   const [gateways, setGateways] = useState({
     razorpayKey: 'rzp_live_98xK19873219472',
     razorpaySecret: '••••••••••••••••••••••••',
