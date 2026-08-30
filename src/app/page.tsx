@@ -11,8 +11,7 @@ import {
   Clock, MapPin, Phone, Edit3, Trash2, Filter, X, CheckSquare, Tag,
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
-  CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause
+  CreditCard, Landmark, ShieldCheck, DollarSign, Receipt
 } from 'lucide-react';
 
 interface Testimonial {
@@ -79,7 +78,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('agents');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -149,7 +148,7 @@ export default function DashboardPage() {
     female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   };
 
-  // 10 Full Templates Database
+  // 10 Full 5-Star Templates Database
   const templatesDb: Record<string, TemplateData> = {
     'CSC & Online Services': {
       id: 'CSC & Online Services',
@@ -233,6 +232,202 @@ export default function DashboardPage() {
       testimonials: [
         { name: 'ज्ञानेश्वर माने', avatar: avatars.male1, location: 'सांगली', review: 'रूट कॅनल करताना अजिबात त्रास झाला नाही. डॉक्टरांचे बोलणे खूप दिलासा देणारे आहे.', rating: 5 },
         { name: 'सुप्रिया भोसले', avatar: avatars.female2, location: 'मिरज', review: 'सांधेदुखीवर इथे खूप चांगला गुण आला. अत्यंत स्वच्छ रुग्णालय.', rating: 5 }
+      ]
+    },
+    'Real Estate & Property': {
+      id: 'Real Estate & Property',
+      businessName: 'रॉयल हेरिटेज लक्झरी होम्स & व्हिलाज',
+      tagline: 'प्रिमियम २ व ३ BHK लक्झरी फ्लॅट्स आणि कमर्शियल दुकाने',
+      headline: 'तुमच्या स्वप्नातील लक्झरी घर - मोफत क्लबहाऊस आणि ०% ब्रोकरेज!',
+      subheadline: 'प्राइम लोकेशन, २५+ जागतिक दर्जाच्या सोयीसुविधा आणि बँकांकडून ९०% पर्यंत होम लोन उपलब्ध.',
+      heroImage: industryImages.property,
+      phone: '9822334455',
+      email: 'sales@royalheritagehomes.com',
+      address: 'हायवे टच, ग्रीन व्हॅली, सांगली',
+      timing: 'सकाळी ९:०० ते संध्याकाळी ७:००',
+      primaryCta: 'मोफत साईट व्हिजिट बुक करा',
+      badge: '★ RERA रजिस्टर्ड प्रोजेक्ट',
+      services: [
+        { title: '२ BHK प्रिमियम अपार्टमेंट', desc: 'विशाल बाल्कनी, मॉड्युलर किचन आणि सुरक्षित कव्हर्ड कार पार्किंग.', price: '₹३८ लाख पासून' },
+        { title: '३ BHK लक्झरी पेंटहाऊस', desc: 'प्रायव्हेट टेरेस गार्डन, मास्टर बेडरूम आणि लाइफटाइम क्लब अ‍ॅक्सेस.', price: '₹५८ लाख पासून' },
+        { title: 'मेन रोड टच कमर्शियल शॉप्स', desc: 'भरभराटीच्या बिझनेससाठी मोक्याच्या ठिकाणी दुकाने आणि ऑफिसेस.', price: '₹२५ लाख पासून' }
+      ],
+      stats: [
+        { label: 'हँडओव्हर फ्लॅट्स', value: '६५०+' },
+        { label: 'रेरा नोंदणीकृत', value: '१००%' },
+        { label: 'बँक लोन सुविधा', value: '९०%' }
+      ],
+      testimonials: [
+        { name: 'विकास मोरे', avatar: avatars.male2, location: 'पुणे', review: 'बांधकामाची गुणवत्ता अप्रतिम आहे आणि वेळेआधी पझेशन मिळाले. १ रुपयाही ब्रोकरेज घेतले नाही.', rating: 5 },
+        { name: 'स्नेहल पवार', avatar: avatars.female1, location: 'सांगली', review: 'साईट व्हिजिटपासून ते लोन मंजूर होईपर्यंत सर्व मदत टीमने केली.', rating: 5 }
+      ]
+    },
+    'Gym & Fitness': {
+      id: 'Gym & Fitness',
+      businessName: 'पॉवरफिट युनिव्हर्सल जिम & क्रॉसफिट स्टुडिओ',
+      tagline: 'बॉडी ट्रान्सफॉर्मेशन, स्ट्रेंथ आणि पर्सनल फिटनेस क्लब',
+      headline: '९० दिवसांत बॉडी ट्रान्सफॉर्मेशन करा - सर्टिफाइड फिटनेस कोचेसकडून!',
+      subheadline: 'आधुनिक इम्पोर्टेड उपकरणे, स्टीम बाथ, न्यूट्रिशन डाएट प्लॅन आणि १:१ पर्सनल ट्रेनिंग उपलब्ध.',
+      heroImage: industryImages.gym,
+      phone: '9890123456',
+      email: 'fit@powerfitgym.com',
+      address: 'जिमखाना रोड, सांगली',
+      timing: 'सकाळी ५:३० ते रात्री १०:००',
+      primaryCta: '३ दिवस मोफत ट्रायल पास मिळवा',
+      badge: '★ सर्टिफाइड फिटनेस ट्रेनर्स',
+      services: [
+        { title: 'वेट लॉस आणि फॅट बर्निंग प्रोग्रॅम', desc: 'कार्डिओ, झुम्बा आणि स्पेशल न्यूट्रिशन डाएट गायडन्स.', price: '₹१,२९९ / महिना' },
+        { title: 'मसल बिल्डिंग & हेवी स्ट्रेंथ', desc: 'इम्पोर्टेड मशिन्स, हेवी वेट्स आणि व्हे प्रोटीन कन्सल्टन्सी.', price: '₹१,४९९ / महिना' },
+        { title: '१:१ पर्सनल कोचिंग बॅच', desc: 'प्रमाणित कोचकडून वैयक्तिक लक्ष आणि १००% गॅरंटीड रिझल्ट्स.', price: '₹३,९९९ / महिना' }
+      ],
+      stats: [
+        { label: 'ट्रान्सफॉर्मेशन्स', value: '३,०००+' },
+        { label: 'प्रमाणित ट्रेनर्स', value: '१२+' },
+        { label: 'गुगल रेटिंग', value: '५.० ★' }
+      ],
+      testimonials: [
+        { name: 'रोहन शिंदे', avatar: avatars.male1, location: 'सांगली', review: 'मी ३ महिन्यांत १२ किलो वजन कमी केले. ट्रेनर्स खूप सपोर्टिव्ह आणि शिस्तबद्ध आहेत.', rating: 5 },
+        { name: 'दिनेश गायकवाड', avatar: avatars.male2, location: 'मिरज', review: 'जिममधील वातावरण आणि उपकरणे खूपच आंतरराष्ट्रीय दर्जाची आहेत.', rating: 5 }
+      ]
+    },
+    'Coaching Academy': {
+      id: 'Coaching Academy',
+      businessName: 'अ‍ॅपेक्स AI & डिजिटल करिअर अकॅडमी',
+      tagline: '१००% प्रॅक्टिकल डिजिटल मार्केटिंग, AI स्किल्स आणि कोडिंग',
+      headline: 'AI आणि डिजिटल मार्केटिंग शिका आणि घरबसल्या दरमहा ₹५०,०००+ कमवा!',
+      subheadline: 'लाइव्ह प्रोजेक्ट्सवर प्रॅक्टिकल ट्रेनिंग, १००% जॉब प्लेसमेंट असिस्टन्स आणि मोफत प्रिमियम सॉफ्टवेअर टूल्स.',
+      heroImage: industryImages.academy,
+      phone: '9860127890',
+      email: 'admissions@apexacademy.com',
+      address: 'विश्रामबाग, कॉलेज कॉर्नर, सांगली',
+      timing: 'सकाळी ८:०० ते संध्याकाळी ८:००',
+      primaryCta: 'मोफत डेमो क्लास बुक करा',
+      badge: '★ सरकारी मान्यताप्राप्त संस्था',
+      services: [
+        { title: 'Meta Ads & Google Ads मास्टरक्लास', desc: 'स्थानिक व्यवसायांसाठी जाहिराती चालवून दररोज लीड्स कशा मिळवायच्या ते शिका.', price: '₹४,९९९' },
+        { title: 'ChatGPT, Canva & AI टूल्स कोर्स', desc: 'सर्व आधुनिक AI टूल्सचा वापर करून बिझनेस ऑटोमेशनचे प्रॅक्टिकल शिक्षण.', price: '₹३,४९९' },
+        { title: '३ महिन्यांचा करिअर मास्टर डिप्लोमा', desc: '१००% जॉब आणि फ्रीलान्सिंग क्लायंट मिळवण्याच्या संपूर्ण मार्गदर्शनासह.', price: '₹९,९९९' }
+      ],
+      stats: [
+        { label: 'प्रशिक्षित विद्यार्थी', value: '२,२००+' },
+        { label: 'जॉब प्लेसमेंट दर', value: '९६%' },
+        { label: 'प्रॅक्टिकल प्रोजेक्ट्स', value: '५०+' }
+      ],
+      testimonials: [
+        { name: 'पूजा कुलकर्णी', avatar: avatars.female1, location: 'सांगली', review: 'कोर्स संपताच मला ₹३०,००० ची डिजिटल मार्केटिंग जॉब मिळाली. अत्यंत सोप्या भाषेत शिकवले जाते.', rating: 5 },
+        { name: 'सुप्रिया भोसले', avatar: avatars.female2, location: 'मिरज', review: 'घरी बसून फ्रीलान्सिंग कसे करायचे याचे अतिशय मोलाचे मार्गदर्शन मिळाले.', rating: 5 }
+      ]
+    },
+    'Restaurant & Cafe': {
+      id: 'Restaurant & Cafe',
+      businessName: 'हॉटेल शिवनेरी & फॅमिली रेस्टॉरंट',
+      tagline: 'अस्सल महाराष्ट्रीयन घरगुती चव, स्पेशल थाळी आणि बिर्याणी',
+      headline: 'अस्सल गावरान चव आणि मराठमोळे आदरातिथ्य - हॉटेल शिवनेरी!',
+      subheadline: 'स्पेशल मटण/चिकन थाळी, तांबडा-पांढरा रस्सा, अस्सल शाकाहारी जेवण आणि कौटुंबिक बैठक व्यवस्था.',
+      heroImage: industryImages.restaurant,
+      phone: '9730445566',
+      email: 'order@hotelshivneri.com',
+      address: 'हायवे कॉर्नर, मिरज रोड, सांगली',
+      timing: 'सकाळी ११:०० ते रात्री ११:००',
+      primaryCta: 'तुमचे टेबल / ऑर्डर बुक करा',
+      badge: '★ FSSAI प्रमाणित स्वच्छता',
+      services: [
+        { title: 'स्पेशल शिवनेरी मटण थाळी', desc: 'तांबडा-पांढरा रस्सा, चुलीवरची बाजरीची भाकरी, मटण सुक्का आणि इंद्रायणी भात.', price: '₹३५०' },
+        { title: 'महाराजा स्पेशल व्हेज थाळी', desc: '२ स्पेशल भाज्या, गरमागरम चपाती, डाळ तडका, गोड शिरा आणि पापड.', price: '₹२२०' },
+        { title: 'कौटुंबिक बर्थडे & पार्टी हॉल', desc: '५० ते १५० लोकांसाठी स्पेशल वातानुकूलित हॉल आणि केटरिंग व्यवस्था.', price: 'स्पेशल डिस्काउंट' }
+      ],
+      stats: [
+        { label: 'आनंदी खवय्ये', value: '६०,०००+' },
+        { label: 'स्पेशल डिशेस', value: '४५+' },
+        { label: 'चवीची गॅरंटी', value: '१००%' }
+      ],
+      testimonials: [
+        { name: 'अनिल काळे', avatar: avatars.male2, location: 'सांगली', review: 'तांबडा पांढरा रस्सा आणि बाजरीची भाकरी एक नंबर होती! फॅमिलीसाठी सर्वोत्तम हॉटेल.', rating: 5 },
+        { name: 'किरण थोरात', avatar: avatars.male1, location: 'मिरज', review: 'सर्व्हिस खूप तत्पर आहे आणि जेवणाची चव अगदी घरगुती आहे.', rating: 5 }
+      ]
+    },
+    'Auto Garage': {
+      id: 'Auto Garage',
+      businessName: 'स्पीड ऑटोकेअर & मल्टीब्रँड कार सर्व्हिस',
+      tagline: 'कम्प्लिट कार वॉश, डेंटिंग, पेंटिंग, AC आणि इंजिन रिपेअरिंग',
+      headline: 'तुमच्या गाडीची विश्वासार्ह आणि आधुनिक सर्व्हिसिंग - मोफत डोअरस्टेप पिकअप!',
+      subheadline: 'ओरिजिनल स्पेअर पार्ट्स, कम्प्युटराइज्ड स्कॅनिंग, कॅशलेस इन्शुरन्स क्लेम आणि अनुभवी मेकॅनिक्स.',
+      heroImage: industryImages.garage,
+      phone: '9823998877',
+      email: 'service@speedautocare.com',
+      address: 'एमआयडीसी, कुपवाड रोड, सांगली',
+      timing: 'सकाळी ९:०० ते रात्री ८:०० (रविवार सुरू)',
+      primaryCta: 'सर्व्हिसिंग स्लॉट बुक करा',
+      badge: '★ ओरिजिनल OEM स्पेअर पार्ट्स',
+      services: [
+        { title: 'कम्प्लिट जनरल सर्व्हिसिंग', desc: 'सिंथेटिक इंजिन ऑईल चेंज, ऑईल फिल्टर, ब्रेक क्लिनिंग आणि ४०-पॉईंट चेकअप.', price: '₹१,४९९ पासून' },
+        { title: 'फोम वॉश & इंटिरियर डीप क्लीन', desc: 'हाय-प्रेशर अंडरबॉडी वॉश, व्हॅक्यूम क्लीनिंग आणि डॅशबोर्ड पॉलिशिंग.', price: '₹४९९ पासून' },
+        { title: 'कम्प्युटर डेंटिंग & पेंटिंग', desc: 'कम्प्युटराइज्ड कलर मॅचिंग, स्क्रॅच रिमूव्हल आणि कॅशलेस इन्शुरन्स काम.', price: 'बेस्ट प्राईस' }
+      ],
+      stats: [
+        { label: 'गाड्यांची सर्व्हिसिंग', value: '६,०००+' },
+        { label: 'अनुभवी मेकॅनिक', value: '१५+' },
+        { label: 'समाधानी ग्राहक', value: '९९%' }
+      ],
+      testimonials: [
+        { name: 'महेश जाधव', avatar: avatars.male1, location: 'सांगली', review: 'माझ्या कारचा आवाज एका तासात शोधून गाडी एकदम स्मूथ करून दिली. वाजवी दर आहेत.', rating: 5 },
+        { name: 'राहुल सावंत', avatar: avatars.male2, location: 'कुपवाड', review: 'फोम वॉशिंग आणि इंटिरियर क्लिनिंग इतकी छान केली की गाडी शोरूमसारखी नवीन वाटत आहे.', rating: 5 }
+      ]
+    },
+    'Beauty Parlour': {
+      id: 'Beauty Parlour',
+      businessName: 'रुपम ब्रायडल & ब्युटी मेकओव्हर स्टुडिओ',
+      tagline: 'प्रोफेसनल ब्रायडल मेकअप, हेअर स्पा आणि स्किन केअर ट्रीटमेंट्स',
+      headline: 'तुमच्या खास दिवशी मिळवा स्वप्नवत आणि आकर्षक लूक - प्रिमियम ब्रायडल मेकअप!',
+      subheadline: 'HD आणि एअरब्रश मेकअप, प्री-ब्रायडल पॅकेजेस, हेअर स्मूथनिंग आणि इंटरनॅशनल ब्रँड्सची स्किन केअर.',
+      heroImage: industryImages.beauty,
+      phone: '9765432109',
+      email: 'bridal@rupambeauty.com',
+      address: 'गांधी चौक, सांगली',
+      timing: 'सकाळी १०:०० ते संध्याकाळी ८:००',
+      primaryCta: 'ब्रायडल स्लॉट बुक करा',
+      badge: '★ इंटरनॅशनल प्रमाणित आर्टिस्ट्स',
+      services: [
+        { title: 'HD & एअरब्रश ब्रायडल मेकअप', desc: 'वॉटरप्रूफ मेकअप, हेअरस्टाईल, साडी ड्रेपिंग आणि ज्वेलरी सेटिंगसह परिपूर्ण लूक.', price: '₹६,९९९ पासून' },
+        { title: 'स्किन ब्राईटनिंग & ग्लो फेशियल', desc: 'इंटरनॅशनल ब्रँड्सचे डी-टॅन, हायड्रा फेशियल आणि इन्स्टंट ग्लो थेरपी.', price: '₹८९९ पासून' },
+        { title: 'केराटिन & हेअर स्मूथनिंग', desc: 'सिल्की, चमकदार आणि मजबूत केसांसाठी प्रिमियम हेअर स्पा ट्रीटमेंट.', price: '₹१,९९९ पासून' }
+      ],
+      stats: [
+        { label: 'नवरींचे मेकओव्हर', value: '१,५००+' },
+        { label: 'प्रमाणित आर्टिस्ट्स', value: '८+' },
+        { label: '५-स्टार रेटिंग', value: '१००%' }
+      ],
+      testimonials: [
+        { name: 'स्नेहल पवार', avatar: avatars.female1, location: 'सांगली', review: 'माझ्या लग्नात सर्वांनी मेकअपचे खूप कौतुक केले. खूप नॅचरल लूक दिला होता!', rating: 5 },
+        { name: 'प्रियांका शिंदे', avatar: avatars.female2, location: 'मिरज', review: 'सर्व्हिस खूप तत्पर आहे आणि प्रॉडक्ट्स १००% ओरिजिनल वापरतात.', rating: 5 }
+      ]
+    },
+    'Digital Agency & AI': {
+      id: 'Digital Agency & AI',
+      businessName: 'महाग्रोथ मेटा ॲड्स & AI सोल्युशन्स',
+      tagline: 'स्थानिक व्यवसायांची विक्री Meta Lead Ads द्वारे १० पटीने वाढवा',
+      headline: 'तुमच्या बिझनेससाठी दररोज ५०+ थेट ग्राहक आणि कॉल्स मिळवा - १००% गॅरंटी!',
+      subheadline: 'Facebook & Instagram हाय-कन्व्हर्टिंग लीड्स ॲड्स, WhatsApp ऑटोमेशन बॉट आणि १ दिवसात तयार होणारी ५-स्टार वेबसाइट.',
+      heroImage: industryImages.agency,
+      phone: '9876543210',
+      email: 'growth@mahagrowth.in',
+      address: 'आयटी पार्क, कॉलेज रोड, सांगली',
+      timing: 'सकाळी ९:०० ते संध्याकाळी ७:००',
+      primaryCta: 'मोफत मार्केटिंग ऑडिट मिळवा',
+      badge: '★ Meta अधिकृत मीडिया पार्टनर',
+      services: [
+        { title: 'Meta Lead Ads मोहीम', desc: 'तुमच्या परिसरातील ग्राहकांसाठी टार्गेटेड जाहिराती आणि थेट फोन कॉल्स.', price: '₹४,९९९ / महिना' },
+        { title: 'WhatsApp AI ऑटोमेशन बॉट', desc: '२४ तास ग्राहकांना आपोआप उत्तरे देणारा आणि पेमेंट लिंक पाठवणारा बॉट.', price: '₹२,९९९' },
+        { title: 'हाय-कन्व्हर्टिंग लँडिंग पेज', desc: 'मोबाईल-फ्रेंडली, जलद उघडणारी आणि थेट WhatsApp जोडलेली आधुनिक वेबसाइट.', price: '₹३,४९९' }
+      ],
+      stats: [
+        { label: 'वाढवलेले व्यवसाय', value: '१८०+' },
+        { label: 'सरासरी ROI', value: '१०X' },
+        { label: 'व्युवसाय महसूल वाढ', value: '३००%' }
+      ],
+      testimonials: [
+        { name: 'ईश्वरी मोबाईल', avatar: avatars.male1, location: 'सांगली', review: 'महाग्रोथने मेटा ॲड्स सुरू केल्यावर आमच्या दुकानात दररोज नवीन ग्राहकांची गर्दी होत आहे!', rating: 5 },
+        { name: 'संजीवनी क्लिनिक', avatar: avatars.female1, location: 'मिरज', review: 'दररोज १०+ नवीन रुग्णांच्या अपॉइंटमेंट्स आपोआप बुक होत आहेत. अप्रतिम निकाल!', rating: 5 }
       ]
     }
   };
@@ -380,7 +575,7 @@ export default function DashboardPage() {
     }
   };
 
-  // ================= ADVANCED AI CHATBOT STATES =================
+  // ================= AI CHATBOT STATES =================
   const [botConfig, setBotConfig] = useState({
     name: 'Ishwari AI Assistant',
     personality: 'Professional & Friendly',
@@ -620,13 +815,27 @@ export default function DashboardPage() {
         matchedKey = 'Mobile & Electronics';
       } else if (lower.includes('doctor') || lower.includes('clinic') || lower.includes('दवाखाना') || lower.includes('दात') || lower.includes('हॉस्पिटल')) {
         matchedKey = 'Doctor & Clinic';
+      } else if (lower.includes('flat') || lower.includes('घर') || lower.includes('property') || lower.includes('real estate') || lower.includes('बिल्डर') || lower.includes('प्लॉट')) {
+        matchedKey = 'Real Estate & Property';
+      } else if (lower.includes('gym') || lower.includes('फिटनेस') || lower.includes('व्यायाम') || lower.includes('कसरत') || lower.includes('जिम')) {
+        matchedKey = 'Gym & Fitness';
+      } else if (lower.includes('hotel') || lower.includes('हॉटेल') || lower.includes('जेवण') || lower.includes('थाळी') || lower.includes('रेस्टॉरंट') || lower.includes('कॅफे')) {
+        matchedKey = 'Restaurant & Cafe';
+      } else if (lower.includes('garage') || lower.includes('कार') || lower.includes('गाडी') || lower.includes('सर्व्हिस') || lower.includes('गॅरेज') || lower.includes('वॉश')) {
+        matchedKey = 'Auto Garage';
+      } else if (lower.includes('beauty') || lower.includes('पार्लर') || lower.includes('मेकअप') || lower.includes('ब्रायडल') || lower.includes('सलून')) {
+        matchedKey = 'Beauty Parlour';
+      } else if (lower.includes('class') || lower.includes('अकॅडमी') || lower.includes('कोर्स') || lower.includes('शिकणे') || lower.includes('क्लास') || lower.includes('ट्यूशन')) {
+        matchedKey = 'Coaching Academy';
+      } else if (lower.includes('agency') || lower.includes('मार्केटिंग') || lower.includes('ad') || lower.includes('जाहिरात') || lower.includes('डिजिटल')) {
+        matchedKey = 'Digital Agency & AI';
       }
 
       if (matchedKey && templatesDb[matchedKey]) {
         setSelectedTemplate(matchedKey);
         setCurrentSite(templatesDb[matchedKey]);
       } else {
-        const cleanTitle = promptInput.replace(/५-स्टार|5 star|स्टार|वेबसाइट|बनवा|करा|sathi|साठी|landing page|website/gi, '').trim() || 'प्रिमियम बिझनेस';
+        const cleanTitle = promptInput.replace(/५-स्टार|5 star|स्टार|वेबसाइट|बनवा|करा|sathi|साठी|landing page|website|तयार|हवी|आहे/gi, '').trim() || 'प्रिमियम बिझनेस';
         const dynamicSite: TemplateData = {
           id: 'AI Custom Generated',
           businessName: `${cleanTitle} प्रिमियम हब`,
@@ -836,14 +1045,15 @@ export default function DashboardPage() {
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
-              {activeTab === 'agents' ? 'AI Agents & 24/7 Chatbot' : 
+              {activeTab === 'dashboard' ? 'Growth Dashboard' : 
+               activeTab === 'leads' ? 'Growth Leads Directory' : 
+               activeTab === 'pipeline' ? 'Growth CRM & Pipeline' :
+               activeTab === 'website' ? '5-Star Website & Funnels' :
+               activeTab === 'payments' ? 'Payment Gateways & UPI' :
+               activeTab === 'agents' ? 'AI Agents & 24/7 Chatbot' :
                activeTab === 'meta_ads' ? 'Meta Lead Ads Launcher' :
                activeTab === 'inbox' ? 'AI Inbox & WhatsApp Suite' :
-               activeTab === 'ivr' ? 'AI Sales & Outbound IVR' :
-               activeTab === 'dashboard' ? 'Growth Dashboard' : 
-               activeTab === 'leads' ? 'Growth Leads' : 
-               activeTab === 'pipeline' ? 'Growth CRM & Pipeline' :
-               activeTab === 'payments' ? 'Payment Gateways (All)' : activeTab.replace('_', ' ')}
+               activeTab === 'ivr' ? 'AI Sales & Outbound IVR' : activeTab.replace('_', ' ')}
             </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
@@ -851,7 +1061,7 @@ export default function DashboardPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search leads, bots, campaigns..."
+                placeholder="Search anything in CRM..."
                 className="bg-transparent text-white outline-none w-full"
               />
             </div>
@@ -937,6 +1147,45 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-slate-300 block">AI Voice Agent Success</span>
                 <p className="text-2xl font-black text-emerald-400 mt-1">82.4% Answer Rate</p>
                 <p className="text-xs text-slate-400">Positive Customer Sentiment: <span className="text-white font-bold">76%</span></p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2"><Layers size={16} className="text-blue-400" /> Pipeline Stages</h2>
+                <div className="space-y-2 text-xs">
+                  {stages.filter(s => s !== 'All').map((stg, i) => (
+                    <div key={stg} className="p-3 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                      <span className="font-bold text-slate-300">{i + 1}. {stg}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 font-bold">{leads.filter(l => l.status === stg).length} Leads</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2"><Users size={16} className="text-emerald-400" /> Recent Inbound Leads</h2>
+                  <button onClick={() => setActiveTab('leads')} className="text-xs text-blue-400 font-bold hover:underline">View All ({leads.length}) →</button>
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60 text-xs">
+                  {leads.slice(0, 5).map((l) => (
+                    <div key={l.id} className="py-2.5 flex items-center justify-between hover:bg-slate-800/20 px-2 rounded-lg transition">
+                      <div>
+                        <p className="font-bold text-white">{l.name}</p>
+                        <p className="text-[11px] text-slate-400">{l.phone} • {l.service}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <a href={`https://wa.me/91${l.phone}`} target="_blank" rel="noreferrer" className="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold text-[11px] flex items-center gap-1">
+                          <MessageSquare size={12} /> WhatsApp
+                        </a>
+                        <button onClick={() => alert(`${l.name} ला AI कॉल लावला जात आहे...`)} className="px-2.5 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg font-bold text-[11px] flex items-center gap-1">
+                          <PhoneCall size={12} /> AI Call
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -1157,148 +1406,46 @@ export default function DashboardPage() {
         {/* ================= 6. ADVANCED AI AGENTS & CHATBOT ================= */}
         {activeTab === 'agents' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left Column: AI Agent Configuration */}
             <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Bot size={18} className="text-blue-400" />
-                  <h3 className="font-bold text-white text-sm">AI Agent & Bot Studio</h3>
-                </div>
+                <div className="flex items-center gap-2"><Bot size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">AI Agent & Bot Studio</h3></div>
                 <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">● Live Agent Active</span>
               </div>
-
-              <div>
-                <label className="text-slate-300 block mb-1 font-bold">Agent Name</label>
-                <input 
-                  type="text" 
-                  value={botConfig.name} 
-                  onChange={(e) => setBotConfig({ ...botConfig, name: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500" 
-                />
-              </div>
-
+              <div><label className="text-slate-300 block mb-1 font-bold">Agent Name</label><input type="text" value={botConfig.name} onChange={(e) => setBotConfig({ ...botConfig, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-300 block mb-1 font-bold">Personality Mode</label>
-                  <select 
-                    value={botConfig.personality} 
-                    onChange={(e) => setBotConfig({ ...botConfig, personality: e.target.value })}
-                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
-                  >
-                    <option value="Professional & Friendly">Professional & Friendly</option>
-                    <option value="Urgent Sales Closer">Urgent Sales Closer</option>
-                    <option value="Direct Support Assistant">Direct Support Assistant</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1 font-bold">Primary Language</label>
-                  <select 
-                    value={botConfig.language} 
-                    onChange={(e) => setBotConfig({ ...botConfig, language: e.target.value })}
-                    className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
-                  >
-                    <option value="मराठी + English (Hinglish)">मराठी + English</option>
-                    <option value="शुद्ध मराठी (Marathi)">शुद्ध मराठी</option>
-                    <option value="Hindi + English">Hindi + English</option>
-                  </select>
-                </div>
+                <div><label className="text-slate-300 block mb-1 font-bold">Personality Mode</label><select value={botConfig.personality} onChange={(e) => setBotConfig({ ...botConfig, personality: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"><option value="Professional & Friendly">Professional & Friendly</option><option value="Urgent Sales Closer">Urgent Sales Closer</option></select></div>
+                <div><label className="text-slate-300 block mb-1 font-bold">Primary Language</label><select value={botConfig.language} onChange={(e) => setBotConfig({ ...botConfig, language: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"><option value="मराठी + English (Hinglish)">मराठी + English</option><option value="शुद्ध मराठी (Marathi)">शुद्ध मराठी</option></select></div>
               </div>
-
-              <div>
-                <label className="text-slate-300 block mb-1 font-bold">System Prompt & Business Knowledge Base</label>
-                <textarea 
-                  rows={4} 
-                  value={botConfig.systemPrompt} 
-                  onChange={(e) => setBotConfig({ ...botConfig, systemPrompt: e.target.value })} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 resize-none leading-relaxed" 
-                />
-              </div>
-
-              <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-white block">Auto Discount Trigger</span>
-                  <span className="text-[10px] text-slate-400">ग्राहक किंमत विचारताच {botConfig.discountPercent}% ऑफर द्या</span>
-                </div>
-                <input 
-                  type="checkbox" 
-                  checked={botConfig.autoDiscount} 
-                  onChange={(e) => setBotConfig({ ...botConfig, autoDiscount: e.target.checked })} 
-                  className="w-4 h-4 accent-blue-600 rounded cursor-pointer" 
-                />
-              </div>
-
-              <button 
-                onClick={() => alert('AI Agent Configuration यशस्वीरीत्या सेव्ह झाले!')} 
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition text-xs"
-              >
-                Save & Deploy AI Agent
-              </button>
+              <div><label className="text-slate-300 block mb-1 font-bold">System Prompt & Business Knowledge Base</label><textarea rows={4} value={botConfig.systemPrompt} onChange={(e) => setBotConfig({ ...botConfig, systemPrompt: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none resize-none leading-relaxed" /></div>
+              <button onClick={() => alert('AI Agent Configuration यशस्वीरीत्या सेव्ह झाले!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Save & Deploy AI Agent</button>
             </div>
 
-            {/* Right Column: Live Chatbot Simulator with Quick Chips */}
             <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 text-xs shadow-xl flex flex-col justify-between h-[550px]">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                    🤖
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white text-xs">{botConfig.name}</h4>
-                    <span className="text-[10px] text-emerald-400">● Online | 24/7 Simulator</span>
-                  </div>
-                </div>
+                <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">🤖</div><div><h4 className="font-bold text-white text-xs">{botConfig.name}</h4><span className="text-[10px] text-emerald-400">● Online | 24/7 Simulator</span></div></div>
                 <button onClick={() => setChatMessages([chatMessages[0]])} className="text-[10px] text-slate-400 hover:text-white">Clear Chat</button>
               </div>
 
-              {/* Chat Message Stream */}
               <div className="flex-1 overflow-y-auto space-y-3 p-2 bg-[#080b12] rounded-2xl border border-slate-800">
                 {chatMessages.map((m, i) => (
                   <div key={i} className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`p-3 rounded-2xl max-w-[80%] leading-relaxed ${
-                      m.sender === 'user' 
-                        ? 'bg-blue-600 text-white rounded-br-none shadow-md' 
-                        : 'bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700'
-                    }`}>
-                      {m.text}
-                    </div>
+                    <div className={`p-3 rounded-2xl max-w-[80%] leading-relaxed ${m.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none shadow-md' : 'bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700'}`}>{m.text}</div>
                     <span className="text-[9px] text-slate-500 mt-1 px-1">{m.time}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Quick Prompt Chips */}
               <div className="flex gap-1.5 overflow-x-auto pb-1">
                 {['नवीन 5G मोबाईल किंमत काय?', 'सरकारी दाखले किती दिवसांत मिळतील?', 'UPI द्वारे पेमेंट करायचे आहे'].map((chip, idx) => (
-                  <button 
-                    key={idx} 
-                    onClick={() => { setInputMsg(chip); }} 
-                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] whitespace-nowrap border border-slate-700 transition"
-                  >
-                    {chip}
-                  </button>
+                  <button key={idx} onClick={() => setInputMsg(chip)} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-[10px] whitespace-nowrap border border-slate-700">{chip}</button>
                 ))}
               </div>
 
-              {/* Chat Input Bar */}
               <div className="flex gap-2 pt-1 border-t border-slate-800">
-                <input 
-                  type="text" 
-                  value={inputMsg} 
-                  onChange={(e) => setInputMsg(e.target.value)} 
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendChat()} 
-                  placeholder="मेसेज टाईप करा किंवा बोला..." 
-                  className="flex-1 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-blue-500" 
-                />
-                <button 
-                  onClick={handleSendChat} 
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center shadow-lg shadow-blue-600/30 transition cursor-pointer"
-                >
-                  <Send size={14} />
-                </button>
+                <input type="text" value={inputMsg} onChange={(e) => setInputMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendChat()} placeholder="मेसेज टाईप करा किंवा बोला..." className="flex-1 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none" />
+                <button onClick={handleSendChat} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold"><Send size={14} /></button>
               </div>
             </div>
-
           </div>
         )}
 
@@ -1307,47 +1454,22 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl text-xs">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Megaphone size={18} className="text-blue-400" />
-                  <h3 className="font-bold text-white text-sm">Meta Lead Ads Auto-Webhook & Campaign Setup</h3>
-                </div>
+                <div className="flex items-center gap-2"><Megaphone size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">Meta Lead Ads Auto-Webhook & Campaign Setup</h3></div>
                 <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">Meta Graph API v19.0</span>
               </div>
-
               <div>
                 <label className="text-slate-300 block mb-1 font-bold">Direct Webhook URL for Meta App</label>
                 <div className="flex gap-2">
                   <input readOnly value="https://ai-growth-crm-nine.vercel.app/api/lead-webhook" className="flex-1 bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-blue-400 font-mono outline-none" />
-                  <button onClick={() => { navigator.clipboard.writeText('https://ai-growth-crm-nine.vercel.app/api/lead-webhook'); alert('Webhook URL कॉपी झाला!'); }} className="px-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl">Copy</button>
+                  <button onClick={() => { navigator.clipboard.writeText('https://ai-growth-crm-nine.vercel.app/api/lead-webhook'); alert('Webhook URL कॉपी झाला!'); }} className="px-4 bg-slate-800 text-white font-bold rounded-xl">Copy</button>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">फेसबुक किंवा इन्स्टाग्रामवर फॉर्म भरताच लीड्स १ सेकंदात तुमच्या Growth Leads Directory मध्ये येतील.</p>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <span className="font-bold text-white block">Daily Ad Budget</span>
-                  <input type="number" value={adBudget} onChange={(e) => setAdBudget(Number(e.target.value))} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-emerald-400 font-bold text-sm outline-none" />
-                  <span className="text-[10px] text-slate-400">अंदाजे दररोज: <b className="text-white">{(adBudget / 25).toFixed(0)} ते {(adBudget / 15).toFixed(0)} लीड्स</b></span>
-                </div>
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <span className="font-bold text-white block">Target Location</span>
-                  <input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none" />
-                  <span className="text-[10px] text-slate-400">टार्गेट: सांगली, मिरज व स्थानिक परिसर</span>
-                </div>
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <span className="font-bold text-white block">Ad Campaign Goal</span>
-                  <select value={adCampaignType} onChange={(e) => setAdCampaignType(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none">
-                    <option value="Meta Lead Ads (WhatsApp Direct)">Direct WhatsApp Leads</option>
-                    <option value="Instant Lead Form">Instant Lead Forms</option>
-                    <option value="Phone Call Ads">Direct Phone Calls</option>
-                  </select>
-                  <span className="text-[10px] text-emerald-400">High ROI Guaranteed</span>
-                </div>
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2"><span className="font-bold text-white block">Daily Ad Budget</span><input type="number" value={adBudget} onChange={(e) => setAdBudget(Number(e.target.value))} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-emerald-400 font-bold text-sm outline-none" /></div>
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2"><span className="font-bold text-white block">Target Location</span><input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none" /></div>
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2"><span className="font-bold text-white block">Ad Campaign Goal</span><select value={adCampaignType} onChange={(e) => setAdCampaignType(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none"><option value="Meta Lead Ads (WhatsApp Direct)">Direct WhatsApp Leads</option><option value="Instant Lead Form">Instant Lead Forms</option></select></div>
               </div>
-
-              <button onClick={() => alert('Meta Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!')} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition">
-                Launch 1-Click Meta Ad Campaign
-              </button>
+              <button onClick={() => alert('Meta Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Launch 1-Click Meta Ad Campaign</button>
             </div>
           </div>
         )}
@@ -1360,14 +1482,11 @@ export default function DashboardPage() {
               {[
                 { title: 'Welcome Inquiry', text: 'नमस्कार {Name} जी, Ishwari Mobile मध्ये आपले स्वागत आहे. आम्ही आपली कशी मदत करू शकतो?' },
                 { title: 'Instant UPI Payment Request', text: 'नमस्कार {Name} जी, आपल्या {Service} चे ₹{Amount} चे डिजिटल बिल व UPI QR लिंक खालीलप्रमाणे आहे.' },
-                { title: 'Appointment Confirmed', text: 'आपली {Service} ची अपॉइंटमेंट यशस्वीरीत्या निश्चित झाली आहे. वेळेवर उपस्थित राहावे.' }
+                { title: 'Appointment Confirmed', text: 'आपली {Service} ची अपॉइंटमेंट निश्चित झाली आहे. वेळेवर उपस्थित राहावे.' }
               ].map((t, i) => (
                 <div key={i} className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-2 flex flex-col justify-between">
-                  <div>
-                    <span className="font-bold text-white block mb-1">{t.title}</span>
-                    <p className="bg-[#080b12] p-3 rounded-xl text-slate-300 border border-slate-800 font-mono text-[11px] leading-relaxed">{t.text}</p>
-                  </div>
-                  <button onClick={() => alert('टेम्प्लेट कॉपी झाले!')} className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold text-[10px]">Copy Template</button>
+                  <div><span className="font-bold text-white block mb-1">{t.title}</span><p className="bg-[#080b12] p-3 rounded-xl text-slate-300 border border-slate-800 font-mono text-[11px] leading-relaxed">{t.text}</p></div>
+                  <button onClick={() => alert('टेम्प्लेट कॉपी झाले!')} className="w-full py-1.5 bg-slate-800 text-slate-300 rounded-lg font-bold text-[10px]">Copy Template</button>
                 </div>
               ))}
             </div>
@@ -1389,99 +1508,42 @@ export default function DashboardPage() {
         {/* ================= 10. AI INBOX / WHATSAPP SUITE ================= */}
         {activeTab === 'inbox' && (
           <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[550px] shadow-xl text-xs">
-            
-            {/* Left Sidebar: Leads Chat List */}
             <div className="md:col-span-4 border-r border-slate-800 p-3 overflow-y-auto space-y-1 bg-[#080c16]">
               <div className="px-2 py-1.5 flex justify-between items-center mb-1">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Conversations</span>
                 <span className="text-[10px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded-full font-bold">{leads.length}</span>
               </div>
               {leads.map((l) => (
-                <div 
-                  key={l.id} 
-                  onClick={() => setSelectedLead(l)} 
-                  className={`p-3 rounded-2xl cursor-pointer transition ${
-                    selectedLead.id === l.id 
-                      ? 'bg-blue-600 text-white font-bold shadow-md' 
-                      : 'hover:bg-slate-800/50 text-slate-300 border border-transparent hover:border-slate-800'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs font-bold leading-tight">{l.name}</p>
-                    <span className="text-[9px] opacity-70">10:30 AM</span>
-                  </div>
+                <div key={l.id} onClick={() => setSelectedLead(l)} className={`p-3 rounded-2xl cursor-pointer transition ${selectedLead.id === l.id ? 'bg-blue-600 text-white font-bold shadow-md' : 'hover:bg-slate-800/50 text-slate-300'}`}>
+                  <div className="flex justify-between items-center"><p className="text-xs font-bold leading-tight">{l.name}</p><span className="text-[9px] opacity-70">10:30 AM</span></div>
                   <p className="text-[10px] opacity-80 truncate mt-0.5">{l.service} • +91 {l.phone}</p>
                 </div>
               ))}
             </div>
 
-            {/* Right Chat Area */}
             <div className="md:col-span-8 p-4 flex flex-col justify-between bg-[#080b12]">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div>
-                  <h4 className="font-bold text-white text-sm">{selectedLead.name}</h4>
-                  <span className="text-[10px] text-emerald-400 font-mono">+91 {selectedLead.phone} ({selectedLead.service})</span>
-                </div>
-                <a 
-                  href={`https://wa.me/91${selectedLead.phone}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[10px] flex items-center gap-1"
-                >
-                  <MessageSquare size={12} /> Open WhatsApp Web
-                </a>
+                <div><h4 className="font-bold text-white text-sm">{selectedLead.name}</h4><span className="text-[10px] text-emerald-400 font-mono">+91 {selectedLead.phone} ({selectedLead.service})</span></div>
+                <a href={`https://wa.me/91${selectedLead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] flex items-center gap-1"><MessageSquare size={12} /> Open WhatsApp</a>
               </div>
 
-              {/* Messages Stream */}
               <div className="space-y-3 py-4 overflow-y-auto h-72">
                 {(inboxChats[selectedLead.id] || [
                   { from: 'them', text: `नमस्कार, मला ${selectedLead.service} बद्दल माहिती हवी आहे.`, time: '10:15 AM' },
                   { from: 'me', text: `नमस्कार ${selectedLead.name} जी, आम्ही आपल्या सेवेसाठी उपलब्ध आहोत.`, time: '10:20 AM' }
                 ]).map((m, i) => (
                   <div key={i} className={`flex flex-col ${m.from === 'me' ? 'items-end' : 'items-start'}`}>
-                    <div className={`p-3 rounded-2xl max-w-[75%] text-xs leading-relaxed ${
-                      m.from === 'me' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'
-                    }`}>
-                      {m.text}
-                    </div>
+                    <div className={`p-3 rounded-2xl max-w-[75%] text-xs leading-relaxed ${m.from === 'me' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'}`}>{m.text}</div>
                     <span className="text-[9px] text-slate-500 mt-1 px-1">{m.time}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Quick Canned Responses */}
-              <div className="flex gap-1.5 overflow-x-auto pb-2 border-t border-slate-800/80 pt-2">
-                {[
-                  `पेमेंट लिंक: ${livePayUrl}`,
-                  'आपली अपॉइंटमेंट निश्चित झाली आहे.',
-                  'आमची टीम ५ मिनिटांत कॉल करेल.'
-                ].map((rep, idx) => (
-                  <button 
-                    key={idx} 
-                    onClick={() => setInboxText(rep)} 
-                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] whitespace-nowrap"
-                  >
-                    {rep}
-                  </button>
-                ))}
-              </div>
-
-              {/* Reply Input Bar */}
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  value={inboxText} 
-                  onChange={(e) => setInboxText(e.target.value)} 
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} 
-                  placeholder="Type reply message..." 
-                  className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-blue-500" 
-                />
-                <button onClick={handleSendInbox} className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center">
-                  <Send size={14} />
-                </button>
+              <div className="flex gap-2 pt-2 border-t border-slate-800">
+                <input type="text" value={inboxText} onChange={(e) => setInboxText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} placeholder="Type reply message..." className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none" />
+                <button onClick={handleSendInbox} className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold"><Send size={14} /></button>
               </div>
             </div>
-
           </div>
         )}
 
@@ -1497,36 +1559,22 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ================= 12. AI SALES & IVR (OUTBOUND CALLING BOT) ================= */}
+        {/* ================= 12. AI SALES & IVR (CALLING BOT) ================= */}
         {activeTab === 'ivr' && (
           <div className="space-y-6 text-xs">
-            
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <PhoneCall size={18} className="text-blue-400" />
-                  <h3 className="font-bold text-white text-sm">AI Outbound Sales Calling Bot</h3>
-                </div>
-                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">Marathi Natural TTS</span>
+                <div className="flex items-center gap-2"><PhoneCall size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">AI Outbound Sales Calling Bot</h3></div>
+                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">Marathi TTS Voice Engine</span>
               </div>
-
               <div>
                 <label className="text-slate-300 block mb-1 font-bold">AI Voice Calling Script (Marathi/Hindi)</label>
-                <textarea 
-                  rows={2} 
-                  value={ivrScript} 
-                  onChange={(e) => setIvrScript(e.target.value)} 
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-blue-500 resize-none" 
-                />
+                <textarea rows={2} value={ivrScript} onChange={(e) => setIvrScript(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" />
               </div>
             </div>
 
-            {/* Calling Queue & Live Status Table */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                <span className="font-bold text-white text-xs uppercase tracking-wider">Outbound Calling Queue</span>
-                <span className="text-[10px] text-slate-400">Total Leads: <b className="text-white">{leads.length}</b></span>
-              </div>
+              <div className="p-4 border-b border-slate-800 flex justify-between items-center"><span className="font-bold text-white text-xs uppercase tracking-wider">Outbound Calling Queue</span><span className="text-[10px] text-slate-400">Total Leads: <b className="text-white">{leads.length}</b></span></div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[700px]">
                   <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
@@ -1544,18 +1592,11 @@ export default function DashboardPage() {
                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                               status === 'Calling' ? 'bg-amber-950 text-amber-400 border-amber-500/40 animate-pulse' :
                               status === 'Connected' ? 'bg-blue-950 text-blue-400 border-blue-500/40 animate-pulse' :
-                              status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40' :
-                              'bg-slate-800 text-slate-400 border-slate-700'
-                            }`}>
-                              {status === 'Idle' ? 'Ready' : status}
-                            </span>
+                              status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'
+                            }`}>{status === 'Idle' ? 'Ready' : status}</span>
                           </td>
                           <td className="p-3 text-center">
-                            <button 
-                              onClick={() => handleTriggerIvrCall(lead)} 
-                              disabled={status === 'Calling' || status === 'Connected'} 
-                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1 mx-auto transition disabled:opacity-50"
-                            >
+                            <button onClick={() => handleTriggerIvrCall(lead)} disabled={status === 'Calling' || status === 'Connected'} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-1 mx-auto transition disabled:opacity-50">
                               <PhoneCall size={12} /> {status === 'Completed' ? 'Re-call' : 'Start Call'}
                             </button>
                           </td>
@@ -1566,7 +1607,6 @@ export default function DashboardPage() {
                 </table>
               </div>
             </div>
-
           </div>
         )}
 
