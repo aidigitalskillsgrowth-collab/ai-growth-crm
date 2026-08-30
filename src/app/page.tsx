@@ -614,6 +614,8 @@ export default function DashboardPage() {
   // ================= 7. META AD ACCOUNT LOGIN STATE =================
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount, setMetaAdAccount] = useState('act_982347892347');
+  const [adBudget, setAdBudget] = useState(500);
+  const [targetLocation, setTargetLocation] = useState('सांगली व मिरज (१० किमी परिसर)');
 
   // ================= AI CHATBOT STATES =================
   const [botConfig, setBotConfig] = useState({
@@ -894,7 +896,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* 1. DASHBOARD */}
+        {/* 1. GROWTH DASHBOARD (FULLY RESTORED WITH CHARTS & FEED) */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
@@ -912,10 +914,90 @@ export default function DashboardPage() {
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-[11px] text-slate-400">Deals Won</span><p className="text-2xl font-black text-emerald-400">{leads.filter(l => l.status === 'Won').length}</p></div>
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl"><span className="text-[11px] text-slate-400">Pipeline Value</span><p className="text-2xl font-black text-amber-400">₹{leads.reduce((a, c) => a + c.deal_value, 0).toLocaleString('en-IN')}</p></div>
             </div>
+
+            {/* Visual Charts & Performance */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-300">Revenue Growth</span><span className="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full font-bold">+34.8%</span></div>
+                <p className="text-2xl font-black text-white">₹1,48,500</p>
+                <div className="h-16 flex items-end gap-1.5 pt-2">
+                  {[40, 65, 50, 85, 70, 95, 100].map((h, i) => (
+                    <div key={i} className="flex-1 bg-slate-800 rounded-t-md relative overflow-hidden" style={{ height: `${h}%` }}>
+                      <div className="absolute inset-0 bg-blue-600 opacity-80"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <span className="text-xs font-bold text-slate-300 block">Lead Source Distribution</span>
+                <div className="space-y-2 pt-1 text-xs">
+                  <div><div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Meta Ads</span><span className="text-blue-400 font-bold">55%</span></div><div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-blue-500 h-full w-[55%]"></div></div></div>
+                  <div><div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Website & Funnels</span><span className="text-indigo-400 font-bold">30%</span></div><div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full w-[30%]"></div></div></div>
+                </div>
+              </div>
+
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <span className="text-xs font-bold text-slate-300 block">AI Voice Agent Success</span>
+                <p className="text-2xl font-black text-emerald-400 mt-1">82.4% Answer Rate</p>
+                <p className="text-xs text-slate-400">Positive Customer Sentiment: <span className="text-white font-bold">76%</span></p>
+              </div>
+            </div>
+
+            {/* Pipeline & Recent Inbound Leads */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2"><Layers size={16} className="text-blue-400" /> Pipeline Stages</h2>
+                <div className="space-y-2 text-xs">
+                  {stages.filter(s => s !== 'All').map((stg, i) => (
+                    <div key={stg} className="p-3 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                      <span className="font-bold text-slate-300">{i + 1}. {stg}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 font-bold">{leads.filter(l => l.status === stg).length} Leads</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2"><Users size={16} className="text-emerald-400" /> Recent Inbound Leads</h2>
+                  <button onClick={() => setActiveTab('leads')} className="text-xs text-blue-400 font-bold hover:underline">View All ({leads.length}) →</button>
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60 text-xs">
+                  {leads.slice(0, 5).map((l) => (
+                    <div key={l.id} className="py-2.5 flex items-center justify-between hover:bg-slate-800/20 px-2 rounded-lg transition">
+                      <div><p className="font-bold text-white">{l.name}</p><p className="text-[11px] text-slate-400">{l.phone} • {l.service}</p></div>
+                      <div className="flex items-center gap-2">
+                        <a href={`https://wa.me/91${l.phone}`} target="_blank" rel="noreferrer" className="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded-lg font-bold text-[11px] flex items-center gap-1"><MessageSquare size={12} /> WhatsApp</a>
+                        <button onClick={() => alert(`${l.name} ला AI कॉल लावला जात आहे...`)} className="px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-lg font-bold text-[11px] flex items-center gap-1"><PhoneCall size={12} /> AI Call</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* AI Activity Feed & Follow-ups */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2"><Sparkles size={14} className="text-blue-400" /> Real-time AI Agent Activity</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between"><span className="text-slate-300">🤖 AI Bot ने <b>रविराज पाटील</b> सोबत WhatsApp संभाषण पूर्ण केले.</span><span className="text-[10px] text-slate-500">2 min ago</span></div>
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between"><span className="text-slate-300">📞 AI Voice Agent ने <b>सचिन कांबळे</b> ला कॉल करून अपॉइंटमेंट बुक केली.</span><span className="text-[10px] text-slate-500">12 min ago</span></div>
+                </div>
+              </div>
+
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2"><Calendar size={14} className="text-amber-400" /> Today's Scheduled Follow-ups</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex justify-between items-center"><div><p className="font-bold text-white">अमित देशमुख (₹4,500)</p><span className="text-[10px] text-slate-400">स्क्रीन रिपेअर पेमेंट फॉलो-अप</span></div><button onClick={() => alert('रिमाइंडर पाठवला!')} className="px-2.5 py-1 bg-amber-600/20 text-amber-400 rounded-lg font-bold text-[10px]">Send Reminder</button></div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* 2. LEADS */}
+        {/* 2. GROWTH LEADS */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -959,14 +1041,15 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 3. PIPELINE KANBAN */}
+        {/* 3. PIPELINE KANBAN (CSV IMPORT/EXPORT RESTORED) */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center">
-              <div><h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline</h2><p className="text-xs text-slate-400">ड्रॅग आणि ड्रॉप करा.</p></div>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
+              <div><h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline</h2><p className="text-xs text-slate-400">ड्रॅग आणि ड्रॉप करा किंवा CSV इम्पोर्ट/एक्सपोर्ट करा.</p></div>
               <div className="flex gap-2">
-                <button onClick={handleOpenAddModal} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">+ Add Deal</button>
-                <button onClick={handleExportCSV} className="px-3.5 py-2 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1"><Download size={14} /> Export CSV</button>
+                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold">+ Add Deal</button>
+                <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1"><Upload size={14} /> Import CSV</button>
+                <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1"><Download size={14} /> Export CSV</button>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1123,16 +1206,16 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 7. META AD LAUNCHER */}
+        {/* 7. META AD LAUNCHER (ACCOUNT LOGIN & CAMPAIGN RUNNER) */}
         {activeTab === 'meta_ads' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2"><Megaphone size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">Meta Lead Ads Account & 1-Click Launcher</h3></div>
+                <div className="flex items-center gap-2"><Megaphone size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">Meta Lead Ads Account & 1-Click Campaign Launcher</h3></div>
                 {isMetaConnected ? (
                   <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold flex items-center gap-1"><CheckCircle size={12} /> Connected ({metaAdAccount})</span>
                 ) : (
-                  <button onClick={() => { setIsMetaConnected(true); alert('मेटा ॲड अकाउंट यशस्वीरीत्या कनेक्ट झाले!'); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg">Connect Meta Ad Account</button>
+                  <button onClick={() => { setIsMetaConnected(true); alert('मेटा ॲड अकाउंट यशस्वीरीत्या कनेक्ट झाले!'); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg cursor-pointer">Connect Meta Ad Account</button>
                 )}
               </div>
 
@@ -1147,15 +1230,17 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
                   <span className="font-bold text-white block">Daily Ad Budget (₹)</span>
-                  <input type="number" defaultValue={500} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-emerald-400 font-bold outline-none" />
+                  <input type="number" value={adBudget} onChange={(e) => setAdBudget(Number(e.target.value))} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-emerald-400 font-bold outline-none" />
                 </div>
                 <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
                   <span className="font-bold text-white block">Target Location</span>
-                  <input type="text" defaultValue="सांगली व मिरज (१० किमी परिसर)" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none" />
+                  <input type="text" value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2 text-white outline-none" />
                 </div>
               </div>
 
-              <button onClick={() => alert('Meta Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!')} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg">Launch 1-Click Meta Ad Campaign</button>
+              <button onClick={() => { if(!isMetaConnected) { alert('कृपया प्रथम मेटा ॲड अकाउंट कनेक्ट करा!'); return; } alert('Meta Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer">
+                Launch 1-Click Meta Ad Campaign
+              </button>
             </div>
           </div>
         )}
@@ -1206,7 +1291,7 @@ export default function DashboardPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-slate-400 block mb-1">Action (काय कृ होईल?)</label>
+                  <label className="text-slate-400 block mb-1">Action (काय कृती होईल?)</label>
                   <select value={workflowAction} onChange={(e) => setWorkflowAction(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
                     <option value="Send Welcome WhatsApp + Dynamic QR">Send Welcome WhatsApp + Dynamic QR</option>
                     <option value="Trigger AI Voice Call">Trigger AI Voice Call</option>
