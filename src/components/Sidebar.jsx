@@ -9,8 +9,8 @@ import {
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const menuItems = [
-    { id: 'dashboard', label: 'AI Dashboard', icon: LayoutDashboard },
-    { id: 'leads', label: 'AI Leads Directory', icon: Users, badge: '15' },
+    { id: 'dashboard', label: 'Growth Dashboard', icon: LayoutDashboard },
+    { id: 'leads', label: 'Growth Leads', icon: Users, badge: '15' },
     { id: 'pipeline', label: 'Growth CRM & Pipeline', icon: Layers },
     { id: 'website', label: 'Website & Funnels', icon: Globe },
     { id: 'payments', label: 'Payment Gateways (All)', icon: QrCode },

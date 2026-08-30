@@ -9,10 +9,9 @@ import {
   ExternalLink, QrCode, Check, Copy, Bot, Megaphone, FileText, 
   GitBranch, Calendar, Wallet, Share2, Settings, Play, ArrowRight,
   Clock, MapPin, Phone, Edit3, Trash2, Filter, X, CheckSquare, Tag,
-  FileSpreadsheet, MessageCircle
+  TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight
 } from 'lucide-react';
 
-// TypeScript Lead Interface
 interface Lead {
   id: string;
   name: string;
@@ -39,7 +38,7 @@ interface TemplateData {
 }
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('leads');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('Mobile & Electronics');
   const [copied, setCopied] = useState<boolean>(false);
@@ -83,9 +82,7 @@ export default function DashboardPage() {
   ];
 
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const stages: string[] = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
 
-  // Open Modal for Add
   const handleOpenAddModal = () => {
     setEditingLead(null);
     setLeadForm({
@@ -101,7 +98,6 @@ export default function DashboardPage() {
     setIsModalOpen(true);
   };
 
-  // Open Modal for Edit
   const handleOpenEditModal = (lead: Lead) => {
     setEditingLead(lead);
     setLeadForm({
@@ -117,7 +113,6 @@ export default function DashboardPage() {
     setIsModalOpen(true);
   };
 
-  // Save Add / Edit Lead
   const handleSaveLead = (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadForm.name.trim() || !leadForm.phone.trim()) {
@@ -157,19 +152,16 @@ export default function DashboardPage() {
     setIsModalOpen(false);
   };
 
-  // Delete Lead
   const handleDeleteLead = (id: string, name: string) => {
     if (confirm(`तुम्हाला नक्की '${name}' ही लीड हटवायची आहे का?`)) {
       setLeads(prev => prev.filter(l => l.id !== id));
     }
   };
 
-  // Quick Inline Status Change
   const handleStatusChange = (id: string, newStatus: string) => {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
   };
 
-  // Export CSV
   const handleExportCSV = () => {
     const headers = 'ID,Name,Phone,Service,Deal_Value,Status,Source,Sentiment,Notes\n';
     const rows = leads.map(l => `${l.id},"${l.name}","${l.phone}","${l.service}",${l.deal_value},"${l.status}","${l.source}","${l.sentiment}","${l.notes || ''}"`).join('\n');
@@ -177,11 +169,10 @@ export default function DashboardPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Leads_Directory_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `Growth_Leads_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
   };
 
-  // Filter Leads
   const filteredLeads = leads.filter(l => {
     const matchSearch = l.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         l.phone.includes(searchTerm) || 
@@ -191,7 +182,7 @@ export default function DashboardPage() {
     return matchSearch && matchStatus && matchSource;
   });
 
-  // Templates Database (Preserved)
+  // Templates Database
   const templatesDb: Record<string, TemplateData> = {
     'Mobile & Electronics': {
       businessName: 'ईश्वरी मोबाईल & ५G स्मार्ट गॅलरी',
@@ -229,13 +220,11 @@ export default function DashboardPage() {
   };
   const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['Mobile & Electronics']);
 
-  // Payment Setup State
   const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
   const [amount, setAmount] = useState<string>('999');
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(`upi://pay?pa=${upiId}&am=${amount}&cu=INR`)}`;
   const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&am=${amount}`;
 
-  // Chatbot State
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string }[]>([
     { sender: 'bot', text: 'नमस्कार! Ishwari AI मध्ये आपले स्वागत आहे. मी आपली काय मदत करू शकतो?' }
   ]);
@@ -250,7 +239,6 @@ export default function DashboardPage() {
     }, 500);
   };
 
-  // WhatsApp Inbox State
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
   const [inboxText, setInboxText] = useState<string>('');
   const [inboxChats, setInboxChats] = useState<Record<string, { from: string; text: string }[]>>({
@@ -268,7 +256,6 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  // Drag and drop Kanban
   const handleDragStart = (e: React.DragEvent, leadId: string) => {
     e.dataTransfer.setData('leadId', leadId);
   };
@@ -294,24 +281,34 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
-            <h1 className="text-xl font-black text-white shrink-0 capitalize">{activeTab.replace('_', ' ')}</h1>
+            <h1 className="text-xl font-black text-white shrink-0 capitalize">
+              {activeTab === 'dashboard' ? 'Growth Dashboard' : activeTab === 'leads' ? 'Growth Leads' : activeTab.replace('_', ' ')}
+            </h1>
             <div className="flex items-center gap-2 bg-[#0d1424] border border-slate-800 px-3.5 py-1.5 rounded-xl w-full text-xs">
               <Search size={14} className="text-slate-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search lead name, phone or service..."
+                placeholder="Search leads, phone, revenue or services..."
                 className="bg-transparent text-white outline-none w-full"
               />
             </div>
           </div>
-          <button 
-            onClick={() => window.location.reload()}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
-          >
-            <RefreshCw size={13} /> Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setActiveTab('leads')}
+              className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition"
+            >
+              + Add Lead
+            </button>
+            <button 
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
+            >
+              <RefreshCw size={13} /> Refresh
+            </button>
+          </div>
         </header>
 
         {/* Global Leads Metric Bar */}
@@ -334,12 +331,37 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ================= 1. DASHBOARD ================= */}
+        {/* ================= 1. GROWTH DASHBOARD (RESTORED & ENHANCED) ================= */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
+            
+            {/* Quick Action Shortcuts */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <button onClick={() => setActiveTab('leads')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-blue-500 rounded-2xl text-left flex items-center justify-between group transition">
+                <div><span className="text-[11px] text-slate-400 block">Growth Leads</span><span className="text-xs font-black text-white">Manage Leads</span></div>
+                <ArrowRight size={14} className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition" />
+              </button>
+              <button onClick={() => setActiveTab('pipeline')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-emerald-500 rounded-2xl text-left flex items-center justify-between group transition">
+                <div><span className="text-[11px] text-slate-400 block">CRM Pipeline</span><span className="text-xs font-black text-white">Kanban View</span></div>
+                <Layers size={14} className="text-slate-500 group-hover:text-emerald-400 group-hover:scale-110 transition" />
+              </button>
+              <button onClick={() => setActiveTab('payments')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-amber-500 rounded-2xl text-left flex items-center justify-between group transition">
+                <div><span className="text-[11px] text-slate-400 block">Instant Pay</span><span className="text-xs font-black text-white">UPI QR Code</span></div>
+                <QrCode size={14} className="text-slate-500 group-hover:text-amber-400 group-hover:rotate-12 transition" />
+              </button>
+              <button onClick={() => setActiveTab('website')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-purple-500 rounded-2xl text-left flex items-center justify-between group transition">
+                <div><span className="text-[11px] text-slate-400 block">AI Funnels</span><span className="text-xs font-black text-white">Landing Pages</span></div>
+                <Sparkles size={14} className="text-slate-500 group-hover:text-purple-400 group-hover:scale-110 transition" />
+              </button>
+            </div>
+
+            {/* Main Growth Analytics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300">Revenue Growth</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5"><TrendingUp size={14} className="text-emerald-400" /> Revenue Growth</span>
+                  <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">+34.8% MoM</span>
+                </div>
                 <p className="text-2xl font-black text-white">₹1,48,500</p>
                 <div className="h-16 flex items-end gap-1.5 pt-2">
                   {[40, 65, 50, 85, 70, 95, 100].map((h, i) => (
@@ -351,38 +373,90 @@ export default function DashboardPage() {
               </div>
 
               <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300 block">Lead Source Distribution</span>
+                <span className="text-xs font-bold text-slate-300 block flex items-center gap-1.5"><Target size={14} className="text-blue-400" /> Lead Source Distribution</span>
                 <div className="space-y-2 pt-1 text-xs">
                   <div>
                     <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Meta Ads</span><span className="text-blue-400 font-bold">55%</span></div>
                     <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-blue-500 h-full w-[55%]"></div></div>
                   </div>
                   <div>
-                    <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Website</span><span className="text-indigo-400 font-bold">30%</span></div>
+                    <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Website & Funnels</span><span className="text-indigo-400 font-bold">30%</span></div>
                     <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full w-[30%]"></div></div>
                   </div>
                 </div>
               </div>
 
               <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300 block">AI Voice Agent Success</span>
+                <span className="text-xs font-bold text-slate-300 block flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> AI Voice & Bot Automation</span>
                 <p className="text-2xl font-black text-emerald-400 mt-1">82.4% Answer Rate</p>
-                <p className="text-xs text-slate-400">Positive Customer Sentiment: <span className="text-white font-bold">76%</span></p>
+                <p className="text-xs text-slate-400">Positive Sentiment Score: <span className="text-white font-bold">76%</span></p>
               </div>
             </div>
+
+            {/* Live Pipeline Activity Feed */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Activity size={14} className="text-blue-400" /> Real-Time Lead Activity Feed
+                  </h3>
+                  <button onClick={() => setActiveTab('leads')} className="text-[11px] text-blue-400 hover:underline flex items-center gap-1 font-semibold">
+                    View All Leads <ArrowUpRight size={12} />
+                  </button>
+                </div>
+                <div className="divide-y divide-slate-800/60 text-xs">
+                  {leads.slice(0, 4).map((l) => (
+                    <div key={l.id} className="py-3 flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-white text-sm">{l.name}</p>
+                        <p className="text-[11px] text-slate-400">{l.service} • <span className="text-blue-400 font-mono">{l.phone}</span></p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-emerald-400 block">₹{l.deal_value}</span>
+                        <span className="text-[10px] text-slate-500 font-medium">{l.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-400" /> System Automation Health
+                  </h3>
+                  <div className="space-y-3 pt-2 text-xs">
+                    <div className="p-3 bg-[#080b12] rounded-xl border border-slate-800 flex justify-between items-center">
+                      <span className="text-slate-300">Meta Webhook Live</span>
+                      <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-600/40 px-2 py-0.5 rounded-full font-bold">200 OK</span>
+                    </div>
+                    <div className="p-3 bg-[#080b12] rounded-xl border border-slate-800 flex justify-between items-center">
+                      <span className="text-slate-300">WhatsApp Gateway</span>
+                      <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-600/40 px-2 py-0.5 rounded-full font-bold">Connected</span>
+                    </div>
+                    <div className="p-3 bg-[#080b12] rounded-xl border border-slate-800 flex justify-between items-center">
+                      <span className="text-slate-300">UPI Payments Webhook</span>
+                      <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-600/40 px-2 py-0.5 rounded-full font-bold">Active</span>
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => setActiveTab('workflow')} className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                  Open Workflow Automation
+                </button>
+              </div>
+            </div>
+
           </div>
         )}
 
-        {/* ================= 2. ENHANCED AI LEADS DIRECTORY ================= */}
+        {/* ================= 2. GROWTH LEADS DIRECTORY ================= */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
-            
-            {/* Top Action Bar with Filters */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-black text-white flex items-center gap-2">
-                    <Users size={20} className="text-blue-400" /> AI Leads Directory ({filteredLeads.length} Leads)
+                    <Users size={20} className="text-blue-400" /> Growth Leads ({filteredLeads.length} Leads)
                   </h2>
                   <p className="text-xs text-slate-400">सर्व इनबाउंड व आऊटबाउंड लीड्सचे रिअल-टाइम व्यवस्थापन, थेट संवाद आणि नोट्स.</p>
                 </div>
@@ -455,8 +529,6 @@ export default function DashboardPage() {
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
                     {filteredLeads.map((lead) => (
                       <tr key={lead.id} className="hover:bg-slate-800/30 transition">
-                        
-                        {/* Name & Phone */}
                         <td className="p-4">
                           <p className="font-bold text-white text-sm leading-snug">{lead.name}</p>
                           <p className="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
@@ -465,18 +537,15 @@ export default function DashboardPage() {
                           {lead.created_at && <span className="text-[10px] text-slate-500 block mt-0.5">{lead.created_at}</span>}
                         </td>
 
-                        {/* Service */}
                         <td className="p-4">
                           <span className="font-medium text-slate-200 block">{lead.service}</span>
                           <span className="text-[10px] text-slate-400">Sentiment: <b className="text-blue-400">{lead.sentiment}</b></span>
                         </td>
 
-                        {/* Deal Value */}
                         <td className="p-4 font-black text-white text-sm">
                           ₹{lead.deal_value.toLocaleString('en-IN')}
                         </td>
 
-                        {/* Interactive Status Dropdown */}
                         <td className="p-4">
                           <select
                             value={lead.status}
@@ -497,7 +566,6 @@ export default function DashboardPage() {
                           </select>
                         </td>
 
-                        {/* Source & Notes */}
                         <td className="p-4 max-w-[200px]">
                           <span className="inline-block px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-semibold border border-slate-700">
                             {lead.source}
@@ -509,7 +577,6 @@ export default function DashboardPage() {
                           )}
                         </td>
 
-                        {/* Instant Communication Actions */}
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <a 
@@ -529,7 +596,6 @@ export default function DashboardPage() {
                           </div>
                         </td>
 
-                        {/* Edit & Delete Actions */}
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center gap-1.5 text-slate-400">
                             <button 
@@ -548,26 +614,22 @@ export default function DashboardPage() {
                             </button>
                           </div>
                         </td>
-
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-
-              {filteredLeads.length === 0 && (
-                <div className="p-8 text-center text-slate-400 text-xs">
-                  कोणतीही लीड सापडली नाही. कृपया सर्च किंवा फिल्टर तपासा.
-                </div>
-              )}
             </div>
           </div>
         )}
 
-        {/* ================= 3. PIPELINE ================= */}
+        {/* ================= 3. GROWTH CRM & PIPELINE ================= */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-black text-white">Visual Pipeline (Kanban)</h2>
+            <div>
+              <h2 className="text-lg font-black text-white">Growth CRM & Pipeline (Kanban)</h2>
+              <p className="text-xs text-slate-400">कार्ड ओढून (Drag) पुढच्या टप्प्यात (Drop) टाका.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {['New Lead', 'Contacted', 'Payment Sent', 'Won'].map((stg) => (
                 <div 
