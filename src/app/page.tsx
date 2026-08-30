@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 // @ts-ignore
 import Sidebar from '../components/Sidebar';
 import { 
@@ -10,7 +10,7 @@ import {
   GitBranch, Calendar, Wallet, Share2, Settings, Play, ArrowRight,
   Clock, MapPin, Phone, Edit3, Trash2, Filter, X, CheckSquare, Tag,
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
-  Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2
+  Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, FileSpreadsheet
 } from 'lucide-react';
 
 interface Testimonial {
@@ -77,7 +77,9 @@ export default function DashboardPage() {
     notes: ''
   });
 
-  // 15 Leads Database
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 15 Complete Leads Database
   const initialLeads: Lead[] = [
     { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Dental Clinic Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
     { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: '5G Smartphone Buy', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'iPhone 15 च्या EMI स्कीम्सबद्दल विचारले.', created_at: 'आज, 11:15 AM' },
@@ -311,6 +313,7 @@ export default function DashboardPage() {
         sentiment: leadForm.sentiment,
         notes: leadForm.notes
       } : l));
+      alert('लीड यशस्वीरीत्या अपडेट झाली!');
     } else {
       const newEntry: Lead = {
         id: Date.now().toString(),
@@ -325,6 +328,7 @@ export default function DashboardPage() {
         created_at: 'आत्ताच जोडले'
       };
       setLeads(prev => [newEntry, ...prev]);
+      alert('नवीन लीड यशस्वीरीत्या जोडली गेली!');
     }
     setIsLeadModalOpen(false);
   };
@@ -337,6 +341,57 @@ export default function DashboardPage() {
 
   const handleStatusChange = (id: string, newStatus: string) => {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
+  };
+
+  // CSV Export
+  const handleExportCSV = () => {
+    const headers = 'ID,Name,Phone,Service,Deal_Value,Status,Source,Sentiment,Notes\n';
+    const rows = leads.map(l => `${l.id},"${l.name}","${l.phone}","${l.service}",${l.deal_value},"${l.status}","${l.source}","${l.sentiment}","${l.notes || ''}"`).join('\n');
+    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Growth_CRM_Leads_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+  };
+
+  // CSV Upload / Import
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      if (!text) return;
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length <= 1) {
+        alert('CSV फाईल रिकामी आहे किंवा फॉरमॅट चुकीचा आहे.');
+        return;
+      }
+      const imported: Lead[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(',').map(p => p.replace(/"/g, '').trim());
+        if (parts.length >= 2 && parts[1]) {
+          imported.push({
+            id: Date.now().toString() + i,
+            name: parts[1] || 'New Contact',
+            phone: parts[2] || '9876543210',
+            service: parts[3] || 'Imported Service',
+            deal_value: Number(parts[4]) || 2000,
+            status: parts[5] || 'New Lead',
+            source: parts[6] || 'CSV Import',
+            sentiment: parts[7] || 'Interested',
+            notes: parts[8] || 'CSV द्वारे आयात केले',
+            created_at: 'CSV Import'
+          });
+        }
+      }
+      if (imported.length > 0) {
+        setLeads(prev => [...imported, ...prev]);
+        alert(`${imported.length} नवीन कॉन्टॅक्ट्स यशस्वीरीत्या सिस्टीममध्ये अपलोड झाले!`);
+      }
+    };
+    reader.readAsText(file);
   };
 
   // AI Prompt Parsing & Generation
@@ -564,6 +619,15 @@ export default function DashboardPage() {
     <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans antialiased overflow-hidden">
       <SidebarComp activeTab={activeTab} setActiveTab={setActiveTab} />
 
+      {/* Hidden File Input for CSV Upload */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        accept=".csv" 
+        onChange={handleImportCSV} 
+        className="hidden" 
+      />
+
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
         {/* Top Header */}
@@ -581,14 +645,14 @@ export default function DashboardPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search anything in CRM..."
+                placeholder="Search leads, phone, services..."
                 className="bg-transparent text-white outline-none w-full"
               />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => setActiveTab('leads')}
+              onClick={handleOpenAddModal}
               className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition"
             >
               + Add Lead
@@ -605,6 +669,36 @@ export default function DashboardPage() {
         {/* ================= 1. GROWTH DASHBOARD ================= */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
+            
+            {/* 1. Quick Action Bar */}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs font-bold text-slate-200">AI Quick Actions:</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                <button 
+                  onClick={handleOpenAddModal}
+                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20"
+                >
+                  <Plus size={14} /> + Add New Lead
+                </button>
+                <button 
+                  onClick={() => alert(`सर्व ${leads.length} ग्राहकांना WhatsApp ब्रॉडकास्ट मेसेज पाठवला जात आहे...`)} 
+                  className="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold flex items-center gap-1.5 transition"
+                >
+                  <Send size={14} /> WhatsApp Broadcast ({leads.length})
+                </button>
+                <button 
+                  onClick={() => setActiveTab('payments')} 
+                  className="px-3.5 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 rounded-xl font-bold flex items-center gap-1.5 transition"
+                >
+                  <QrCode size={14} /> Quick Payment QR
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Global Metric Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
                 <span className="text-[11px] text-slate-400 block">Total Inbound Leads</span>
@@ -615,7 +709,7 @@ export default function DashboardPage() {
                 <p className="text-2xl font-black text-blue-400 mt-0.5">{leads.filter(l => l.status === 'New Lead').length}</p>
               </div>
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 block">Deals Won</span>
+                <span className="text-[11px] text-slate-400 block">Deals Won (Paid)</span>
                 <p className="text-2xl font-black text-emerald-400 mt-0.5">{leads.filter(l => l.status === 'Won').length}</p>
               </div>
               <div className="bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
@@ -624,25 +718,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <button onClick={() => setActiveTab('leads')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-blue-500 rounded-2xl text-left flex items-center justify-between group transition">
-                <div><span className="text-[11px] text-slate-400 block">Growth Leads</span><span className="text-xs font-black text-white">Manage Leads</span></div>
-                <ArrowRight size={14} className="text-slate-500 group-hover:text-blue-400 transition" />
-              </button>
-              <button onClick={() => setActiveTab('pipeline')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-emerald-500 rounded-2xl text-left flex items-center justify-between group transition">
-                <div><span className="text-[11px] text-slate-400 block">CRM Pipeline</span><span className="text-xs font-black text-white">Kanban View</span></div>
-                <Layers size={14} className="text-slate-500 group-hover:text-emerald-400 transition" />
-              </button>
-              <button onClick={() => setActiveTab('payments')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-amber-500 rounded-2xl text-left flex items-center justify-between group transition">
-                <div><span className="text-[11px] text-slate-400 block">Instant Pay</span><span className="text-xs font-black text-white">UPI QR Code</span></div>
-                <QrCode size={14} className="text-slate-500 group-hover:text-amber-400 transition" />
-              </button>
-              <button onClick={() => setActiveTab('website')} className="p-3 bg-[#0d1424] border border-slate-800 hover:border-purple-500 rounded-2xl text-left flex items-center justify-between group transition">
-                <div><span className="text-[11px] text-slate-400 block">AI Funnels</span><span className="text-xs font-black text-white">Landing Pages</span></div>
-                <Sparkles size={14} className="text-slate-500 group-hover:text-purple-400 transition" />
-              </button>
-            </div>
-
+            {/* 3. Visual Charts & Performance */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
                 <div className="flex justify-between items-center">
@@ -670,55 +746,186 @@ export default function DashboardPage() {
                     <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">Website & Funnels</span><span className="text-indigo-400 font-bold">30%</span></div>
                     <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-indigo-500 h-full w-[30%]"></div></div>
                   </div>
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1"><span className="text-slate-400">WhatsApp Direct</span><span className="text-emerald-400 font-bold">15%</span></div>
+                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="bg-emerald-500 h-full w-[15%]"></div></div>
+                  </div>
                 </div>
               </div>
 
               <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
-                <span className="text-xs font-bold text-slate-300 block">AI Voice & Bot Success</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">82.4% Answer Rate</p>
-                <p className="text-xs text-slate-400">Positive Sentiment Score: <span className="text-white font-bold">76%</span></p>
+                <span className="text-xs font-bold text-slate-300 block">AI Voice Agent Success</span>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="p-3 bg-[#080b12] border border-slate-800 rounded-xl">
+                    <span className="text-[10px] text-slate-400">Answer Rate</span>
+                    <p className="text-lg font-black text-emerald-400 mt-0.5">82.4%</p>
+                  </div>
+                  <div className="p-3 bg-[#080b12] border border-slate-800 rounded-xl">
+                    <span className="text-[10px] text-slate-400">Sentiment</span>
+                    <p className="text-lg font-black text-blue-400 mt-0.5">76.0%</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-400 pt-1">सरासरी AI कॉल वेळ: <span className="text-white font-bold">१ मि. ४५ से.</span></p>
               </div>
             </div>
+
+            {/* 4. Funnel & Recent Leads Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2"><Layers size={16} className="text-blue-400" /> Pipeline Stages</h2>
+                <div className="space-y-2 text-xs">
+                  {stages.filter(s => s !== 'All').map((stg, i) => (
+                    <div key={stg} className="p-3 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                      <span className="font-bold text-slate-300">{i + 1}. {stg}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 font-bold">{leads.filter(l => l.status === stg).length} Leads</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2"><Users size={16} className="text-emerald-400" /> Recent Inbound Leads</h2>
+                  <button onClick={() => setActiveTab('leads')} className="text-xs text-blue-400 font-bold hover:underline">View All ({leads.length}) →</button>
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/60 text-xs">
+                  {leads.slice(0, 5).map((l) => (
+                    <div key={l.id} className="py-2.5 flex items-center justify-between hover:bg-slate-800/20 px-2 rounded-lg transition">
+                      <div>
+                        <p className="font-bold text-white">{l.name}</p>
+                        <p className="text-[11px] text-slate-400">{l.phone} • {l.service}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <a href={`https://wa.me/91${l.phone}`} target="_blank" rel="noreferrer" className="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold text-[11px] flex items-center gap-1">
+                          <MessageSquare size={12} /> WhatsApp
+                        </a>
+                        <button onClick={() => alert(`${l.name} ला AI कॉल लावला जात आहे...`)} className="px-2.5 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg font-bold text-[11px] flex items-center gap-1">
+                          <PhoneCall size={12} /> AI Call
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Live AI Logs & Follow-ups */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles size={14} className="text-blue-400" /> Real-time AI Agent Activity
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                    <span className="text-slate-300">🤖 AI Bot ने <b>रविराज पाटील</b> सोबत WhatsApp वर संभाषण पूर्ण केले.</span>
+                    <span className="text-[10px] text-slate-500">2 min ago</span>
+                  </div>
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                    <span className="text-slate-300">📞 AI Voice Agent ने <b>सचिन कांबळे</b> ला कॉल करून अपॉइंटमेंट बुक केली.</span>
+                    <span className="text-[10px] text-slate-500">12 min ago</span>
+                  </div>
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                    <span className="text-slate-300">💰 <b>ज्ञानेश्वर माने</b> कडून ₹35,000 पेमेंट प्राप्त झाले.</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">1 hr ago</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                  <Calendar size={14} className="text-amber-400" /> Today's Scheduled Follow-ups
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-white">अमित देशमुख (₹4,500)</p>
+                      <span className="text-[10px] text-slate-400">स्क्रीन रिपेअर पेमेंट फॉलो-अप</span>
+                    </div>
+                    <button onClick={() => alert('रिमाइंडर पाठवला!')} className="px-2.5 py-1 bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-lg font-bold text-[10px]">Send Reminder</button>
+                  </div>
+                  <div className="p-2.5 bg-[#080b12] border border-slate-800 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-white">पूजा कुलकर्णी (₹6,000)</p>
+                      <span className="text-[10px] text-slate-400">डिजिटल मार्केटिंग प्रपोझल मीटिंग</span>
+                    </div>
+                    <button onClick={() => alert('कॉल जोडला!')} className="px-2.5 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg font-bold text-[10px]">Call Now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
-        {/* ================= 2. GROWTH LEADS ================= */}
+        {/* ================= 2. GROWTH LEADS (DIRECTORY) ================= */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-black text-white flex items-center gap-2">
-                    <Users size={20} className="text-blue-400" /> Growth Leads ({filteredLeads.length} Leads)
+                    <Users size={20} className="text-blue-400" /> Growth Leads Directory ({filteredLeads.length} Leads)
                   </h2>
-                  <p className="text-xs text-slate-400">सर्व इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन.</p>
+                  <p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्सचे व्यवस्थापन, CSV आयात/निर्यात आणि थेट संवाद.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg">
+                  <button 
+                    onClick={handleOpenAddModal} 
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-blue-600/30 transition"
+                  >
                     <Plus size={15} /> + Add New Lead
                   </button>
-                  <button onClick={() => alert('CSV डाऊनलोड झाली!')} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5">
-                    <Download size={14} /> Export CSV
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                  >
+                    <Upload size={14} /> Import CSV (Upload)
+                  </button>
+                  <button 
+                    onClick={handleExportCSV} 
+                    className="px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                  >
+                    <Download size={14} /> Export CSV (Download)
                   </button>
                 </div>
               </div>
 
+              {/* Status and Source Filter Tabs */}
               <div className="flex flex-wrap items-center justify-between pt-2 border-t border-slate-800 gap-3 text-xs">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-slate-400 font-bold flex items-center gap-1"><Filter size={13} /> Status:</span>
-                  {stages.map((stg) => (
+                  {['All', 'New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'].map((stg) => (
                     <button
                       key={stg}
-                      onClick={() => setStatusFilter(stg === 'All' ? 'All' : stg)}
+                      onClick={() => setStatusFilter(stg)}
                       className={`px-3 py-1.5 rounded-xl font-medium transition ${statusFilter === stg ? 'bg-blue-600 text-white font-bold' : 'bg-[#080b12] text-slate-400 border border-slate-800'}`}
                     >
-                      {stg}
+                      {stg} {stg === 'All' ? `(${leads.length})` : `(${leads.filter(l => l.status === stg).length})`}
                     </button>
                   ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-bold">Source:</span>
+                  <select
+                    value={sourceFilter}
+                    onChange={(e) => setSourceFilter(e.target.value)}
+                    className="bg-[#080b12] border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 text-xs outline-none"
+                  >
+                    <option value="All">All Sources</option>
+                    <option value="Website">Website</option>
+                    <option value="Meta Lead Ad">Meta Lead Ad</option>
+                    <option value="Instagram Ad">Instagram Ad</option>
+                    <option value="Facebook Ad">Facebook Ad</option>
+                    <option value="WhatsApp Direct">WhatsApp Direct</option>
+                    <option value="Referral">Referral</option>
+                    <option value="CSV Import">CSV Import</option>
+                  </select>
                 </div>
               </div>
             </div>
 
+            {/* Leads Table */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[850px] text-xs">
@@ -727,8 +934,9 @@ export default function DashboardPage() {
                       <th className="p-4">Customer Details</th>
                       <th className="p-4">Service Required</th>
                       <th className="p-4">Deal Value</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-center">Instant Actions</th>
+                      <th className="p-4">Pipeline Status</th>
+                      <th className="p-4">Source & Notes</th>
+                      <th className="p-4 text-center">Instant 1-Click Actions</th>
                       <th className="p-4 text-center">Manage</th>
                     </tr>
                   </thead>
@@ -738,32 +946,40 @@ export default function DashboardPage() {
                         <td className="p-4">
                           <p className="font-bold text-white text-sm">{lead.name}</p>
                           <p className="text-[11px] text-slate-400 font-mono">+91 {lead.phone}</p>
+                          {lead.created_at && <span className="text-[10px] text-slate-500 block">{lead.created_at}</span>}
                         </td>
-                        <td className="p-4">{lead.service}</td>
-                        <td className="p-4 font-black text-white">₹{lead.deal_value.toLocaleString('en-IN')}</td>
+                        <td className="p-4">
+                          <span className="font-medium text-slate-200 block">{lead.service}</span>
+                          <span className="text-[10px] text-slate-400">Sentiment: <b className="text-blue-400">{lead.sentiment}</b></span>
+                        </td>
+                        <td className="p-4 font-black text-white text-sm">₹{lead.deal_value.toLocaleString('en-IN')}</td>
                         <td className="p-4">
                           <select
                             value={lead.status}
                             onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                            className="bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-xl text-xs outline-none"
+                            className="bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-xl text-xs outline-none cursor-pointer"
                           >
                             {stages.filter(s => s !== 'All').map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </td>
+                        <td className="p-4 max-w-[180px]">
+                          <span className="inline-block px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-semibold border border-slate-700">{lead.source}</span>
+                          {lead.notes && <p className="text-[11px] text-slate-400 truncate mt-1 italic">"{lead.notes}"</p>}
+                        </td>
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center gap-2">
-                            <a href={`https://wa.me/91${lead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1">
+                            <a href={`https://wa.me/91${lead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1 shadow-md">
                               <MessageSquare size={13} /> WhatsApp
                             </a>
-                            <button onClick={() => alert(`${lead.name} ला AI कॉल जोडला जात आहे...`)} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-1">
+                            <button onClick={() => alert(`${lead.name} ला AI कॉल लावला जात आहे...`)} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-1 shadow-md">
                               <PhoneCall size={13} /> AI Call
                             </button>
                           </div>
                         </td>
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center gap-1.5 text-slate-400">
-                            <button onClick={() => handleOpenEditModal(lead)} className="p-1.5 hover:text-blue-400"><Edit3 size={15} /></button>
-                            <button onClick={() => handleDeleteLead(lead.id, lead.name)} className="p-1.5 hover:text-rose-400"><Trash2 size={15} /></button>
+                            <button onClick={() => handleOpenEditModal(lead)} className="p-1.5 hover:text-blue-400 transition" title="Edit"><Edit3 size={15} /></button>
+                            <button onClick={() => handleDeleteLead(lead.id, lead.name)} className="p-1.5 hover:text-rose-400 transition" title="Delete"><Trash2 size={15} /></button>
                           </div>
                         </td>
                       </tr>
@@ -775,24 +991,52 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ================= 3. GROWTH CRM & PIPELINE (KANBAN) ================= */}
+        {/* ================= 3. GROWTH CRM & PIPELINE (KANBAN + ADD + CSV) ================= */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
-            <div>
-              <h2 className="text-lg font-black text-white">Growth CRM & Pipeline (Kanban)</h2>
-              <p className="text-xs text-slate-400">कार्ड ओढून (Drag) पुढच्या टप्प्यात (Drop) टाका.</p>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-black text-white flex items-center gap-2">
+                    <Layers size={20} className="text-blue-400" /> Growth CRM & Interactive Pipeline
+                  </h2>
+                  <p className="text-xs text-slate-400">कार्ड ओढून (Drag) पुढच्या टप्प्यात (Drop) टाका किंवा नवीन मॅन्युअल कॉन्टॅक्ट जोडा.</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button 
+                    onClick={handleOpenAddModal} 
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-blue-600/30 transition"
+                  >
+                    <Plus size={15} /> + Add Deal / Contact
+                  </button>
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                  >
+                    <Upload size={14} /> Import CSV
+                  </button>
+                  <button 
+                    onClick={handleExportCSV} 
+                    className="px-3.5 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                  >
+                    <Download size={14} /> Export CSV
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {/* Kanban Columns */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {['New Lead', 'Contacted', 'Payment Sent', 'Won'].map((stg) => (
                 <div 
                   key={stg} 
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, stg)}
-                  className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-3 min-h-[400px]"
+                  className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-3 min-h-[450px]"
                 >
-                  <div className="flex justify-between border-b border-slate-800 pb-2">
+                  <div className="flex justify-between border-b border-slate-800 pb-2 items-center">
                     <span className="font-bold text-xs text-white uppercase">{stg}</span>
-                    <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{leads.filter(l => l.status === stg).length}</span>
+                    <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{leads.filter(l => l.status === stg).length} Deals</span>
                   </div>
                   <div className="space-y-2.5">
                     {leads.filter(l => l.status === stg).map((l) => (
@@ -800,11 +1044,14 @@ export default function DashboardPage() {
                         key={l.id} 
                         draggable
                         onDragStart={(e) => handleDragStart(e, l.id)}
-                        className="p-3 bg-[#080b12] border border-slate-700 rounded-xl space-y-1 cursor-grab active:cursor-grabbing hover:border-blue-500 transition"
+                        className="p-3 bg-[#080b12] border border-slate-700 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-blue-500 transition shadow-md"
                       >
                         <div className="flex justify-between font-bold text-xs"><span className="text-white">{l.name}</span><span className="text-emerald-400">₹{l.deal_value}</span></div>
                         <p className="text-[11px] text-slate-400">{l.service}</p>
-                        <p className="text-[10px] text-slate-500 pt-1 border-t border-slate-800">{l.phone}</p>
+                        <div className="flex justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-800 items-center">
+                          <span>{l.phone}</span>
+                          <span className="text-blue-400">{l.source}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1070,16 +1317,67 @@ export default function DashboardPage() {
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Lead'}</h3>
+                <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Inbound Lead'}</h3>
                 <button onClick={() => setIsLeadModalOpen(false)} className="text-slate-400 hover:text-white p-1"><X size={18} /></button>
               </div>
-              <form onSubmit={handleSaveLead} className="space-y-3 text-xs">
-                <div><label className="text-slate-400 block mb-1">नाव</label><input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                <div><label className="text-slate-400 block mb-1">मोबाईल</label><input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" /></div>
-                <div><label className="text-slate-400 block mb-1">सर्व्हिस</label><input type="text" value={leadForm.service} onChange={(e) => setLeadForm({ ...leadForm, service: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                <div className="flex gap-2 pt-2">
-                  <button type="button" onClick={() => setIsLeadModalOpen(false)} className="flex-1 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl">रद्द करा</button>
-                  <button type="submit" className="flex-1 py-2 bg-blue-600 text-white font-bold rounded-xl">सेव्ह करा</button>
+              <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">ग्राहकाचे नाव *</label>
+                    <input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">मोबाईल नंबर *</label>
+                    <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
+                    <input type="text" value={leadForm.service} onChange={(e) => setLeadForm({ ...leadForm, service: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">अपेक्षित रक्कम (₹)</label>
+                    <input type="number" value={leadForm.deal_value} onChange={(e) => setLeadForm({ ...leadForm, deal_value: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold outline-none" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">Status</label>
+                    <select value={leadForm.status} onChange={(e) => setLeadForm({ ...leadForm, status: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
+                      <option value="New Lead">New Lead</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="Payment Sent">Payment Sent</option>
+                      <option value="Won">Won</option>
+                      <option value="Lost">Lost</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">Source</label>
+                    <select value={leadForm.source} onChange={(e) => setLeadForm({ ...leadForm, source: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
+                      <option value="Website">Website</option>
+                      <option value="Meta Lead Ad">Meta Lead Ad</option>
+                      <option value="WhatsApp Direct">WhatsApp Direct</option>
+                      <option value="Referral">Referral</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-bold">Sentiment</label>
+                    <select value={leadForm.sentiment} onChange={(e) => setLeadForm({ ...leadForm, sentiment: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none">
+                      <option value="Highly Interested">Highly Interested</option>
+                      <option value="Interested">Interested</option>
+                      <option value="Follow-up">Follow-up</option>
+                      <option value="Positive">Positive</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-slate-400 block mb-1 font-bold">फॉलो-अप नोट्स</label>
+                  <textarea rows={2} value={leadForm.notes} onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" />
+                </div>
+                <div className="flex gap-2.5 pt-2">
+                  <button type="button" onClick={() => setIsLeadModalOpen(false)} className="flex-1 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl">रद्द करा</button>
+                  <button type="submit" className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg">{editingLead ? 'बदल सेव्ह करा' : 'लीड सेव्ह करा'}</button>
                 </div>
               </form>
             </div>
