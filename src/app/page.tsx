@@ -89,7 +89,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('finance');
+  const [activeTab, setActiveTab] = useState<string>('payments');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -260,6 +260,7 @@ export default function DashboardPage() {
   const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
   const [paymentDesc, setPaymentDesc] = useState<string>('5G Smartphone Advance Payment');
   const [amount, setAmount] = useState<string>('2500');
+  const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
   // Multi-Gateway API Credentials State
   const [gateways, setGateways] = useState({
@@ -285,7 +286,7 @@ export default function DashboardPage() {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
   const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
 
-  // Handle Razorpay Checkout Modal
+  // Handle Razorpay Checkout Modal with Auto-WhatsApp PDF trigger
   const handleRazorpayPay = async () => {
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
@@ -303,6 +304,7 @@ export default function DashboardPage() {
       handler: function (response: any) {
         const pId = response.razorpay_payment_id || `PAY-${Date.now().toString().slice(-6)}`;
         alert(`🎉 Razorpay द्वारे ₹${amount} चे पेमेंट यशस्वी झाले!\nPayment ID: ${pId}`);
+        
         setTransactions(prev => [
           {
             id: pId,
@@ -315,6 +317,18 @@ export default function DashboardPage() {
           },
           ...prev
         ]);
+
+        if (isAutoWhatsAppPdfActive) {
+          const autoMsg = `✅ *पेमेंट यशस्वी & अधिकृत पावती (PDF Bill)*\n\n` +
+            `👤 ग्राहक: ${customerName}\n` +
+            `📦 सेवा: ${paymentDesc}\n` +
+            `💰 रक्कम: ₹${amount}\n` +
+            `🆔 ट्रान्झॅक्शन आयडी: ${pId}\n\n` +
+            `📄 *डिलिव्हरी पावती लिंक:*\nhttps://ai-growth-crm-nine.vercel.app/api/invoice-pdf?txn=${pId}\n\n` +
+            `भेट दिल्याबद्दल धन्यवाद! 🙏 - ${businessNameUpi}`;
+          
+          window.open(`https://wa.me/91${customerPhone}?text=${encodeURIComponent(autoMsg)}`, '_blank');
+        }
       },
       prefill: {
         name: customerName,
@@ -961,7 +975,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 5. PAYMENT GATEWAYS */}
+        {/* 5. PAYMENT GATEWAYS WITH AUTO-WHATSAPP PDF BILLING */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -974,12 +988,26 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & RAZORPAY CHECKOUT</h3>
-                      <p className="text-[11px] text-slate-400">Google Pay, PhonePe, Paytm, BHIM किंवा थेट Razorpay द्वारे पेमेंट स्वीकारा.</p>
+                      <p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर ग्राहकाच्या WhatsApp वर स्वयंचलित PDF पावती पाठवली जाईल.</p>
                     </div>
                   </div>
                   <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
-                    Live 0% Commission
+                    Auto-PDF Active
                   </span>
+                </div>
+
+                {/* Auto-WhatsApp PDF Toggle Banner */}
+                <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={16} className="text-emerald-400" />
+                    <span className="font-bold text-emerald-300 text-[11px]">पेमेंट होताच WhatsApp वर PDF बिल ऑटो-सेंड करा</span>
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    checked={isAutoWhatsAppPdfActive} 
+                    onChange={(e) => setIsAutoWhatsAppPdfActive(e.target.checked)} 
+                    className="w-4 h-4 accent-emerald-500 cursor-pointer" 
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1023,7 +1051,7 @@ export default function DashboardPage() {
                     <Send size={15} /> Send WhatsApp Bill
                   </button>
                   <button type="button" onClick={handlePrintReceipt} className="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5 transition text-xs cursor-pointer">
-                    <Printer size={15} /> Print Receipt
+                    <Printer size={15} /> Print PDF Bill
                   </button>
                 </div>
               </div>
@@ -1278,7 +1306,6 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {/* Appointments Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                 {appointments.map((slot) => (
                   <div key={slot.id} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-2.5 shadow-md hover:border-blue-500/50 transition">
@@ -1352,7 +1379,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Outbound Calling Queue Table */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
               <div className="p-4 border-b border-slate-800 flex justify-between items-center">
                 <span className="font-bold text-white uppercase text-xs tracking-wider">Outbound Calling Queue ({leads.length} Leads)</span>
@@ -1413,7 +1439,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 13. FINANCE (AI FINANCE & REVENUE FULLY ENHANCED) */}
+        {/* 13. FINANCE */}
         {activeTab === 'finance' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
@@ -1432,7 +1458,6 @@ export default function DashboardPage() {
                 </span>
               </div>
 
-              {/* Finance Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
                   <span className="text-slate-400 text-[11px]">Monthly Recurring Revenue (MRR)</span>
@@ -1451,7 +1476,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* SaaS Subscription Plans */}
               <div className="pt-3">
                 <span className="font-bold text-white text-xs uppercase tracking-wider block mb-3">Active SaaS Subscription Tiers</span>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
