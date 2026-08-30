@@ -16,9 +16,9 @@ import {
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
 
-// Supabase Real Client Initialization (Your Project Credentials)
-const supabaseUrl = 'https://yvaqrcdqehybzznpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+// Real Supabase Client Initialization with your Project Credentials
+const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzNjI3NTgsImV4cCI6MjA2NDkzODc1OH0.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzNjI3NTgsImV4cCI6MjA2NDkzODc1OH0';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -98,7 +98,7 @@ export default function DashboardPage() {
   // Authentication States (Supabase Connected)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'forgot'>('login');
-  const [authEmail, setAuthEmail] = useState<string>('');
+  const [authEmail, setAuthEmail] = useState<string>('aidigitalskillsgrowth@gmail.com');
   const [authPassword, setAuthPassword] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>('');
@@ -157,7 +157,7 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Supabase क्रेडेंशियल्स तपासा.' : error.message);
+        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Supabase डॅशबोर्ड तपासा.' : error.message);
       } else if (data.session) {
         setIsLoggedIn(true);
       }
