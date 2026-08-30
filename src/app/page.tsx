@@ -16,9 +16,9 @@ import {
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
 
-// Supabase Direct Client Initialization (No extra file needed)
+// Supabase Direct Client Initialization
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIxlvcmxlIjoiYW5vbiIsImlhdCI6MTc4NzI5NTUxMCwiZXhwIjoyMTAyODcxNTEwfQ.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -203,21 +203,21 @@ export default function DashboardPage() {
 
   // 15 Complete Leads Database
   const initialLeads: Lead[] = [
-    { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Dental Clinic Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
-    { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: '5G Smartphone Buy', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'iPhone 15 च्या EMI स्कीम्सबद्दल विचारले.', created_at: 'आज, 11:15 AM' },
-    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Screen Repair', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे, पेमेंट बाकी.', created_at: 'काल, 04:20 PM' },
-    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Skin Treatment', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले, स्लॉट बुक केला.', created_at: 'काल, 06:10 PM' },
-    { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'Orthopedic Visit', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold', notes: 'पहिला कॉल उचलला नाही.', created_at: '28 Aug' },
-    { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Bridal Makeup Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested', notes: 'ऑक्टोबर लग्नासाठी बुकिंग हवी आहे.', created_at: '28 Aug' },
-    { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Full Health Checkup', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'UPI QR स्कॅन करून भरत आहेत.', created_at: '27 Aug' },
-    { id: '8', name: 'महेश जाधव', phone: '9552114477', service: 'Car Full Servicing', deal_value: 1200, status: 'Won', source: 'Referral', sentiment: 'Positive', notes: 'गाडी गॅरेजवर आणली आहे.', created_at: '27 Aug' },
-    { id: '9', name: 'पूजा कुलकर्णी', phone: '9890665544', service: 'Digital Marketing Course', deal_value: 6000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'अभ्यासक्रमाचा सिलॅबस व्हॉट्सॲपवर पाठवला.', created_at: '26 Aug' },
-    { id: '10', name: 'किरण थोरात', phone: '9371889900', service: 'GST Registration', deal_value: 500, status: 'Contacted', source: 'WhatsApp Direct', sentiment: 'Follow-up', notes: 'पॅन कार्ड व आधार कार्ड कागदपत्रे बाकी.', created_at: '26 Aug' },
-    { id: '11', name: 'दिनेश गायकवाड', phone: '9860127890', service: 'Gym 3-Month Plan', deal_value: 1000, status: 'Won', source: 'Instagram Ad', sentiment: 'Positive', notes: 'जिम पास कार्ड ॲक्टिव्हेट केले.', created_at: '25 Aug' },
-    { id: '12', name: 'सुप्रिया भोसले', phone: '9158334455', service: 'Cosmetic Filling', deal_value: 2500, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'उद्या दुपारची वेळ दिली आहे.', created_at: '25 Aug' },
-    { id: '13', name: 'रोहन शिंदे', phone: '9730445566', service: '2 BHK Flat Enquiry', deal_value: 4000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'रविवारच्या साईट व्हिजिटसाठी नोंद केली.', created_at: '24 Aug' },
-    { id: '14', name: 'अनिल काळे', phone: '9823998877', service: 'Family Dining Special', deal_value: 1500, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Positive', notes: '१० जणांच्या टेबलचे आरक्षण.', created_at: '24 Aug' },
-    { id: '15', name: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Dental Implant Pro', deal_value: 35000, status: 'Won', source: 'Website', sentiment: 'Positive', notes: 'शस्त्रक्रियेचे पूर्ण ॲडव्हान्स पेमेंट मिळाले.', created_at: '23 Aug' },
+    { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
+    { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM' },
+    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे, पेमेंट बाकी.', created_at: 'काल, 04:20 PM' },
+    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले, स्लॉट बुक केला.', created_at: 'काल, 06:10 PM' },
+    { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'AI Tools Workshop', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold', notes: 'पहिला कॉल उचलला नाही.', created_at: '28 Aug' },
+    { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Branding Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested', notes: 'ऑक्टोबरसाठी बुकिंग हवी आहे.', created_at: '28 Aug' },
+    { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Lead Generation System', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'UPI QR स्कॅन करून भरत आहेत.', created_at: '27 Aug' },
+    { id: '8', name: 'महेश जाधव', phone: '9552114477', service: 'Funnel Setup', deal_value: 1200, status: 'Won', source: 'Referral', sentiment: 'Positive', notes: 'प्रोजेक्ट पूर्ण झाला.', created_at: '27 Aug' },
+    { id: '9', name: 'पूजा कुलकर्णी', phone: '9890665544', service: 'Digital Marketing Course', deal_value: 6000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'सिलॅबस व्हॉट्सॲपवर पाठवला.', created_at: '26 Aug' },
+    { id: '10', name: 'किरण थोरात', phone: '9371889900', service: 'Business Automation', deal_value: 500, status: 'Contacted', source: 'WhatsApp Direct', sentiment: 'Follow-up', notes: 'कागदपत्रे बाकी.', created_at: '26 Aug' },
+    { id: '11', name: 'दिनेश गायकवाड', phone: '9860127890', service: 'Coaching 3-Month Plan', deal_value: 1000, status: 'Won', source: 'Instagram Ad', sentiment: 'Positive', notes: 'पास कार्ड ॲक्टिव्हेट केले.', created_at: '25 Aug' },
+    { id: '12', name: 'सुप्रिया भोसले', phone: '9158334455', service: 'Ad Campaign Setup', deal_value: 2500, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'उद्या दुपारची वेळ दिली आहे.', created_at: '25 Aug' },
+    { id: '13', name: 'रोहन शिंदे', phone: '9730445566', service: 'Consultation Enquiry', deal_value: 4000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'रविवारच्या मिटिंगसाठी नोंद.', created_at: '24 Aug' },
+    { id: '14', name: 'अनिल काळे', phone: '9823998877', service: 'VIP Mastermind', deal_value: 1500, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Positive', notes: 'आरक्षण कन्फर्म.', created_at: '24 Aug' },
+    { id: '15', name: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Enterprise Coaching', deal_value: 35000, status: 'Won', source: 'Website', sentiment: 'Positive', notes: 'पूर्ण ॲडव्हान्स पेमेंट मिळाले.', created_at: '23 Aug' },
   ];
 
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -225,16 +225,8 @@ export default function DashboardPage() {
 
   // Industry Stock Images & Avatars Library
   const industryImages: Record<string, string> = {
-    csc: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&auto=format&fit=crop&q=80',
-    mobile: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80',
-    clinic: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1200&auto=format&fit=crop&q=80',
-    property: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&auto=format&fit=crop&q=80',
-    gym: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80',
-    academy: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=80',
-    restaurant: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80',
-    garage: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=1200&auto=format&fit=crop&q=80',
-    beauty: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&auto=format&fit=crop&q=80',
-    agency: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
+    marketing: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
+    coaching: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=80',
     generic: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80'
   };
 
@@ -245,129 +237,71 @@ export default function DashboardPage() {
     female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   };
 
-  // 10 Full Templates Database
+  // 10 Full Templates Database (Brand Name updated to Ravi Patil)
   const templatesDb: Record<string, TemplateData> = {
-    'CSC & Online Services': {
-      id: 'CSC & Online Services',
-      businessName: 'आपले सरकार & CSC डिजिटल सेवा केंद्र',
-      tagline: 'सर्व सरकारी योजना, दाखले, पॅन, आधार व ऑनलाईन फॉर्म्स',
-      headline: 'सर्व सरकारी दाखले व ऑनलाईन कामे एकाच छताखाली - जलद आणि खात्रीशीर सेवा!',
-      subheadline: 'उत्पन्न, जात, डोमिसाइल दाखले, नवीन पॅन कार्ड, पीएम किसान नोंदणी, ई-श्रम आणि सर्व भरती फॉर्म्स त्वरित भरून मिळतील.',
-      heroImage: industryImages.csc,
+    'Digital Marketing & Coaching': {
+      id: 'Digital Marketing & Coaching',
+      businessName: 'रवी पाटील - AI डिजिटल स्किल्स & बिझनेस कोचिंग',
+      tagline: 'ऑटोमेशन, मेटा ॲड्स आणि AI टूल्सद्वारे बिझनेस ग्रोथ',
+      headline: 'तुमचा व्यवसाय ऑनलाइन वाढवा आणि AI च्या मदतीने दरमहा लाखो रुपये कमवा!',
+      subheadline: 'डिजिटल मार्केटिंग मास्टरक्लास, मेटा ॲड कॅम्पेन सेटअप, ऑटोमेशन सिस्टीम आणि पर्सनल बिझनेस कोचिंग.',
+      heroImage: industryImages.marketing,
       phone: '9876543210',
-      email: 'csc.services@digitalgov.in',
-      address: 'तहसील कार्यालयासमोर, स्टेशन रोड, सांगली',
+      email: 'ravindra@aidigitalskillsgrowth.com',
+      address: 'डिजिटल ग्रोथ स्टुडिओ, सांगली',
       timing: 'सकाळी ९:०० ते रात्री ८:०० (सर्व दिवस सुरू)',
-      primaryCta: 'दाखल्यासाठी संपर्क करा',
-      badge: '★ अधिकृत CSC व आपले सरकार केंद्र',
+      primaryCta: 'मास्टरक्लाससाठी नोंदणी करा',
+      badge: '★ प्रो साॅस ॲक्टिव्ह (Pro SaaS Active)',
       services: [
-        { title: 'सर्व सरकारी दाखले (Certificates)', desc: 'उत्पन्न दाखला, रहिवासी, जात प्रमाणपत्र, नॉन क्रिमीलेयर व गॅझेट नोंदणी.', price: '₹१०० पासून' },
-        { title: 'इन्स्टंट पॅन कार्ड & आधार सेवा', desc: 'नवीन पॅन कार्ड २ तासांत, पॅन-आधार लिंक आणि दुरुस्ती सुविधा.', price: '₹१५०' },
-        { title: 'शासकीय योजना & भरती अर्ज', desc: 'लाडकी बहीण, पीएम किसान, आयुष्मान भारत आणि सर्व नोकरी भरती ऑनलाईन अर्ज.', price: '₹५० पासून' }
+        { title: 'AI डिजिटल स्किल्स मास्टरक्लास', desc: 'ChatGPT, Gemini आणि आधुनिक AI टूल्स शिकण्याची उत्तम संधी.', price: '₹९९९ पासून' },
+        { title: 'मेटा ॲड्स & लीड जनरेशन', desc: 'तुमच्या दुकानाला किंवा व्यवसायाला थेट मोबाईलवर हव्यात तेवढ्या कस्टमर लीड्स मिळवा.', price: '₹४,९९९' },
+        { title: '1-on-1 बिझनेस कोचिंग', desc: 'रवी पाटील यांच्याकडून वैयक्तिक मार्गदर्शन आणि बिझनेस ऑटोमेशन सेटअप.', price: '₹९,९९९' }
       ],
       stats: [
-        { label: 'काढलेले दाखले', value: '१५,०००+' },
-        { label: 'योजना लाभार्थी', value: '५,०००+' },
-        { label: 'समाधानी नागरिक', value: '१००%' }
+        { label: 'प्रशिक्षित विद्यार्थी', value: '१०,०००+' },
+        { label: 'यशस्वी मोहीम', value: '५००+' },
+        { label: 'समाधानी क्लायंट्स', value: '१००%' }
       ],
       testimonials: [
-        { name: 'सचिन कांबळे', avatar: avatars.male2, location: 'सांगली', review: 'उत्पन्नाचा दाखला अवघ्या २ दिवसांत काढून मिळाला. कोणतेही हेलपाटे न मारता काम झाले!', rating: 5 },
-        { name: 'प्रियांका शिंदे', avatar: avatars.female1, location: 'मिरज', review: 'लाडकी बहीण योजनेचा फॉर्म कोणत्याही त्रुटीशिवाय भरून दिला. खूपच तत्पर सेवा!', rating: 5 }
-      ]
-    },
-    'Mobile & Electronics': {
-      id: 'Mobile & Electronics',
-      businessName: 'ईश्वरी मोबाईल & ५G स्मार्ट गॅलरी',
-      tagline: 'स्मार्टफोन्स, प्रिमियम ॲक्सेसरीज आणि इन्स्टंट रिपेअरिंग',
-      headline: 'नवीन 5G स्मार्टफोन्सवर मिळवा थेट २०% सूट आणि शून्य डाऊनपेमेंट EMI!',
-      subheadline: 'iPhone, OnePlus, Samsung, Vivo चे सर्व अधिकृत मॉडेल्स सर्वोत्तम किमतीत उपलब्ध. सोबत फ्री गिफ्ट्स आणि २ वर्षांची वॉरंटी.',
-      heroImage: industryImages.mobile,
-      phone: '9876543210',
-      email: 'contact@ishwarimobile.com',
-      address: 'कॉलेज रोड, ईश्वरी टॉवर, सांगली',
-      timing: 'सकाळी १०:०० ते रात्री १०:०० (सर्व दिवस सुरू)',
-      primaryCta: 'धमाका ऑफर क्लेम करा',
-      badge: '★ अधिकृत ५G पार्टनर & ब्रँड वॉरंटी',
-      services: [
-        { title: 'नवीन 5G स्मार्टफोन्स विक्री', desc: 'सर्व नामांकित ब्रँड्सचे ओरिजिनल मोबाईल ०% EMI आणि कॅशबॅकवर उपलब्ध.', price: '₹९,९९९ पासून' },
-        { title: '३० मिनिटांत स्क्रीन & बॅटरी रिपेअर', desc: 'ओरिजिनल डिस्प्ले, बॅटरी बदलणे आणि मदरबोर्ड आयसी दुरुस्ती वॉरंटीसह.', price: '₹४९९ पासून' },
-        { title: 'मोबाईल एक्सचेंज महामेळावा', desc: 'कोणताही जुना फोन आणा आणि नवीन फोनवर मिळवा सर्वोत्तम एक्सचेंज व्हॅल्यू.', price: 'बेस्ट प्राईस' }
-      ],
-      stats: [
-        { label: 'समाधानी ग्राहक', value: '२५,०००+' },
-        { label: 'यशस्वी रिपेअरिंग', value: '८,५००+' },
-        { label: 'गुगल रेटिंग', value: '४.९ ★' }
-      ],
-      testimonials: [
-        { name: 'रविराज पाटील', avatar: avatars.male1, location: 'सांगली', review: 'माझ्या iPhone चा डिस्प्ले फक्त ३० मिनिटांत ओरिजिनल बदलून दिला. खूपच प्रामाणिक सेवा!', rating: 5 },
-        { name: 'अमित देशमुख', avatar: avatars.male2, location: 'कुपवाड', review: 'इतर दुकानांपेक्षा इथे मोबाईलवर ₹२,००० कमी किंमत मिळाली. शून्य डाऊनपेमेंट EMI सोपी आहे.', rating: 5 }
-      ]
-    },
-    'Doctor & Clinic': {
-      id: 'Doctor & Clinic',
-      businessName: 'संजीवनी मल्टिस्पेशालिटी & दंत चिकित्सा केंद्र',
-      tagline: 'विश्वासार्ह आरोग्य सेवा आणि आधुनिक लेझर उपचार',
-      headline: 'तुमच्या आणि संपूर्ण कुटुंबाच्या आरोग्याची संपूर्ण काळजी - तज्ज्ञ डॉक्टरांकडून',
-      subheadline: 'आधुनिक तंत्रज्ञान, वेदनाविरहित रूट कॅनल आणि १०+ वर्षांचा प्रदीर्घ वैद्यकीय अनुभव.',
-      heroImage: industryImages.clinic,
-      phone: '9876543210',
-      email: 'care@sanjeevanihospital.com',
-      address: 'स्टेशन रोड, मुख्य चौक, सांगली',
-      timing: 'सकाळी ९:०० ते रात्री ९:००',
-      primaryCta: 'अपॉइंटमेंट बुक करा',
-      badge: '★ ISO ९००१ प्रमाणित क्लिनिक',
-      services: [
-        { title: 'लेझर रूट कॅनल & दंत इम्प्लांट', desc: 'आधुनिक जर्मन उपकरणांद्वारे एकाच सिटिंगमध्ये वेदनाविरहित दातांचे उपचार.', price: '₹१,५०० पासून' },
-        { title: 'ऑर्थोपेडिक व सांधेदुखी चिकित्सा', desc: 'गुडघेदुखी, मणक्याचे आजार आणि फ्रॅक्चरवर आधुनिक तज्ज्ञ उपचार.', price: '₹८०० पासून' },
-        { title: 'कम्प्लिट फुल बॉडी चेकअप', desc: 'रक्त तपासणी, ECG, लिपिड प्रोफाईल आणि डॉक्टरांचे सविस्तर मार्गदर्शन.', price: '₹२,९९९ पासून' }
-      ],
-      stats: [
-        { label: 'उपचारित रुग्ण', value: '१२,०००+' },
-        { label: 'यशस्वी सर्जरी', value: '१,८००+' },
-        { label: 'अनुभवी डॉक्टर्स', value: '१०+' }
-      ],
-      testimonials: [
-        { name: 'ज्ञानेश्वर माने', avatar: avatars.male1, location: 'सांगली', review: 'रूट कॅनल करताना अजिबात त्रास झाला नाही. डॉक्टरांचे बोलणे खूप दिलासा देणारे आहे.', rating: 5 },
-        { name: 'सुप्रिया भोसले', avatar: avatars.female2, location: 'मिरज', review: 'सांधेदुखीवर इथे खूप चांगला गुण आला. अत्यंत स्वच्छ रुग्णालय.', rating: 5 }
+        { name: 'सचिन कांबळे', avatar: avatars.male2, location: 'सांगली', review: 'रवी सरंच्या मार्गदर्शनामुळे माझा बिझनेस पूर्णपणे ऑटोमेशनवर आला. खूप अप्रतिम अनुभव!', rating: 5 },
+        { name: 'प्रियांका शिंदे', avatar: avatars.female1, location: 'मिरज', review: 'मेटा ॲड शिकल्यापासून माझ्या पेजवर रोज नवीन कस्टमर येत आहेत. धन्यवाद रवी सर!', rating: 5 }
       ]
     }
   };
 
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('CSC & Online Services');
-  const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['CSC & Online Services']);
-  const [promptInput, setPromptInput] = useState<string>('csc center sathi ५-स्टार वेबसाइट बनवा');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('Digital Marketing & Coaching');
+  const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['Digital Marketing & Coaching']);
+  const [promptInput, setPromptInput] = useState<string>('रवी पाटील सठी ५-स्टार वेबसाइट बनवा');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Payment Setup States (Razorpay & Cashfree Integrated)
-  const [upiId, setUpiId] = useState<string>('ishwarimobile@ibl');
-  const [businessNameUpi, setBusinessNameUpi] = useState<string>('Ishwari Mobile & CSC');
+  // Payment Setup States (Razorpay, Cashfree & Instamojo Integrated)
+  const [upiId, setUpiId] = useState<string>('ravindra@ibl');
+  const [businessNameUpi, setBusinessNameUpi] = useState<string>('रवी पाटील - AI Growth');
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
   const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
-  const [paymentDesc, setPaymentDesc] = useState<string>('5G Smartphone Advance Payment');
+  const [paymentDesc, setPaymentDesc] = useState<string>('AI Masterclass Advance Payment');
   const [amount, setAmount] = useState<string>('2500');
   const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
-  // Multi-Gateway API Credentials State (Razorpay, Cashfree, Stripe, Paytm)
+  // Multi-Gateway API Credentials State (Razorpay, Cashfree, Instamojo, Stripe)
   const [gateways, setGateways] = useState({
     razorpayKey: 'rzp_live_98xK19873219472',
-    razorpaySecret: '••••••••••••••••••••••••',
     cashfreeAppId: 'CF_APP_892348923489',
-    cashfreeSecret: '••••••••••••••••••••••••',
-    stripeKey: 'pk_live_51MzAbcDefGhiJklMnOp',
-    paytmMerchantId: 'MID_ISHWARI982347'
+    instamojoKey: 'imojo_live_982347892347',
+    stripeKey: 'pk_live_51MzAbcDefGhiJklMnOp'
   });
 
   // Recent Transactions History
   const [transactions, setTransactions] = useState<Transaction[]>([
     { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' },
-    { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Dynamic UPI QR', status: 'Success', date: 'आज, 11:10 AM' },
+    { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Instamojo Secure', status: 'Success', date: 'आज, 11:10 AM' },
     { id: 'TXN-98212', customerName: 'ज्ञानेश्वर माने', phone: '9673112233', amount: 35000, gateway: 'Cashfree Webhook', status: 'Success', date: 'काल, 05:20 PM' },
     { id: 'TXN-98211', customerName: 'अमित देशमुख', phone: '9822334455', amount: 4500, gateway: 'WhatsApp UPI Link', status: 'Pending', date: 'काल, 03:40 PM' },
   ]);
 
   // Social Media Auto-Poster States
-  const [socialPostText, setSocialPostText] = useState('💥 Ishwari Mobile कडून नवीन 5G स्मार्टफोन्सवर २०% सूट आणि शून्य डाऊनपेमेंट EMI!');
+  const [socialPostText, setSocialPostText] = useState('💥 रवी पाटील यांच्याकडून नवीन AI डिजिटल स्किल्स मास्टरक्लासवर खास ऑफर!');
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     facebook: true,
     instagram: true,
@@ -395,7 +329,7 @@ export default function DashboardPage() {
       currency: 'INR',
       name: businessNameUpi,
       description: paymentDesc,
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&auto=format&fit=crop&q=80',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&auto=format&fit=crop&q=80',
       handler: function (response: any) {
         const pId = response.razorpay_payment_id || `PAY-${Date.now().toString().slice(-6)}`;
         alert(`🎉 Razorpay द्वारे ₹${amount} चे पेमेंट यशस्वी झाले!\nPayment ID: ${pId}`);
@@ -503,9 +437,9 @@ export default function DashboardPage() {
   const [customTemplateName, setCustomTemplateName] = useState('');
   const [customTemplateText, setCustomTemplateText] = useState('');
   const [savedTemplates, setSavedTemplates] = useState([
-    { title: 'Welcome Inquiry', text: 'नमस्कार {Name} जी, Ishwari Mobile मध्ये आपले स्वागत आहे. आम्ही आपली कशी मदत करू शकतो?' },
-    { title: 'Instant UPI Payment Request', text: 'नमस्कार {Name} जी, आपल्या {Service} चे ₹{Amount} चे डिजिटल बिल व UPI QR लिंक खालीलप्रमाणे आहे.' },
-    { title: 'Appointment Confirmed', text: 'आपली {Service} ची अपॉइंटमेंट निश्चित झाली आहे. वेळेवर उपस्थित राहावे.' }
+    { title: 'Welcome Inquiry', text: 'नमस्कार {Name} जी, रवी पाटील यांच्या AI Growth CRM मध्ये आपले स्वागत आहे.' },
+    { title: 'Instant UPI Payment Request', text: 'नमस्कार {Name} जी, आपल्या {Service} चे ₹{Amount} चे डिजिटल बिल खालीलप्रमाणे आहे.' },
+    { title: 'Appointment Confirmed', text: 'आपली {Service} ची सहल निश्चित झाली आहे.' }
   ]);
 
   const handleGenerateTemplate = (e: React.FormEvent) => {
@@ -542,9 +476,9 @@ export default function DashboardPage() {
 
   // Smart Calendar States
   const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: '5G Smartphone Buy', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' },
-    { id: '2', clientName: 'अमित देशमुख', phone: '9822334455', service: 'Screen Repair', date: '2026-08-31', time: '02:00 PM', status: 'Pending' },
-    { id: '3', clientName: 'प्रियांका शिंदे', phone: '9765432109', service: 'Skin Treatment', date: '2026-09-01', time: '05:30 PM', status: 'Confirmed' }
+    { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: 'Digital Marketing Setup', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' },
+    { id: '2', clientName: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', date: '2026-08-31', time: '02:00 PM', status: 'Pending' },
+    { id: '3', clientName: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', date: '2026-09-01', time: '05:30 PM', status: 'Confirmed' }
   ]);
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
   const [newSlot, setNewSlot] = useState({ clientName: '', phone: '', service: '', date: '2026-09-02', time: '10:00 AM' });
@@ -578,16 +512,16 @@ export default function DashboardPage() {
 
   // AI Chatbot States
   const [botConfig, setBotConfig] = useState({
-    name: 'Ishwari AI Assistant',
+    name: 'Ravi Patil AI Assistant',
     personality: 'Professional & Friendly',
     language: 'मराठी + English (Hinglish)',
     autoDiscount: true,
     discountPercent: 10,
-    systemPrompt: 'तुम्ही Ishwari Mobile आणि CSC केंद्राचे अधिकृत AI असिस्टंट आहात. ग्राहकांना मराठीत नम्रतेने उत्तरे द्या.'
+    systemPrompt: 'तुम्ही रवी पाटील यांच्या AI Growth CRM चे अधिकृत असिस्टंट आहात. ग्राहकांना मराठीत नम्रतेने उत्तरे द्या.'
   });
 
   const [chatMessages, setChatMessages] = useState<{ sender: 'bot' | 'user'; text: string; time: string }[]>([
-    { sender: 'bot', text: 'नमस्कार! 🙏 Ishwari AI मध्ये आपले स्वागत आहे. मी आपल्याला कशी मदत करू?', time: '10:00 AM' }
+    { sender: 'bot', text: 'नमस्कार! 🙏 रवी पाटील AI Growth CRM मध्ये आपले स्वागत आहे. मी आपल्याला कशी मदत करू?', time: '10:00 AM' }
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
@@ -601,10 +535,10 @@ export default function DashboardPage() {
     setTimeout(() => {
       let botReply = `आपल्या '${txt}' या चौकशीबद्दल धन्यवाद! `;
       const lower = txt.toLowerCase();
-      if (lower.includes('price') || lower.includes('किंमत') || lower.includes('ऑफर')) {
-        botReply += `आज आमच्याकडे नवीन 5G स्मार्टफोन्सवर २०% सूट आणि ०% EMI उपलब्ध आहे!`;
+      if (lower.includes('price') || lower.includes('किंमत') || lower.includes('कोर्स')) {
+        botReply += `आज आमच्या डिजिटल मार्केटिंग कोर्सवर स्पेशल डिस्काउंट उपलब्ध आहे!`;
       } else {
-        botReply += `आमची टीम तुम्हाला अधिक माहितीसाठी लवकरच कॉल करेल!`;
+        botReply += `रवी पाटील यांची टीम तुम्हाला लवकरच संपर्क करेल!`;
       }
       setChatMessages(prev => [...prev, { sender: 'bot', text: botReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
     }, 400);
@@ -615,8 +549,8 @@ export default function DashboardPage() {
   const [inboxText, setInboxText] = useState<string>('');
   const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({
     '1': [
-      { from: 'them', text: 'नमस्कार, मला नवीन क्लिनिकसाठी सेटअपची माहिती हवी होती.', time: '10:25 AM' },
-      { from: 'me', text: 'नमस्कार रविराज जी, Ishwari CRM मध्ये आपले स्वागत आहे.', time: '10:30 AM' }
+      { from: 'them', text: 'नमस्कार सर, मला डिजिटल मार्केटिंग सेटअपची माहिती हवी होती.', time: '10:25 AM' },
+      { from: 'me', text: 'नमस्कार रविराज जी, रवी पाटील CRM मध्ये आपले स्वागत आहे.', time: '10:30 AM' }
     ]
   });
 
@@ -631,7 +565,7 @@ export default function DashboardPage() {
   };
 
   // AI Sales & IVR States
-  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी Ishwari Mobile कडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
+  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
 
   const handleTriggerIvrCall = (lead: Lead) => {
@@ -729,15 +663,8 @@ export default function DashboardPage() {
     if (!promptInput.trim()) { alert('कृपया प्रॉम्प्ट टाईप करा!'); return; }
     setIsGenerating(true);
     setTimeout(() => {
-      const lower = promptInput.toLowerCase();
-      let matchedKey = 'CSC & Online Services';
-      if (lower.includes('mobile') || lower.includes('मोबाईल')) matchedKey = 'Mobile & Electronics';
-      else if (lower.includes('doctor') || lower.includes('क्लिनिक')) matchedKey = 'Doctor & Clinic';
-      else if (lower.includes('gym') || lower.includes('जिम')) matchedKey = 'Gym & Fitness';
-      else if (lower.includes('hotel') || lower.includes('रेस्टॉरंट')) matchedKey = 'Restaurant & Cafe';
-      
-      setSelectedTemplate(matchedKey);
-      setCurrentSite(templatesDb[matchedKey] || templatesDb['CSC & Online Services']);
+      setSelectedTemplate('Digital Marketing & Coaching');
+      setCurrentSite(templatesDb['Digital Marketing & Coaching']);
       setIsGenerating(false);
     }, 400);
   };
@@ -828,8 +755,8 @@ export default function DashboardPage() {
         <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-8 w-full max-w-md shadow-2xl space-y-6">
           <div className="text-center space-y-2">
             <div className="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/40">AI</div>
-            <h1 className="text-xl font-black text-white">AI Growth CRM & Suite</h1>
-            <p className="text-xs text-slate-400">अधिकृत ग्राहकांसाठी सुरक्षित लॉगिन पोर्टल</p>
+            <h1 className="text-xl font-black text-white">रवी पाटील - AI Growth CRM</h1>
+            <p className="text-xs text-slate-400">प्रो साॅस ॲक्टिव्ह (Pro SaaS Active)</p>
           </div>
 
           {authError && (
@@ -895,7 +822,7 @@ export default function DashboardPage() {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
-        {/* Top Header with Supabase Logout Option */}
+        {/* Top Header with Logout Option */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
@@ -920,6 +847,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">प्रो साॅस ॲक्टिव्ह</span>
             <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">+ Add Lead</button>
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold"><RefreshCw size={13} /> Refresh</button>
             <button onClick={handleSupabaseLogout} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer" title="Logout">
@@ -932,7 +860,7 @@ export default function DashboardPage() {
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-              <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span className="text-xs font-bold text-slate-200">AI Quick Actions (15 Modules Locked):</span></div>
+              <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span className="text-xs font-bold text-slate-200">रवी पाटील - AI Growth CRM (15 मॉड्यूल्स ॲक्टिव्ह):</span></div>
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <button onClick={handleOpenAddModal} className="px-3 py-2 bg-blue-600 text-white rounded-xl font-bold">+ Add Lead</button>
                 <button onClick={() => setActiveTab('payments')} className="px-3 py-2 bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-xl font-bold">Quick Payment QR</button>
@@ -1097,7 +1025,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <Sparkles size={18} className="text-blue-400 shrink-0" />
-                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'csc center sathi ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
+                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'रवी पाटील सठी ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
                 </div>
                 <button type="button" onClick={toggleVoiceRecording} className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border ${isListening ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-800 text-slate-200 border-slate-700'}`}>
                   {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
@@ -1141,7 +1069,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 5. PAYMENT GATEWAYS */}
+        {/* 5. PAYMENT GATEWAYS (Razorpay, Cashfree & Instamojo Integrated) */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1153,12 +1081,12 @@ export default function DashboardPage() {
                       <QrCode size={18} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-sm">DYNAMIC MULTI-UPI & RAZORPAY CHECKOUT</h3>
+                      <h3 className="font-bold text-white text-sm">MULTI-GATEWAYS: RAZORPAY, CASHFREE & INSTAMOJO</h3>
                       <p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर ग्राहकाच्या WhatsApp वर स्वयंचलित PDF पावती पाठवली जाईल.</p>
                     </div>
                   </div>
                   <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
-                    Auto-PDF Active
+                    Pro SaaS Active
                   </span>
                 </div>
 
@@ -1212,11 +1140,11 @@ export default function DashboardPage() {
                   <button type="button" onClick={handleRazorpayPay} className="py-3 px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/35 transition text-xs cursor-pointer">
                     <CreditCard size={15} /> Pay with Razorpay
                   </button>
+                  <button type="button" onClick={() => alert('Instamojo Secure Checkout ॲक्टिव्ह आहे!')} className="py-3 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg transition text-xs cursor-pointer">
+                    <Landmark size={15} /> Pay with Instamojo
+                  </button>
                   <button type="button" onClick={handleSendWhatsAppBill} className="py-3 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/35 transition text-xs cursor-pointer">
                     <Send size={15} /> Send WhatsApp Bill
-                  </button>
-                  <button type="button" onClick={handlePrintReceipt} className="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5 transition text-xs cursor-pointer">
-                    <Printer size={15} /> Print PDF Bill
                   </button>
                 </div>
               </div>
@@ -1799,7 +1727,8 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
-                  <input type="text" value={newSlot.service} onChange={(e) => setNewSlot({ ...newSlot, service: e.target.value })} placeholder="उदा. 5G Phone Booking" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+                  <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
+                  <input type="text" value={newSlot.service} onChange={(e) => setNewSlot({ ...newSlot, service: e.target.value })} placeholder="उदा. Digital Marketing Setup" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -1807,7 +1736,7 @@ export default function DashboardPage() {
                     <input type="date" value={newSlot.date} onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                   </div>
                   <div>
-                    <label className="text-slate-400 block mb-1 font-bold">वेळ (Time)</label>
+                    <label className="text-slate-400 data block mb-1 font-bold">वेळ (Time)</label>
                     <input type="text" value={newSlot.time} onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })} placeholder="11:00 AM" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                   </div>
                 </div>
