@@ -12,7 +12,7 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle
+  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
 
 interface Testimonial {
@@ -89,7 +89,14 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('social');
+  // Authentication States
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
+  const [authEmail, setAuthEmail] = useState<string>('ravindra@ishwarimobile.com');
+  const [authPassword, setAuthPassword] = useState<string>('123456');
+  const [authName, setAuthName] = useState<string>('Ravindra Borchate');
+
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -735,6 +742,98 @@ export default function DashboardPage() {
     </div>
   );
 
+  // ================= AUTHENTICATION SCREEN =================
+  if (!isLoggedIn) {
+    return (
+      <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans items-center justify-center p-4">
+        <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-8 w-full max-w-md shadow-2xl space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/40">AI</div>
+            <h1 className="text-xl font-black text-white">AI Growth CRM & Suite</h1>
+            <p className="text-xs text-slate-400">आपल्या बिझनेस आणि डिजिटल मार्केटिंगचे पॉवरहाऊस</p>
+          </div>
+
+          {authMode === 'login' && (
+            <form onSubmit={(e) => { e.preventDefault(); setIsLoggedIn(true); }} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <Mail size={15} className="text-slate-400" />
+                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">पासवर्ड</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <KeyRound size={15} className="text-slate-400" />
+                  <input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="flex justify-between items-center text-[11px]">
+                <button type="button" onClick={() => setAuthMode('forgot')} className="text-blue-400 hover:underline">पासवर्ड विसरलात?</button>
+                <button type="button" onClick={() => setAuthMode('register')} className="text-slate-300 hover:underline">नवीन अकाउंट बनवा</button>
+              </div>
+              <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer">
+                लॉगिन करा (Login)
+              </button>
+            </form>
+          )}
+
+          {authMode === 'register' && (
+            <form onSubmit={(e) => { e.preventDefault(); alert('अकाउंट तयार झाले! कृपया आता लॉगिन करा.'); setAuthMode('login'); }} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">पूर्ण नाव</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <User size={15} className="text-slate-400" />
+                  <input type="text" required value={authName} onChange={(e) => setAuthName(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <Mail size={15} className="text-slate-400" />
+                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">पासवर्ड तयार करा</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <KeyRound size={15} className="text-slate-400" />
+                  <input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="text-right text-[11px]">
+                <button type="button" onClick={() => setAuthMode('login')} className="text-blue-400 hover:underline">आधीच अकाउंट आहे? लॉगिन करा</button>
+              </div>
+              <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer">
+                रजिस्टर करा (Register)
+              </button>
+            </form>
+          )}
+
+          {authMode === 'forgot' && (
+            <form onSubmit={(e) => { e.preventDefault(); alert('पासवर्ड रिसेट लिंक तुमच्या ईमेलवर पाठवली आहे!'); setAuthMode('login'); }} className="space-y-4 text-xs">
+              <p className="text-slate-400 text-xs">तुमचा नोंदणीकृत ईमेल टाका, आम्ही तुम्हाला पासवर्ड रिसेट करण्याची लिंक पाठवू.</p>
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
+                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
+                  <Mail size={15} className="text-slate-400" />
+                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                </div>
+              </div>
+              <div className="text-right text-[11px]">
+                <button type="button" onClick={() => setAuthMode('login')} className="text-blue-400 hover:underline">लॉगिन पेजवर जा</button>
+              </div>
+              <button type="submit" className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer">
+                पासवर्ड रिसेट करा (Reset Password)
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans antialiased overflow-hidden">
       <SidebarComp activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -742,7 +841,7 @@ export default function DashboardPage() {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
-        {/* Top Header */}
+        {/* Top Header with Logout Option */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
@@ -769,6 +868,9 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">+ Add Lead</button>
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold"><RefreshCw size={13} /> Refresh</button>
+            <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer" title="Logout">
+              <LogOut size={13} /> Logout
+            </button>
           </div>
         </header>
 
@@ -1511,7 +1613,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 14. SOCIAL MEDIA AUTO-POSTER (FULLY RESTORED & FUNCTIONAL) */}
+        {/* 14. SOCIAL */}
         {activeTab === 'social' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
@@ -1670,7 +1772,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(previewModal => !previewModal)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
