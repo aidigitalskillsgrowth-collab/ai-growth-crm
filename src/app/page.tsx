@@ -1,8 +1,9 @@
 ﻿'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 // @ts-ignore
 import Sidebar from '../components/Sidebar';
+import { createClient } from '@supabase/supabase-js';
 import { 
   Search, RefreshCw, Layers, Users, PhoneCall, MessageSquare, Send, 
   Sparkles, Monitor, Smartphone, Volume2, Upload, Download, Plus, 
@@ -14,6 +15,11 @@ import {
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
 } from 'lucide-react';
+
+// Supabase Real Client Initialization
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-supabase-project.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
   name: string;
@@ -89,12 +95,13 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  // Authentication States
+  // Authentication States (Supabase Connected)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
-  const [authEmail, setAuthEmail] = useState<string>('ravindra@ishwarimobile.com');
-  const [authPassword, setAuthPassword] = useState<string>('123456');
-  const [authName, setAuthName] = useState<string>('Ravindra Borchate');
+  const [authMode, setAuthMode] = useState<'login' | 'forgot'>('login');
+  const [authEmail, setAuthEmail] = useState<string>('');
+  const [authPassword, setAuthPassword] = useState<string>('');
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
@@ -121,6 +128,78 @@ export default function DashboardPage() {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check existing Supabase session on load
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsLoggedIn(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle Supabase Secure Login
+  const handleSupabaseLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authEmail.trim(),
+        password: authPassword,
+      });
+
+      if (error) {
+        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Supabase क्रेडेंशियल्स तपासा.' : error.message);
+      } else if (data.session) {
+        setIsLoggedIn(true);
+      }
+    } catch (err: any) {
+      setAuthError('लॉगिन करताना तांत्रिक अडचण आली.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Handle Supabase Forgot Password
+  const handleSupabaseForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authEmail.trim()) {
+      setAuthError('कृपया तुमचा नोंदणीकृत ईमेल टाка!');
+      return;
+    }
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(authEmail.trim(), {
+        redirectTo: window.location.origin,
+      });
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        alert('पासवर्ड रिसेट करण्याची लिंक तुमच्या ईमेलवर पाठवली आहे!');
+        setAuthMode('login');
+      }
+    } catch (err) {
+      setAuthError('रिसेट लिंक पाठवण्यात अडचण आली.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Handle Supabase Logout
+  const handleSupabaseLogout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+  };
 
   // 15 Complete Leads Database
   const initialLeads: Lead[] = [
@@ -742,7 +821,7 @@ export default function DashboardPage() {
     </div>
   );
 
-  // ================= AUTHENTICATION SCREEN =================
+  // ================= SUPABASE AUTHENTICATION SCREEN =================
   if (!isLoggedIn) {
     return (
       <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans items-center justify-center p-4">
@@ -750,82 +829,57 @@ export default function DashboardPage() {
           <div className="text-center space-y-2">
             <div className="w-12 h-12 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/40">AI</div>
             <h1 className="text-xl font-black text-white">AI Growth CRM & Suite</h1>
-            <p className="text-xs text-slate-400">आपल्या बिझनेस आणि डिजिटल मार्केटिंगचे पॉवरहाऊस</p>
+            <p className="text-xs text-slate-400">अधिकृत ग्राहकांसाठी सुरक्षित लॉगिन पोर्टल</p>
           </div>
 
+          {authError && (
+            <div className="p-3 bg-rose-950/60 border border-rose-500/40 text-rose-300 rounded-xl text-xs text-center font-medium">
+              {authError}
+            </div>
+          )}
+
           {authMode === 'login' && (
-            <form onSubmit={(e) => { e.preventDefault(); setIsLoggedIn(true); }} className="space-y-4 text-xs">
+            <form onSubmit={handleSupabaseLogin} className="space-y-4 text-xs">
               <div className="space-y-1">
                 <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
                 <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
                   <Mail size={15} className="text-slate-400" />
-                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                  <input type="email" required placeholder="name@example.com" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-slate-300 font-bold block">पासवर्ड</label>
                 <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
                   <KeyRound size={15} className="text-slate-400" />
-                  <input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                  <input type="password" required placeholder="••••••••" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="bg-transparent text-white w-full outline-none" />
                 </div>
               </div>
               <div className="flex justify-between items-center text-[11px]">
                 <button type="button" onClick={() => setAuthMode('forgot')} className="text-blue-400 hover:underline">पासवर्ड विसरलात?</button>
-                <button type="button" onClick={() => setAuthMode('register')} className="text-slate-300 hover:underline">नवीन अकाउंट बनवा</button>
               </div>
-              <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer">
-                लॉगिन करा (Login)
-              </button>
-            </form>
-          )}
-
-          {authMode === 'register' && (
-            <form onSubmit={(e) => { e.preventDefault(); alert('अकाउंट तयार झाले! कृपया आता लॉगिन करा.'); setAuthMode('login'); }} className="space-y-4 text-xs">
-              <div className="space-y-1">
-                <label className="text-slate-300 font-bold block">पूर्ण नाव</label>
-                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
-                  <User size={15} className="text-slate-400" />
-                  <input type="text" required value={authName} onChange={(e) => setAuthName(e.target.value)} className="bg-transparent text-white w-full outline-none" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
-                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
-                  <Mail size={15} className="text-slate-400" />
-                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-slate-300 font-bold block">पासवर्ड तयार करा</label>
-                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
-                  <KeyRound size={15} className="text-slate-400" />
-                  <input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="bg-transparent text-white w-full outline-none" />
-                </div>
-              </div>
-              <div className="text-right text-[11px]">
-                <button type="button" onClick={() => setAuthMode('login')} className="text-blue-400 hover:underline">आधीच अकाउंट आहे? लॉगिन करा</button>
-              </div>
-              <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer">
-                रजिस्टर करा (Register)
+              <button type="submit" disabled={authLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50">
+                {authLoading && <Loader2 size={16} className="animate-spin" />}
+                <span>लॉगिन करा (Login)</span>
               </button>
             </form>
           )}
 
           {authMode === 'forgot' && (
-            <form onSubmit={(e) => { e.preventDefault(); alert('पासवर्ड रिसेट लिंक तुमच्या ईमेलवर पाठवली आहे!'); setAuthMode('login'); }} className="space-y-4 text-xs">
+            <form onSubmit={handleSupabaseForgotPassword} className="space-y-4 text-xs">
               <p className="text-slate-400 text-xs">तुमचा नोंदणीकृत ईमेल टाका, आम्ही तुम्हाला पासवर्ड रिसेट करण्याची लिंक पाठवू.</p>
               <div className="space-y-1">
                 <label className="text-slate-300 font-bold block">ईमेल आयडी</label>
                 <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5">
                   <Mail size={15} className="text-slate-400" />
-                  <input type="email" required value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
+                  <input type="email" required placeholder="name@example.com" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} className="bg-transparent text-white w-full outline-none" />
                 </div>
               </div>
               <div className="text-right text-[11px]">
                 <button type="button" onClick={() => setAuthMode('login')} className="text-blue-400 hover:underline">लॉगिन पेजवर जा</button>
               </div>
-              <button type="submit" className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer">
-                पासवर्ड रिसेट करा (Reset Password)
+              <button type="submit" disabled={authLoading} className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50">
+                {authLoading && <Loader2 size={16} className="animate-spin" />}
+                <span>पासवर्ड रिसेट लिंक पाठवा</span>
               </button>
             </form>
           )}
@@ -841,7 +895,7 @@ export default function DashboardPage() {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
-        {/* Top Header with Logout Option */}
+        {/* Top Header with Supabase Logout Option */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
@@ -868,7 +922,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">+ Add Lead</button>
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold"><RefreshCw size={13} /> Refresh</button>
-            <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer" title="Logout">
+            <button onClick={handleSupabaseLogout} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer" title="Logout">
               <LogOut size={13} /> Logout
             </button>
           </div>
@@ -1772,7 +1826,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(previewModal => !previewModal)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
