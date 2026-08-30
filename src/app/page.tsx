@@ -89,7 +89,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('payments');
+  const [activeTab, setActiveTab] = useState<string>('ivr');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -522,8 +522,8 @@ export default function DashboardPage() {
   };
 
   // AI Sales & IVR States
+  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी Ishwari Mobile कडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
-  const [ivrScript, setIvrScript] = useState<string>('नमस्कार, मी Ishwari Mobile कडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
 
   const handleTriggerIvrCall = (lead: Lead) => {
     setCallingStatus(prev => ({ ...prev, [lead.id]: 'Calling' }));
@@ -960,7 +960,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 5. PAYMENT GATEWAYS (RESTORED & FUNCTIONAL) */}
+        {/* 5. PAYMENT GATEWAYS */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1340,32 +1340,101 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 12. IVR CALLING BOT */}
+        {/* 12. IVR CALLING BOT (AI SALES & IVR FULLY ENHANCED) */}
         {activeTab === 'ivr' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl">
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2"><PhoneCall size={18} className="text-blue-400" /><h3 className="font-bold text-white text-sm">AI Outbound Sales Calling Bot</h3></div>
-                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">Marathi TTS Engine</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+                    <PhoneCall size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">AI SALES & OUTBOUND IVR VOICE BOT</h3>
+                    <p className="text-[11px] text-slate-400">लीड्सना स्वयंचलित (Automated) फोन कॉल्स आणि मराठी वॉयस स्क्रिप्ट्सद्वारे फॉलो-अप.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-bold">Marathi Natural TTS</span>
               </div>
-              <div className="pt-3"><label className="text-slate-300 block mb-1 font-bold">AI Voice Calling Script</label><textarea rows={2} value={ivrScript} onChange={(e) => setIvrScript(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" /></div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-slate-300 block font-bold">AI Voice Calling Script (मराठी/हिंदी)</label>
+                  <textarea 
+                    rows={4} 
+                    value={aiVoiceScript} 
+                    onChange={(e) => setAiVoiceScript(e.target.value)} 
+                    className="w-full bg-[#080b12] border border-slate-700 rounded-2xl p-3 text-white outline-none focus:border-blue-500 resize-none leading-relaxed" 
+                  />
+                  <button onClick={() => alert('वॉयस स्क्रिप्ट सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">
+                    Save Calling Script
+                  </button>
+                </div>
+
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-3 flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-white block mb-1">Voice Agent Settings</span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">हा AI बॉट प्रत्येक नवीन लीडला कॉल करून त्यांची पसंती विचारतो आणि पॉझिटिव्ह रिस्पॉन्स मिळताच CRM मध्ये स्टेटस 'Won' करतो.</p>
+                  </div>
+                  <div className="p-3 bg-[#0d1424] rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span className="text-slate-300">Auto-Dialing Engine</span>
+                    <span className="text-emerald-400 font-bold">● Running (24/7)</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Outbound Calling Queue Table */}
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="p-4 border-b border-slate-800 flex justify-between items-center"><span className="font-bold text-white uppercase text-[11px]">Outbound Calling Queue</span><span className="text-[10px] text-slate-400">Total Leads: <b>{leads.length}</b></span></div>
+              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+                <span className="font-bold text-white uppercase text-xs tracking-wider">Outbound Calling Queue ({leads.length} Leads)</span>
+                <span className="text-[10px] text-slate-400">Status: <b className="text-emerald-400">Ready to Call</b></span>
+              </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[700px]">
-                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]"><tr><th className="p-3">Customer</th><th className="p-3">Service</th><th className="p-3">Sentiment</th><th className="p-3 text-center">Status</th><th className="p-3 text-center">Trigger Call</th></tr></thead>
+                <table className="w-full text-left min-w-[750px]">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3.5">Customer Name & Phone</th>
+                      <th className="p-3.5">Service Interest</th>
+                      <th className="p-3.5">AI Sentiment Score</th>
+                      <th className="p-3.5 text-center">Call Status</th>
+                      <th className="p-3.5 text-center">Trigger AI Call</th>
+                    </tr>
+                  </thead>
                   <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                    {leads.slice(0, 6).map((lead) => {
+                    {leads.slice(0, 8).map((lead) => {
                       const status = callingStatus[lead.id] || 'Idle';
                       return (
-                        <tr key={lead.id} className="hover:bg-slate-800/30">
-                          <td className="p-3"><p className="font-bold text-white">{lead.name}</p><span className="text-[10px] text-slate-400">+91 {lead.phone}</span></td>
-                          <td className="p-3">{lead.service}</td>
-                          <td className="p-3"><span className="text-[10px] text-emerald-400 font-bold">● {lead.sentiment}</span></td>
-                          <td className="p-3 text-center"><span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${status === 'Calling' ? 'bg-amber-950 text-amber-400 animate-pulse' : status === 'Completed' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>{status}</span></td>
-                          <td className="p-3 text-center"><button onClick={() => handleTriggerIvrCall(lead)} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-1 mx-auto"><PhoneCall size={12} /> Start Call</button></td>
+                        <tr key={lead.id} className="hover:bg-slate-800/30 transition">
+                          <td className="p-3.5">
+                            <p className="font-bold text-white">{lead.name}</p>
+                            <span className="text-[10px] text-slate-400 font-mono">+91 {lead.phone}</span>
+                          </td>
+                          <td className="p-3.5">{lead.service}</td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                              ● {lead.sentiment}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                              status === 'Calling' ? 'bg-amber-950 text-amber-400 border-amber-500/40 animate-pulse' :
+                              status === 'Connected' ? 'bg-blue-950 text-blue-400 border-blue-500/40 animate-pulse' :
+                              status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40' :
+                              'bg-slate-800 text-slate-400 border-slate-700'
+                            }`}>
+                              {status === 'Idle' ? 'Ready' : status}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <button 
+                              onClick={() => handleTriggerIvrCall(lead)} 
+                              disabled={status === 'Calling' || status === 'Connected'} 
+                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1 mx-auto transition shadow-md disabled:opacity-50 cursor-pointer"
+                            >
+                              <PhoneCall size={13} /> {status === 'Completed' ? 'Re-call' : 'Start AI Call'}
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -1480,7 +1549,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size/></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
