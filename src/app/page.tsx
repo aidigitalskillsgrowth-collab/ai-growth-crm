@@ -1,8 +1,6 @@
 ﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-// @ts-ignore
-import Sidebar from '../components/Sidebar';
 import { createClient } from '@supabase/supabase-js';
 import { 
   Search, RefreshCw, Layers, Users, PhoneCall, MessageSquare, Send, 
@@ -13,7 +11,7 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User
+  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home
 } from 'lucide-react';
 
 // Supabase Direct Client Initialization
@@ -103,7 +101,7 @@ export default function DashboardPage() {
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>('');
 
-  const [activeTab, setActiveTab] = useState<string>('payments');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -223,7 +221,6 @@ export default function DashboardPage() {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const stages = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
 
-  // Industry Stock Images & Avatars Library
   const industryImages: Record<string, string> = {
     marketing: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
     coaching: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=80',
@@ -237,7 +234,6 @@ export default function DashboardPage() {
     female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   };
 
-  // 10 Full Templates Database (Brand Name updated to Ravi Patil)
   const templatesDb: Record<string, TemplateData> = {
     'Digital Marketing & Coaching': {
       id: 'Digital Marketing & Coaching',
@@ -254,7 +250,7 @@ export default function DashboardPage() {
       badge: '★ प्रो साॅस ॲक्टिव्ह (Pro SaaS Active)',
       services: [
         { title: 'AI डिजिटल स्किल्स मास्टरक्लास', desc: 'ChatGPT, Gemini आणि आधुनिक AI टूल्स शिकण्याची उत्तम संधी.', price: '₹९९९ पासून' },
-        { title: 'मेटा ॲड्स & लीड जनरेशन', desc: 'तुमच्या दुकानाला किंवा व्यवसायाला थेट मोबाईलवर हव्यात तेवढ्या कस्टमर लीड्स मिळवा.', price: '₹४,९९९' },
+        { title: 'मेटा ॲड्स & लीड जनरेशन', desc: 'तुमच्या व्यवसायाला थेट मोबाईलवर हव्यात तेवढ्या कस्टमर लीड्स मिळवा.', price: '₹४,९९९' },
         { title: '1-on-1 बिझनेस कोचिंग', desc: 'रवी पाटील यांच्याकडून वैयक्तिक मार्गदर्शन आणि बिझनेस ऑटोमेशन सेटअप.', price: '₹९,९९९' }
       ],
       stats: [
@@ -271,11 +267,11 @@ export default function DashboardPage() {
 
   const [selectedTemplate, setSelectedTemplate] = useState<string>('Digital Marketing & Coaching');
   const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['Digital Marketing & Coaching']);
-  const [promptInput, setPromptInput] = useState<string>('रवी पाटील सठी ५-स्टार वेबसाइट बनवा');
+  const [promptInput, setPromptInput] = useState<string>('रवी पाटील साठी ५-स्टार वेबसाइट बनवा');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Payment Setup States (Razorpay, Cashfree & Instamojo Integrated)
+  // Payment Setup States
   const [upiId, setUpiId] = useState<string>('ravindra@ibl');
   const [businessNameUpi, setBusinessNameUpi] = useState<string>('रवी पाटील - AI Growth');
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
@@ -284,7 +280,6 @@ export default function DashboardPage() {
   const [amount, setAmount] = useState<string>('2500');
   const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
-  // Multi-Gateway API Credentials State (Razorpay, Cashfree, Instamojo, Stripe)
   const [gateways, setGateways] = useState({
     razorpayKey: 'rzp_live_98xK19873219472',
     cashfreeAppId: 'CF_APP_892348923489',
@@ -292,7 +287,6 @@ export default function DashboardPage() {
     stripeKey: 'pk_live_51MzAbcDefGhiJklMnOp'
   });
 
-  // Recent Transactions History
   const [transactions, setTransactions] = useState<Transaction[]>([
     { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' },
     { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Instamojo Secure', status: 'Success', date: 'आज, 11:10 AM' },
@@ -300,7 +294,6 @@ export default function DashboardPage() {
     { id: 'TXN-98211', customerName: 'अमित देशमुख', phone: '9822334455', amount: 4500, gateway: 'WhatsApp UPI Link', status: 'Pending', date: 'काल, 03:40 PM' },
   ]);
 
-  // Social Media Auto-Poster States
   const [socialPostText, setSocialPostText] = useState('💥 रवी पाटील यांच्याकडून नवीन AI डिजिटल स्किल्स मास्टरक्लासवर खास ऑफर!');
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     facebook: true,
@@ -309,13 +302,11 @@ export default function DashboardPage() {
   });
   const [scheduledTime, setScheduledTime] = useState('Immediate (Now)');
 
-  // Clean UPI Intent & Live Working QR URL
   const cleanAmt = (Number(amount) || 1).toFixed(2);
   const upiIntent = `upi://pay?pa=${upiId.trim()}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
   const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
 
-  // Handle Razorpay Checkout Modal with Auto-WhatsApp PDF trigger
   const handleRazorpayPay = async () => {
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
@@ -376,7 +367,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle WhatsApp Bill Send
   const handleSendWhatsAppBill = () => {
     if (!customerPhone.trim()) {
       alert('कृपया ग्राहकाचा व्हॉट्सॲप नंबर टाका!');
@@ -392,7 +382,6 @@ export default function DashboardPage() {
     window.open(`https://wa.me/91${customerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  // Handle Print Receipt
   const handlePrintReceipt = () => {
     const printWindow = window.open('', '', 'width=600,height=700');
     if (printWindow) {
@@ -433,7 +422,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Templates Generator States
   const [customTemplateName, setCustomTemplateName] = useState('');
   const [customTemplateText, setCustomTemplateText] = useState('');
   const [savedTemplates, setSavedTemplates] = useState([
@@ -454,7 +442,6 @@ export default function DashboardPage() {
     alert('नवीन मेसेज टेम्पलेट यशस्वीरीत्या तयार झाले!');
   };
 
-  // Workflow Builder States
   const [workflowTrigger, setWorkflowTrigger] = useState('New Inbound Lead (Website / Meta Ads)');
   const [workflowAction, setWorkflowAction] = useState('Send Welcome WhatsApp + Dynamic QR');
   const [customWorkflows, setCustomWorkflows] = useState([
@@ -468,13 +455,11 @@ export default function DashboardPage() {
     alert('नवीन ऑटोमेशन वर्कफ्लो यशस्वीरीत्या तयार झाला!');
   };
 
-  // Meta Ad Account Login State
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount, setMetaAdAccount] = useState('act_982347892347');
   const [adBudget, setAdBudget] = useState(500);
   const [targetLocation, setTargetLocation] = useState('सांगली व मिरज (१० किमी परिसर)');
 
-  // Smart Calendar States
   const [appointments, setAppointments] = useState<Appointment[]>([
     { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: 'Digital Marketing Setup', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' },
     { id: '2', clientName: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', date: '2026-08-31', time: '02:00 PM', status: 'Pending' },
@@ -510,7 +495,6 @@ export default function DashboardPage() {
     }
   };
 
-  // AI Chatbot States
   const [botConfig, setBotConfig] = useState({
     name: 'Ravi Patil AI Assistant',
     personality: 'Professional & Friendly',
@@ -544,7 +528,6 @@ export default function DashboardPage() {
     }, 400);
   };
 
-  // AI Inbox / WhatsApp States
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
   const [inboxText, setInboxText] = useState<string>('');
   const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({
@@ -564,7 +547,6 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  // AI Sales & IVR States
   const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
 
@@ -693,8 +675,6 @@ export default function DashboardPage() {
     }
   };
 
-  const SidebarComp = Sidebar as any;
-
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
       <header className="bg-[#0b101d] border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center sticky top-0 z-20">
@@ -815,14 +795,81 @@ export default function DashboardPage() {
     );
   }
 
+  const menuItems = [
+    { id: 'dashboard', label: 'Growth Dashboard', icon: Home },
+    { id: 'leads', label: 'Growth Leads Directory', icon: Users },
+    { id: 'pipeline', label: 'Growth CRM & Pipeline', icon: Layers },
+    { id: 'website', label: 'Website & Funnels', icon: Monitor },
+    { id: 'payments', label: 'Payment Gateways (All)', icon: QrCode },
+    { id: 'agents', label: 'AI Agents & Chatbot', icon: Bot },
+    { id: 'meta_ads', label: 'Ad Launcher (Meta)', icon: Megaphone },
+    { id: 'templates', label: 'Template Manager', icon: FileText },
+    { id: 'workflow', label: 'AI Workflow Builder', icon: GitBranch },
+    { id: 'inbox', label: 'AI Inbox / WhatsApp', icon: MessageSquare },
+    { id: 'calendar', label: 'Smart Calendar', icon: Calendar },
+    { id: 'ivr', label: 'AI Sales & IVR', icon: PhoneCall },
+    { id: 'finance', label: 'AI Finance & Revenue', icon: Wallet },
+    { id: 'social', label: 'Social Media Auto-Post', icon: Share2 },
+    { id: 'settings', label: 'Settings & Meta API', icon: Settings }
+  ];
+
   return (
     <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans antialiased overflow-hidden">
-      <SidebarComp activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* CUSTOM OVERRIDDEN SIDEBAR WITH 'रवी पाटील' & 'Pro SaaS Active' */}
+      <aside className="w-64 bg-[#07090e] border-r border-slate-800/80 flex flex-col justify-between shrink-0 select-none">
+        <div className="p-5 flex flex-col gap-6 overflow-y-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black shadow-lg shadow-blue-600/40">AI</div>
+            <div>
+              <h2 className="font-black text-white text-sm tracking-wide">AI Growth CRM</h2>
+              <span className="text-[10px] text-blue-400 font-bold">Enterprise Suite</span>
+            </div>
+          </div>
+
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const IconComp = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition cursor-pointer ${
+                    isActive 
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                  }`}
+                >
+                  <IconComp size={16} />
+                  <span className="truncate">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* BOTTOM BRANDING SECTION OVERRIDDEN TO 'रवी पाटील' & 'Pro SaaS Active' */}
+        <div className="p-4 border-t border-slate-800/80 bg-[#0a0f1d]">
+          <div className="p-3 bg-[#0d1424] border border-slate-800 rounded-2xl flex items-center justify-between shadow-inner">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+                <ShieldCheck size={16} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-black text-white text-xs truncate">रवी पाटील</p>
+                <span className="text-[10px] text-emerald-400 font-bold block truncate">■ Pro SaaS Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
       <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImportCSV} className="hidden" />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         
-        {/* Top Header with Logout Option */}
+        {/* Top Header */}
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
             <h1 className="text-xl font-black text-white shrink-0 capitalize">
@@ -847,7 +894,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">प्रो साॅस ॲक्टिव्ह</span>
+            <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Pro SaaS Active</span>
             <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">+ Add Lead</button>
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold"><RefreshCw size={13} /> Refresh</button>
             <button onClick={handleSupabaseLogout} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer" title="Logout">
@@ -1025,7 +1072,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <Sparkles size={18} className="text-blue-400 shrink-0" />
-                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'रवी पाटील सठी ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
+                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'रवी पाटील साठी ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
                 </div>
                 <button type="button" onClick={toggleVoiceRecording} className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border ${isListening ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-800 text-slate-200 border-slate-700'}`}>
                   {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
@@ -1069,7 +1116,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 5. PAYMENT GATEWAYS (Razorpay, Cashfree & Instamojo Integrated) */}
+        {/* 5. PAYMENT GATEWAYS */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1727,7 +1774,6 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
-                  <label className="text-slate-400 block mb-1 font-bold">सेवा / उत्पादन</label>
                   <input type="text" value={newSlot.service} onChange={(e) => setNewSlot({ ...newSlot, service: e.target.value })} placeholder="उदा. Digital Marketing Setup" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -1736,7 +1782,7 @@ export default function DashboardPage() {
                     <input type="date" value={newSlot.date} onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                   </div>
                   <div>
-                    <label className="text-slate-400 data block mb-1 font-bold">वेळ (Time)</label>
+                    <label className="text-slate-400 block mb-1 font-bold">वेळ (Time)</label>
                     <input type="text" value={newSlot.time} onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })} placeholder="11:00 AM" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                   </div>
                 </div>
