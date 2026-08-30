@@ -79,7 +79,7 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('payments');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -149,7 +149,7 @@ export default function DashboardPage() {
     female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   };
 
-  // 10 Full Templates Database (Locked)
+  // 10 Full Templates Database
   const templatesDb: Record<string, TemplateData> = {
     'CSC & Online Services': {
       id: 'CSC & Online Services',
@@ -1039,13 +1039,13 @@ export default function DashboardPage() {
                 <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
                   <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Landmark size={14} className="text-blue-400" /> Razorpay Live Gateway</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
                   <p className="text-[11px] text-slate-400">Credit Card, Debit Card, NetBanking & No-Cost EMI Support</p>
-                  <div className="flex gap-2"><input type="text" defaultValue={gateways.razorpayKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Save</button></div>
+                  <div className="flex gap-2"><input type="text" defaultValue={gateways.razorpayKey} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Razorpay की सेव्ह झाली!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button></div>
                 </div>
 
                 <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
                   <div className="flex justify-between items-center"><span className="font-bold text-white text-xs flex items-center gap-1.5"><Zap size={14} className="text-amber-400" /> Cashfree Auto-Settlements</span><span className="text-[10px] text-emerald-400 font-bold">Active</span></div>
                   <p className="text-[11px] text-slate-400">Instant Merchant Bank Settlement & UPI Auto-Collect Webhook</p>
-                  <div className="flex gap-2"><input type="text" defaultValue={gateways.cashfreeAppId} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Cashfree क्रेडेन्शियल्स सेव्ह झाले!')} className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Save</button></div>
+                  <div className="flex gap-2"><input type="text" defaultValue={gateways.cashfreeAppId} className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-[11px] outline-none" /><button onClick={() => alert('Cashfree क्रेडेन्शियल्स सेव्ह झाले!')} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">Save</button></div>
                 </div>
               </div>
             </div>
