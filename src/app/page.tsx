@@ -11,7 +11,7 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home
+  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save
 } from 'lucide-react';
 
 // Supabase Direct Client Initialization
@@ -107,6 +107,40 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
+  // Dynamic Multi-Tenant Client Settings State
+  const [clientSettings, setClientSettings] = useState({
+    businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
+    upiId: 'ravindra@ibl',
+    whatsappNumber: '9876543210',
+    metaPhoneId: '1230282856843762',
+    razorpayKey: 'rzp_live_98xK19873219472'
+  });
+  const [savingSettings, setSavingSettings] = useState<boolean>(false);
+
+  // Save Client Settings to Supabase
+  const handleSaveClientSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Save to Supabase client_settings table or user metadata
+        await supabase.from('client_settings').upsert({
+          user_id: user.id,
+          ...clientSettings,
+          updated_at: new Date()
+        });
+      }
+      alert('✅ तुमच्या क्लायंट सेटिंग्स (UPI, WhatsApp, Business Name) यशस्वीरीत्या सेव्ह झाल्या!');
+    } catch (err) {
+      alert('सेव्ह करताना स्थानिक स्टोरेज वापरले गेले.');
+      localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
+      alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्या!');
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   // Leads Filter States
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [sourceFilter, setSourceFilter] = useState<string>('All');
@@ -132,15 +166,35 @@ export default function DashboardPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setIsLoggedIn(true);
+        loadClientSettings(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
+      if (session) loadClientSettings(session.user.id);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadClientSettings = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.from('client_settings').select('*').eq('user_id', userId).single();
+      if (data) {
+        setClientSettings({
+          businessName: data.businessName || clientSettings.businessName,
+          upiId: data.upiId || clientSettings.upiId,
+          whatsappNumber: data.whatsappNumber || clientSettings.whatsappNumber,
+          metaPhoneId: data.metaPhoneId || clientSettings.metaPhoneId,
+          razorpayKey: data.razorpayKey || clientSettings.razorpayKey
+        });
+      }
+    } catch (e) {
+      const local = localStorage.getItem('client_custom_settings');
+      if (local) setClientSettings(JSON.parse(local));
+    }
+  };
 
   // Handle Supabase Secure Login
   const handleSupabaseLogin = async (e: React.FormEvent) => {
@@ -237,12 +291,12 @@ export default function DashboardPage() {
   const templatesDb: Record<string, TemplateData> = {
     'Digital Marketing & Coaching': {
       id: 'Digital Marketing & Coaching',
-      businessName: 'रवी पाटील - AI डिजिटल स्किल्स & बिझनेस कोचिंग',
+      businessName: clientSettings.businessName,
       tagline: 'ऑटोमेशन, मेटा ॲड्स आणि AI टूल्सद्वारे बिझनेस ग्रोथ',
       headline: 'तुमचा व्यवसाय ऑनलाइन वाढवा आणि AI च्या मदतीने दरमहा लाखो रुपये कमवा!',
       subheadline: 'डिजिटल मार्केटिंग मास्टरक्लास, मेटा ॲड कॅम्पेन सेटअप, ऑटोमेशन सिस्टीम आणि पर्सनल बिझनेस कोचिंग.',
       heroImage: industryImages.marketing,
-      phone: '9876543210',
+      phone: clientSettings.whatsappNumber,
       email: 'ravindra@aidigitalskillsgrowth.com',
       address: 'डिजिटल ग्रोथ स्टुडिओ, सांगली',
       timing: 'सकाळी ९:०० ते रात्री ८:०० (सर्व दिवस सुरू)',
@@ -271,22 +325,14 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Payment Setup States
-  const [upiId, setUpiId] = useState<string>('ravindra@ibl');
-  const [businessNameUpi, setBusinessNameUpi] = useState<string>('रवी पाटील - AI Growth');
+  // Dynamic Payment Setup using clientSettings
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
   const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
   const [paymentDesc, setPaymentDesc] = useState<string>('AI Masterclass Advance Payment');
   const [amount, setAmount] = useState<string>('2500');
   const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
-  const [gateways, setGateways] = useState({
-    razorpayKey: 'rzp_live_98xK19873219472',
-    cashfreeAppId: 'CF_APP_892348923489',
-    instamojoKey: 'imojo_live_982347892347',
-    stripeKey: 'pk_live_51MzAbcDefGhiJklMnOp'
-  });
-
+  // Transactions History
   const [transactions, setTransactions] = useState<Transaction[]>([
     { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' },
     { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Instamojo Secure', status: 'Success', date: 'आज, 11:10 AM' },
@@ -302,11 +348,13 @@ export default function DashboardPage() {
   });
   const [scheduledTime, setScheduledTime] = useState('Immediate (Now)');
 
+  // Clean UPI Intent & Live Working QR URL using dynamic clientSettings
   const cleanAmt = (Number(amount) || 1).toFixed(2);
-  const upiIntent = `upi://pay?pa=${upiId.trim()}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
+  const upiIntent = `upi://pay?pa=${clientSettings.upiId.trim()}&pn=${encodeURIComponent(clientSettings.businessName)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
-  const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(businessNameUpi)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
+  const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(clientSettings.upiId)}&pn=${encodeURIComponent(clientSettings.businessName)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
 
+  // Handle Razorpay Checkout with Dynamic Key
   const handleRazorpayPay = async () => {
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
@@ -315,10 +363,10 @@ export default function DashboardPage() {
     }
 
     const options = {
-      key: gateways.razorpayKey || 'rzp_test_51MzAbcDefGhiJkl',
+      key: clientSettings.razorpayKey || 'rzp_test_51MzAbcDefGhiJkl',
       amount: Math.round(Number(amount || 1) * 100),
       currency: 'INR',
-      name: businessNameUpi,
+      name: clientSettings.businessName,
       description: paymentDesc,
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&auto=format&fit=crop&q=80',
       handler: function (response: any) {
@@ -345,7 +393,7 @@ export default function DashboardPage() {
             `💰 रक्कम: ₹${amount}\n` +
             `🆔 ट्रान्झॅक्शन आयडी: ${pId}\n\n` +
             `📄 *डिलिव्हरी पावती लिंक:*\nhttps://ai-growth-crm-nine.vercel.app/api/invoice-pdf?txn=${pId}\n\n` +
-            `भेट दिल्याबद्दल धन्यवाद! 🙏 - ${businessNameUpi}`;
+            `भेट दिल्याबद्दल धन्यवाद! 🙏 - ${clientSettings.businessName}`;
           
           window.open(`https://wa.me/91${customerPhone}?text=${encodeURIComponent(autoMsg)}`, '_blank');
         }
@@ -372,12 +420,12 @@ export default function DashboardPage() {
       alert('कृपया ग्राहकाचा व्हॉट्सॲप नंबर टाका!');
       return;
     }
-    const msg = `🧾 *पेमेंट इनव्हॉइस - ${businessNameUpi}*\n\n` +
+    const msg = `🧾 *पेमेंट इनव्हॉइस - ${clientSettings.businessName}*\n\n` +
       `👤 *ग्राहक नाव:* ${customerName}\n` +
       `📦 *तपशील / सेवा:* ${paymentDesc}\n` +
       `💰 *एकूण रक्कम:* ₹${amount}\n\n` +
       `📲 *थेट UPI द्वारे भरण्यासाठी खालील लिंकवर क्लिक करा:*\n${livePayUrl}\n\n` +
-      `_UPI ID: ${upiId} (GPay/PhonePe/Paytm/BHIM)_ \n\n` +
+      `_UPI ID: ${clientSettings.upiId} (GPay/PhonePe/Paytm/BHIM)_ \n\n` +
       `धन्यवाद! 🙏`;
     window.open(`https://wa.me/91${customerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -400,14 +448,14 @@ export default function DashboardPage() {
           </head>
           <body>
             <div class="header">
-              <div class="title">${businessNameUpi}</div>
+              <div class="title">${clientSettings.businessName}</div>
               <div>अधिकृत पेमेंट पावती / Invoice</div>
               <div>दिनांक: ${new Date().toLocaleDateString('mr-IN')}</div>
             </div>
             <div class="row"><span>ग्राहक नाव:</span><b>${customerName}</b></div>
             <div class="row"><span>मोबाईल नंबर:</span><b>+91 ${customerPhone}</b></div>
             <div class="row"><span>सेवा / उत्पादन:</span><b>${paymentDesc}</b></div>
-            <div class="row"><span>UPI ID:</span><b>${upiId}</b></div>
+            <div class="row"><span>UPI ID:</span><b>${clientSettings.upiId}</b></div>
             <div class="amount">प्राप्त रक्कम: ₹${amount}</div>
             <div class="row"><span>पेमेंट स्टेटस:</span><b style="color:green;">✔ VERIFIED SUCCESSFUL</b></div>
             <div class="footer">
@@ -849,7 +897,7 @@ export default function DashboardPage() {
           </nav>
         </div>
 
-        {/* BOTTOM BRANDING SECTION OVERRIDDEN TO 'रवी पाटील' & 'Pro SaaS Active' */}
+        {/* BOTTOM BRANDING SECTION */}
         <div className="p-4 border-t border-slate-800/80 bg-[#0a0f1d]">
           <div className="p-3 bg-[#0d1424] border border-slate-800 rounded-2xl flex items-center justify-between shadow-inner">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -1153,11 +1201,11 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
                     <label className="text-slate-300 block mb-1 font-bold">Your Working UPI ID *</label>
-                    <input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" />
+                    <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" />
                   </div>
                   <div>
                     <label className="text-slate-300 block mb-1 font-bold">Business Name on UPI</label>
-                    <input type="text" value={businessNameUpi} onChange={(e) => setBusinessNameUpi(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
+                    <input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
                   </div>
                 </div>
 
@@ -1718,13 +1766,46 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 15. SETTINGS */}
+        {/* 15. SETTINGS (DYNAMIC MULTI-TENANT SETTINGS FORM ADDED) */}
         {activeTab === 'settings' && (
           <div className="max-w-4xl mx-auto w-full space-y-6 text-xs">
-            <h3 className="font-bold text-white uppercase text-xs flex items-center gap-2"><Settings size={16} className="text-blue-400" /> Meta API Settings</h3>
-            <form onSubmit={(e) => { e.preventDefault(); alert('सेव्ह झाले!'); }} className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4">
-              <div><label className="text-slate-400 block mb-1">WhatsApp Phone Number ID</label><input type="text" defaultValue="1230282856843762" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-              <button type="submit" className="py-2.5 px-6 bg-blue-600 text-white font-bold rounded-xl">Save Settings</button>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-white uppercase text-xs flex items-center gap-2"><Settings size={16} className="text-blue-400" /> Client Multi-Tenant Settings (UPI, WhatsApp & Meta API)</h3>
+              <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Dynamic Isolated</span>
+            </div>
+
+            <form onSubmit={handleSaveClientSettings} className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">Business Name (व्यवसायाचे नाव)</label>
+                  <input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+                </div>
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">Your Working UPI ID (पेमेंटसाठी)</label>
+                  <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">WhatsApp Phone Number</label>
+                  <input type="text" value={clientSettings.whatsappNumber} onChange={(e) => setClientSettings({...clientSettings, whatsappNumber: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                </div>
+                <div>
+                  <label className="text-slate-300 font-bold block mb-1">Razorpay Live Key</label>
+                  <input type="text" value={clientSettings.razorpayKey} onChange={(e) => setClientSettings({...clientSettings, razorpayKey: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-slate-400 block mb-1">WhatsApp Phone ID / Meta Webhook ID</label>
+                <input type="text" value={clientSettings.metaPhoneId} onChange={(e) => setClientSettings({...clientSettings, metaPhoneId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+              </div>
+
+              <button type="submit" disabled={savingSettings} className="py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                {savingSettings && <Loader2 size={16} className="animate-spin" />}
+                <Save size={16} /> Save Client Settings
+              </button>
             </form>
           </div>
         )}
