@@ -353,6 +353,59 @@ export default function DashboardPage() {
     { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' }
   ]);
 
+  const [botConfig, setBotConfig] = useState({
+    name: 'Ravi Patil AI Assistant',
+    systemPrompt: 'तुम्ही रवी पाटील यांच्या AI Growth CRM चे अधिकृत असिस्टंट आहात.'
+  });
+  const [chatMessages, setChatMessages] = useState<{ sender: 'bot' | 'user'; text: string; time: string }[]>([
+    { sender: 'bot', text: 'नमस्कार! AI Growth CRM मध्ये आपले स्वागत आहे.', time: '10:00 AM' }
+  ]);
+  const [inputMsg, setInputMsg] = useState<string>('');
+
+  const handleSendChat = () => {
+    if (!inputMsg.trim()) return;
+    setChatMessages(prev => [...prev, { sender: 'user', text: inputMsg, time: '10:05 AM' }]);
+    setInputMsg('');
+  };
+
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: 'Digital Marketing Setup', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' }
+  ]);
+  const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
+  const [newSlot, setNewSlot] = useState({ clientName: '', phone: '', service: '', date: '2026-09-02', time: '10:00 AM' });
+
+  const handleBookSlot = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSlot.clientName.trim()) return;
+    setAppointments(prev => [{ id: Date.now().toString(), ...newSlot, status: 'Confirmed' }, ...prev]);
+    setIsSlotModalOpen(false);
+    alert('स्लॉट बुक झाला!');
+  };
+
+  const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
+  const [inboxText, setInboxText] = useState<string>('');
+  const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({});
+
+  const handleSendInbox = () => {
+    if (!inboxText.trim()) return;
+    setInboxChats(prev => ({
+      ...prev,
+      [selectedLead.id]: [...(prev[selectedLead.id] || []), { from: 'me', text: inboxText, time: '10:30 AM' }]
+    }));
+    setInboxText('');
+  };
+
+  const [aiVoiceScript, setAiVoiceScript] = useState('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे.');
+  const [callingStatus, setCallingStatus] = useState<Record<string, string>>({});
+
+  const handleTriggerIvrCall = (lead: Lead) => {
+    setCallingStatus(prev => ({ ...prev, [lead.id]: 'Calling' }));
+    setTimeout(() => {
+      setCallingStatus(prev => ({ ...prev, [lead.id]: 'Completed' }));
+      alert(`AI Call completed for ${lead.name}`);
+    }, 1500);
+  };
+
   const cleanAmt = (Number(amount) || 1).toFixed(2);
   const upiIntent = `upi://pay?pa=${clientSettings.upiId.trim()}&pn=${encodeURIComponent(clientSettings.businessName)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
@@ -410,10 +463,15 @@ export default function DashboardPage() {
           <h4 className="font-black text-white text-sm tracking-wide leading-tight">{currentSite.businessName}</h4>
           <span className="text-[10px] text-blue-400 font-semibold">{currentSite.tagline}</span>
         </div>
+        <div className="flex items-center gap-2">
+          <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md"><MessageSquare size={12} /> WhatsApp</a>
+        </div>
       </header>
-      <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] to-[#07090e] text-left space-y-4">
+
+      <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-4">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold"><Sparkles size={12} /> {currentSite.badge}</div>
         <h1 className="text-xl md:text-2xl font-black text-white leading-snug">{currentSite.headline}</h1>
-        <p className="text-xs md:text-sm text-slate-300 leading-relaxed">{currentSite.subheadline}</p>
+        <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-2xl">{currentSite.subheadline}</p>
       </section>
     </div>
   );
@@ -540,6 +598,12 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {activeTab === 'pipeline' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-black text-white">Growth CRM & Pipeline</h2>
+          </div>
+        )}
+
         {activeTab === 'website' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 space-y-4 shadow-2xl">
@@ -577,6 +641,60 @@ export default function DashboardPage() {
               <h3 className="font-bold text-white text-sm">MULTI-GATEWAYS: RAZORPAY</h3>
               <button type="button" onClick={handleRazorpayPay} className="py-3 px-4 bg-blue-600 text-white rounded-xl font-bold text-xs cursor-pointer">Pay with Razorpay</button>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'agents' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">AI Agents & Chatbot Studio</h3>
+          </div>
+        )}
+
+        {activeTab === 'meta_ads' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">Meta Lead Ads Launcher</h3>
+          </div>
+        )}
+
+        {activeTab === 'templates' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">Template Manager</h3>
+          </div>
+        )}
+
+        {activeTab === 'workflow' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">AI Workflow Builder</h3>
+          </div>
+        )}
+
+        {activeTab === 'inbox' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">AI Inbox / WhatsApp Suite</h3>
+          </div>
+        )}
+
+        {activeTab === 'calendar' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">Smart Calendar & Bookings</h3>
+          </div>
+        )}
+
+        {activeTab === 'ivr' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">AI Sales & Outbound IVR</h3>
+          </div>
+        )}
+
+        {activeTab === 'finance' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">AI Finance & Revenue Analytics</h3>
+          </div>
+        )}
+
+        {activeTab === 'social' && (
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+            <h3 className="font-bold text-white text-sm">Social Media Auto-Poster</h3>
           </div>
         )}
 
