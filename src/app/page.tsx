@@ -130,9 +130,8 @@ export default function DashboardPage() {
           updated_at: new Date()
         });
       }
-      alert('✅ तुमच्या क्लायंट सेटिंग्स (UPI, WhatsApp, Business Name) यशस्वीरीत्या सेव्ह झाल्या!');
+      alert('✅ तुमच्या क्लायंट सेटिंग्स यशस्वीरीत्या सेव्ह झाल्या!');
     } catch (err) {
-      alert('सेव्ह करताना स्थानिक स्टोरेज वापरले गेले.');
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
       alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्या!');
     } finally {
@@ -208,7 +207,7 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Supabase डॅशबोर्ड तपासा.' : error.message);
+        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड!' : error.message);
       } else if (data.session) {
         setIsLoggedIn(true);
       }
@@ -353,7 +352,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. ADVANCED PROFESSIONAL AI WEBSITE GENERATOR BASED ON PROMPT
+  // 2. 100% FREE & ADVANCED PROFESSIONAL AI WEBSITE GENERATOR (Smart Keyword & Image Matching)
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -362,38 +361,42 @@ export default function DashboardPage() {
     setIsGenerating(true);
     setTimeout(() => {
       const p = promptInput.toLowerCase();
-      let generatedHeadline = `AI-Powered Growth Engine for ${promptInput}`;
-      let generatedSub = `Scale your business instantly with automated high-converting funnels, AI voice agents, and multi-channel marketing designed specifically for ${promptInput}.`;
-      let generatedBadge = '★ AI Verified 5-Star Enterprise Solution';
+      let generatedHeadline = `Welcome to Professional Excellence: ${promptInput}`;
+      let generatedSub = `Your trusted destination for top-tier quality, expert solutions, and unmatched service standards tailored for ${promptInput}.`;
+      let generatedBadge = '★ 5-Star Certified Business Partner';
       let customServices = [
-        { title: 'Automated Lead Capture Funnel', desc: 'Convert website visitors into paying customers on autopilot 24/7.', price: '₹2,999' },
-        { title: 'AI Voice & Chatbot Integration', desc: 'Instant customer engagement in Marathi, Hindi, and English.', price: '₹4,999' },
-        { title: 'Advanced Growth Analytics', desc: 'Real-time revenue tracking and performance dashboards.', price: '₹6,999' }
+        { title: 'Core Premium Solution', desc: 'Designed to deliver maximum efficiency and value for your investment.', price: '₹999 onwards' },
+        { title: 'Advanced Consultation', desc: 'Expert guidance and 24/7 dedicated support to scale your operations.', price: '₹2,499' },
+        { title: 'Complete Growth Package', desc: 'All-in-one execution framework built for high performance.', price: '₹4,999' }
       ];
+      let heroImg = industryImages.marketing;
 
-      if (p.includes('gym') || p.includes('fitness') || p.includes('जिम')) {
-        generatedHeadline = `Transform Your Body & Business with ${promptInput}`;
-        generatedSub = `Elite fitness coaching, automated diet planning, and high-energy workout programs.`;
-        generatedBadge = '★ Premium Fitness & Wellness Hub';
+      if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('हॉटेल')) {
+        generatedHeadline = `Authentic Flavors & Luxury Hospitality: ${promptInput}`;
+        generatedSub = `Experience royal ambiance, traditional recipes, and seamless online reservations with us.`;
+        generatedBadge = '★ 5-Star Rated Dining & Hospitality';
+        heroImg = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Personalized Weight Loss Plan', desc: 'Customized workouts and diet schedules.', price: '₹1,999 / mo' },
-          { title: '1-on-1 Fitness Training', desc: 'Expert trainer guidance and progress tracking.', price: '₹4,999 / mo' }
+          { title: 'Special Family Thali', desc: 'Prepared with pure ingredients and authentic spices.', price: '₹499' },
+          { title: 'Banquet & Party Hall Booking', desc: 'Spacious AC halls for celebrations and events.', price: '₹5,000 onwards' }
+        ];
+      } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम')) {
+        generatedHeadline = `Unleash Your Ultimate Strength at ${promptInput}`;
+        generatedSub = `State-of-the-art equipment, professional trainers, and personalized transformation programs.`;
+        generatedBadge = '★ Elite Fitness & Wellness Center';
+        heroImg = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80';
+        customServices = [
+          { title: 'Personal Gym Training', desc: '1-on-1 expert coaching and custom diet charts.', price: '₹1,999 / mo' },
+          { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance and fat-loss training.', price: '₹1,499 / mo' }
         ];
       } else if (p.includes('real estate') || p.includes('property') || p.includes('फ्लॅट')) {
         generatedHeadline = `Find Your Dream Property with ${promptInput}`;
-        generatedSub = `Exclusive residential and commercial properties verified with zero brokerage.`;
-        generatedBadge = '★ Certified Real Estate Partner';
+        generatedSub = `Verified residential and commercial properties with transparent deals and zero brokerage.`;
+        generatedBadge = '★ Certified Real Estate Hub';
+        heroImg = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Commercial Space Leasing', desc: 'Prime locations for your expanding startup.', price: '₹15,000 onwards' },
-          { title: 'Luxury Villa Booking', desc: 'Gated community villas with modern amenities.', price: '₹50 Lakhs+' }
-        ];
-      } else if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('हॉटेल')) {
-        generatedHeadline = `Welcome to Luxury Dining & Hospitality: ${promptInput}`;
-        generatedSub = `Experience authentic flavors, royal ambiance, and seamless online table reservations.`;
-        generatedBadge = '★ 5-Star Rated Culinary Experience';
-        customServices = [
-          { title: 'Special Thali & Family Pack', desc: 'Authentic traditional recipes cooked with pure ingredients.', price: '₹499' },
-          { title: 'Party Hall & Banquet Booking', desc: 'Spacious air-conditioned halls for birthdays and receptions.', price: '₹5,000 onwards' }
+          { title: 'Luxury Villa & Apartments', desc: 'Gated community homes with modern amenities.', price: '₹45 Lakhs+' },
+          { title: 'Commercial Office Space', desc: 'Prime locations to accelerate your business growth.', price: '₹20,000 / mo' }
         ];
       }
 
@@ -403,18 +406,19 @@ export default function DashboardPage() {
         badge: generatedBadge,
         headline: generatedHeadline,
         subheadline: generatedSub,
-        tagline: 'Powered by Next-Gen Enterprise AI Automation',
+        heroImage: heroImg,
+        tagline: 'Empowering Local Businesses with Smart Technology',
         services: customServices,
         stats: [
-          { label: 'Happy Customers', value: '2,500+' },
-          { label: 'Success Rate', value: '99.8%' },
-          { label: 'Expert Support', value: '24/7 Live' }
+          { label: 'Trusted Clients', value: '1,200+' },
+          { label: 'Satisfaction', value: '100%' },
+          { label: 'Support', value: '24/7' }
         ]
       }));
 
       setIsGenerating(false);
-      alert('🎉 अत्यंत प्रोफेशनल आणि ॲडव्हान्स 5-स्टार वेबसाईट यशस्वीरीत्या जनरेट झाली!');
-    }, 600);
+      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक 5-स्टार वेबसाईट तयार झाली!');
+    }, 400);
   };
 
   // Dynamic Payment Setup using clientSettings
@@ -1164,7 +1168,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
-                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2><p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन वेबसाईट बनवा.</p></div>
+                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2><p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन प्रोफेशनल वेबसाईट बनवा.</p></div>
                 </div>
                 <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Preview</button>
               </div>
@@ -1172,7 +1176,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <Sparkles size={18} className="text-blue-400 shrink-0" />
-                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'रवी पाटील साठी ५-स्टार वेबसाइट बनवा'..." className="bg-transparent text-white text-xs outline-none w-full" />
+                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'Hotel Sai Luxury Dining'..." className="bg-transparent text-white text-xs outline-none w-full" />
                 </div>
                 <button type="button" onClick={toggleVoiceRecording} className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border ${isListening ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-800 text-slate-200 border-slate-700'}`}>
                   {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
