@@ -16,7 +16,7 @@ import {
 
 // Supabase Direct Client Initialization
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6IkFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -280,7 +280,9 @@ export default function DashboardPage() {
   const avatars = {
     ownerDefault: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
     male2: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    client1: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    client2: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'
   };
 
   const templatesDb: Record<string, TemplateData> = {
@@ -350,7 +352,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. ULTRA-PROFESSIONAL AGENCY-GRADE AI WEBSITE GENERATOR (Like Lovable/Framer Style)
+  // 2. ULTRA-PROFESSIONAL AI WEBSITE GENERATOR WITH MATCHING TESTIMONIALS
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -361,15 +363,19 @@ export default function DashboardPage() {
       const p = promptInput.toLowerCase();
       
       let generatedBusinessName = promptInput;
-      let generatedHeadline = 'Build, Scale & Automate Your Business with Next-Gen AI Technology';
-      let generatedSub = 'Transform your digital presence with high-converting glassmorphic funnels, automated CRM workflows, and lightning-fast execution designed for modern brands.';
-      let generatedBadge = '★ Next-Gen Enterprise SaaS Solution';
+      let generatedHeadline = 'Experience Ultimate Quality & Trusted Professional Services';
+      let generatedSub = 'We deliver high-performance solutions tailored to elevate your business standards and customer satisfaction on autopilot.';
+      let generatedBadge = '★ 5-Star Certified Enterprise Partner';
       let heroImg = industryImages.marketing;
       let ownerAvatar = avatars.ownerDefault;
       let customServices = [
-        { title: 'Automated Growth Engine', desc: 'Scale acquisition channels seamlessly with intelligent routing and instant conversion.', price: '₹2,999 / mo' },
-        { title: 'AI Voice & Chatbot Suite', desc: 'Engage 100% of your inbound leads instantly with human-like natural conversation flows.', price: '₹4,999' },
-        { title: 'Custom Funnel Architecture', desc: 'High-speed landing pages engineered for maximum ROI and lead capture efficiency.', price: '₹9,999' }
+        { title: 'Core Premium Service', desc: 'Designed to deliver maximum efficiency and value.', price: '₹999 onwards' },
+        { title: 'Expert Consultation', desc: 'Dedicated 24/7 support to scale your operations smoothly.', price: '₹2,499' },
+        { title: 'Complete Growth Package', desc: 'All-in-one execution framework for high performance.', price: '₹4,999' }
+      ];
+      let customTestimonials = [
+        { name: 'राहुल शहा', avatar: avatars.client1, location: 'मुंबई', review: 'अप्रतिम सर्विस! क्वालिटी आणि प्रोफेशनलिझम खरोखर वाखाणण्याजोगा आहे.', rating: 5 },
+        { name: 'अमित देसाई', avatar: avatars.client2, location: 'पुणे', review: 'सर्व काही मनासारखे आणि वेळेवर मिळाले. मी नक्की पुन्हा भेट देईन!', rating: 5 }
       ];
 
       if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('dining') || p.includes('hptel')) {
@@ -384,6 +390,10 @@ export default function DashboardPage() {
           { title: 'Private Banquet & Party Hall', desc: 'Spacious air-conditioned celebration suites for weddings and birthdays.', price: '₹10,000 onwards' },
           { title: 'VIP Table Reservation', desc: 'Skip the waiting line and secure your preferred dining spot instantly.', price: 'Free Booking' }
         ];
+        customTestimonials = [
+          { name: 'सुनील पवार', avatar: avatars.client1, location: 'सांगली', review: 'इथली जेवणाची चव आणि सर्विस एकदम नंबर वन आहे! फॅमिलीसोबत येण्यासाठी उत्तम ठिकाण.', rating: 5 },
+          { name: 'दिलीप माने', avatar: avatars.client2, location: 'कोल्हापूर', review: 'मस्त वातावरण आणि अप्रतिम खाद्यपदार्थ. सगळ्यांनी एकदा नक्की भेट द्यावी!', rating: 5 }
+        ];
       } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('yoga') || p.includes('workout')) {
         generatedBusinessName = 'Titanium Fitness & CrossFit Arena';
         generatedHeadline = 'Sculpt Your Physique, Build Elite Strength & Push Your Limits';
@@ -395,6 +405,10 @@ export default function DashboardPage() {
           { title: '1-on-1 Elite Personal Training', desc: 'Customized training schedules and professional macronutrient diet charting.', price: '₹2,499 / mo' },
           { title: 'CrossFit & High-Intensity Cardio', desc: 'Explosive endurance sessions designed to shred fat rapidly.', price: '₹1,499 / mo' }
         ];
+        customTestimonials = [
+          { name: 'रोहित सावंत', avatar: avatars.client1, location: 'सांगली', review: 'या जिममधील ट्रेनर्स खूप सपोर्टिव्ह आहेत. माझे वजन ३ महिन्यात ८ किलो कमी झाले!', rating: 5 },
+          { name: 'किरण मोरे', avatar: avatars.client2, location: 'मिरज',, review: 'सर्व आधुनिक मशीन आणि कडक वातावरण. वर्कआउट करायला खूप मज्जा येते!', rating: 5 }
+        ];
       } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
         generatedBusinessName = 'Aura Prime Luxury Real Estate';
         generatedHeadline = 'Discover Architectural Masterpieces & Exclusive Properties Without Brokerage';
@@ -405,6 +419,10 @@ export default function DashboardPage() {
         customServices = [
           { title: 'Skyline Luxury Penthouse', desc: 'Panoramic city views equipped with private infinity pools.', price: '₹1.5 Crores+' },
           { title: 'Commercial Retail Hub', desc: 'High footfall retail spaces designed to amplify business revenues.', price: '₹40,000 / mo' }
+        ];
+        customTestimonials = [
+          { name: 'प्रदीप कुलकर्णी', avatar: avatars.client1, location: 'सांगली', review: 'कोणताही दलाल न देता आम्हाला आमचे हसरे आणि सुंदर घर मिळाले. धन्यवाद!', rating: 5 },
+          { name: 'अनिल जोशी', avatar: avatars.client2, location: 'पुणे', review: 'खूप पारदर्शक आणि कायदेशीर व्यवहार. सर्वोत्तम रिअल इस्टेट कंपनी!', rating: 5 }
         ];
       }
 
@@ -418,6 +436,7 @@ export default function DashboardPage() {
         ownerImage: ownerAvatar,
         tagline: 'Crafted with Precision & High-End Agency Standards',
         services: customServices,
+        testimonials: customTestimonials,
         stats: [
           { label: 'Active Customers', value: '5,400+' },
           { label: 'Client Retention', value: '99.4%' },
@@ -426,7 +445,7 @@ export default function DashboardPage() {
       }));
 
       setIsGenerating(false);
-      alert('🎉 अत्यंत प्रोफेशनल, मॉडर्न आणि हाय-एजन्सी लेव्हल वेबसाईट यशस्वीरीत्या तयार झाली!');
+      alert('🎉 अत्यंत प्रोफेशनल आणि व्यवसायाशी जुळणारी वेबसाईट तयार झाली!');
     }, 500);
   };
 
@@ -798,7 +817,7 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  // 100% AGENCY-GRADE LIVE EDITABLE WEBPAGE CANVAS WITH OWNER HEADSHOT & BANNER UPLOAD
+  // 100% AGENCY-GRADE LIVE EDITABLE WEBPAGE CANVAS WITH OWNER HEADSHOT & EDITABLE TESTIMONIALS
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
       <header className="bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
@@ -959,20 +978,47 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* EDITABLE TESTIMONIALS */}
       <section className="p-8 md:p-12 bg-[#0b101e] border-t border-slate-800 text-left space-y-6">
-        <div className="text-center space-y-1"><span className="text-xs text-emerald-400 font-bold uppercase tracking-wider">Customer Reviews</span><h3 className="text-xl font-black text-white">समाधानी ग्राहकांचे मनोगत</h3></div>
+        <div className="text-center space-y-1"><span className="text-xs text-emerald-400 font-bold uppercase tracking-wider">Customer Reviews</span><h3 className="text-xl font-black text-white">समाधानी ग्राहकांचे मनोगत (Editable Testimonials)</h3></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {currentSite.testimonials.map((t, idx) => (
             <div key={idx} className="p-5 bg-[#0d1424] border border-slate-800 rounded-2xl space-y-3 shadow-md">
               <div className="flex items-center gap-3">
                 <img src={t.avatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-blue-500" />
-                <div>
-                  <h4 className="font-bold text-white text-xs">{t.name}</h4>
-                  <span className="text-[10px] text-slate-400">{t.location}</span>
+                <div className="flex-1">
+                  <input 
+                    type="text" 
+                    value={t.name} 
+                    onChange={(e) => {
+                      const tests = [...currentSite.testimonials];
+                      tests[idx].name = e.target.value;
+                      setCurrentSite({...currentSite, testimonials: tests});
+                    }}
+                    className="font-bold text-white text-xs bg-transparent outline-none w-full border-b border-dashed border-slate-700" 
+                  />
+                  <input 
+                    type="text" 
+                    value={t.location} 
+                    onChange={(e) => {
+                      const tests = [...currentSite.testimonials];
+                      tests[idx].location = e.target.value;
+                      setCurrentSite({...currentSite, testimonials: tests});
+                    }}
+                    className="text-[10px] text-slate-400 bg-transparent outline-none w-full mt-0.5" 
+                  />
                 </div>
               </div>
-              <p className="text-xs text-slate-300 italic">"{t.review}"</p>
+              <textarea 
+                rows={2}
+                value={t.review} 
+                onChange={(e) => {
+                  const tests = [...currentSite.testimonials];
+                  tests[idx].review = e.target.value;
+                  setCurrentSite({...currentSite, testimonials: tests});
+                }}
+                className="text-xs text-slate-300 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded p-1 italic" 
+              />
               <div className="flex text-amber-400 gap-0.5"><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /></div>
             </div>
           ))}
@@ -2063,7 +2109,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <label className="text-slate-300 font-bold block mb-1">Your Working UPI ID (पेमेंटसाठी)</label>
-                  <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings,upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                  <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
                 </div>
               </div>
 
