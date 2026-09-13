@@ -43,6 +43,9 @@ interface TemplateData {
   services: { title: string; desc: string; price: string }[];
   stats: { label: string; value: string }[];
   testimonials: Testimonial[];
+  isPublished?: boolean;
+  publishedUrl?: string;
+  customDomain?: string;
 }
 
 interface Lead {
@@ -104,11 +107,6 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
-
-  const [isPublished, setIsPublished] = useState<boolean>(false);
-  const [publishedUrl, setPublishedUrl] = useState<string>('');
-  const [customDomain, setCustomDomain] = useState<string>('');
-  const [domainConnected, setDomainConnected] = useState<boolean>(false);
 
   const [clientSettings, setClientSettings] = useState({
     businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
@@ -305,17 +303,20 @@ export default function DashboardPage() {
       testimonials: [
         { name: 'सचिन कांबळे', avatar: avatars.male2, location: 'सांगली', review: 'रवी सरंच्या मार्गदर्शनामुळे माझा बिझनेस पूर्णपणे ऑटोमेशनवर आला. खूप अप्रतिम अनुभव!', rating: 5 },
         { name: 'प्रियांका शिंदे', avatar: avatars.female1, location: 'मिरज', review: 'मेटा ॲड शिकल्यापासून माझ्या पेजवर रोज नवीन कस्टमर येत आहेत. धन्यवाद रवी सर!', rating: 5 }
-      ]
+      ],
+      isPublished: false,
+      publishedUrl: '',
+      customDomain: ''
     }
   };
 
   const [selectedTemplate, setSelectedTemplate] = useState<string>('Digital Marketing & Coaching');
   const [currentSite, setCurrentSite] = useState<TemplateData>(templatesDb['Digital Marketing & Coaching']);
-  const [promptInput, setPromptInput] = useState<string>('माझ्या नवीन व्यवसायासाठी ५-स्टार प्रोफेशनल वेबसाईट बनवा');
+  const [promptInput, setPromptInput] = useState<string>('');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [tempDomainInput, setTempDomainInput] = useState<string>('');
 
-  // 1. ROBUST CONTINUOUS VOICE RECOGNITION FIX
   const toggleVoiceRecording = () => {
     if (typeof window === 'undefined') return;
     if (isListening) { setIsListening(false); return; }
@@ -344,7 +345,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. TRuly DYNAMIC PROMPT-TO-WEBSITE ENGINE (Generates professional website based on ANY random user prompt)
+  // 2. TRULY DYNAMIC PROMPT-TO-WEBSITE ENGINE (Clean professional headlines, NO prompt text leaking)
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -354,9 +355,9 @@ export default function DashboardPage() {
     setTimeout(() => {
       const p = promptInput.toLowerCase();
       
-      let bizName = promptInput.length > 30 ? 'My Professional Business' : promptInput;
-      let headlineText = `Transforming Industry Standards with ${bizName}`;
-      let subText = `We provide cutting-edge solutions, premium quality execution, and unmatched customer support tailored specifically for ${bizName}.`;
+      let bizName = 'Elite Business Pro';
+      let headlineText = 'Transforming Industry Standards with Premium Excellence';
+      let subText = 'We deliver cutting-edge solutions, high-performance execution, and unmatched customer support tailored specifically for your brand.';
       let badgeText = '★ Verified 5-Star Enterprise Solution';
       let heroImageLink = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80';
       let ownerAvatar = avatars.ownerDefault;
@@ -368,14 +369,13 @@ export default function DashboardPage() {
       ];
 
       let dynamicTestimonials = [
-        { name: 'राहुल शहा', avatar: avatars.client1, location: 'मुंबई', review: `अद्भुत अनुभव! ${bizName} ने आमच्या सर्व अपेक्षांपेक्षा उत्तम काम करून दिले आहे.`, rating: 5 },
-        { name: 'अमित देसाई', avatar: avatars.client2, location: 'पुणे', review: 'खूप व्यावसायिक टीम आणि उत्तम सर्विस. मी पूर्णपणे समाधानी आहे!', rating: 5 }
+        { name: 'राहुल शहा', avatar: avatars.client1, location: 'मुंबई', review: 'अप्रतिम सर्विस! क्वालिटी आणि प्रोफेशनलिझम खरोखर वाखाणण्याजोगा आहे.', rating: 5 },
+        { name: 'अमित देसाई', avatar: avatars.client2, location: 'पुणे', review: 'सर्व काही मनासारखे आणि वेळेवर मिळाले. मी नक्की पुन्हा भेट देईन!', rating: 5 }
       ];
 
-      // Smart category tuning for specific common business types
       if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('dining') || p.includes('hptel')) {
-        bizName = promptInput;
-        headlineText = `Welcome to Authentic Flavors & Royal Dining at ${bizName}`;
+        bizName = 'Hotel Sai Luxury & Fine Dining';
+        headlineText = 'Welcome to Authentic Flavors & Royal Dining Experience';
         subText = 'Indulge in traditional secret recipes, pure ingredients, cozy luxury ambiance, and seamless table reservations.';
         badgeText = '★ 5-Star Rated Culinary Hub & Restaurant';
         heroImageLink = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80';
@@ -389,8 +389,8 @@ export default function DashboardPage() {
           { name: 'दिलीप माने', avatar: avatars.client2, location: 'कोल्हापूर', review: 'मस्त वातावरण आणि अप्रतिम खाद्यपदार्थ. सगळ्यांनी एकदा नक्की भेट द्यावी!', rating: 5 }
         ];
       } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('yoga') || p.includes('workout')) {
-        bizName = promptInput;
-        headlineText = `Unleash Your Ultimate Strength & Physique at ${bizName}`;
+        bizName = 'Titanium Fitness & CrossFit Arena';
+        headlineText = 'Unleash Your Ultimate Strength & Transform Your Physique';
         subText = 'State-of-the-art international equipments, certified personal trainers, and result-driven transformation programs.';
         badgeText = '★ Elite Fitness & Wellness Center';
         heroImageLink = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80';
@@ -399,15 +399,19 @@ export default function DashboardPage() {
           { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance training for rapid stamina boost and fat loss.', price: '₹1,499 / mo' }
         ];
       } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
-        bizName = promptInput;
-        headlineText = `Find Your Dream Property Without Brokerage with ${bizName}`;
-        subText = 'Exclusive residential villas, luxury apartments, and prime commercial spaces verified for 100% legal safety.';
+        bizName = 'Aura Prime Luxury Real Estate';
+        headlineText = 'Find Your Dream Property Without Brokerage & Hassle';
+        subText = 'Explore exclusive residential villas, luxury apartments, and prime commercial properties verified for 100% legal safety.';
         badgeText = '★ Certified Real Estate Partner';
         heroImageLink = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80';
         dynamicServices = [
           { title: 'Luxury Gated Villas', desc: 'Spacious homes equipped with modern lifestyle amenities and private gardens.', price: '₹55 Lakhs+' },
           { title: 'Commercial Office Spaces', desc: 'Prime commercial locations designed to scale your enterprise.', price: '₹25,000 / mo' }
         ];
+      } else {
+        bizName = promptInput;
+        headlineText = `Empowering Growth & Innovation with ${promptInput}`;
+        subText = `We deliver high-end professional solutions designed to elevate your brand standards and customer loyalty.`;
       }
 
       setCurrentSite(prev => ({
@@ -425,10 +429,14 @@ export default function DashboardPage() {
           { label: 'Active Clients', value: '2,500+' },
           { label: 'Success Rate', value: '99.9%' },
           { label: 'Expert Support', value: '24/7 Active' }
-        ]
+        ],
+        isPublished: false,
+        publishedUrl: '',
+        customDomain: ''
       }));
 
       setIsGenerating(false);
+      setPromptInput('');
       alert('🎉 तुमच्या प्रॉम्प्टनुसार अत्यंत प्रोफेशनल आणि डाइनॅमिक 5-स्टार वेबसाईट तयार झाली!');
     }, 500);
   };
@@ -457,21 +465,23 @@ export default function DashboardPage() {
     }
   };
 
+  // Publish Website Action (Attached directly inside website preview canvas)
   const handlePublishWebsite = () => {
     const slug = currentSite.businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20) || 'my-business';
     const liveLink = `https://ai-growth-crm-nine.vercel.app/site/${slug}`;
-    setPublishedUrl(liveLink);
-    setIsPublished(true);
-    alert(`🚀 तुमची वेबसाईट यशस्वीरीत्या लाईव्ह पब्लिश झाली!\n\nLive URL: ${liveLink}`);
+    setCurrentSite(prev => ({ ...prev, isPublished: true, publishedUrl: liveLink }));
+    alert(`🚀 "${currentSite.businessName}" ही वेबसाईट यशस्वीरीत्या लाईव्ह पब्लिश झाली!\n\nLive URL: ${liveLink}`);
   };
 
+  // Connect Custom Domain Action (Attached directly inside website preview canvas)
   const handleConnectDomain = () => {
-    if (!customDomain.trim()) {
+    if (!tempDomainInput.trim()) {
       alert('कृपया तुमचे स्वतःचे डोमेन नाव टाका (उदा. www.mybusiness.com)');
       return;
     }
-    setDomainConnected(true);
-    alert(`🌐 डोमेन '${customDomain}' यशस्वीरीत्या कनेक्ट झाले! CNAME रेकॉर्ड्स अपडेट केले आहेत.`);
+    setCurrentSite(prev => ({ ...prev, customDomain: tempDomainInput }));
+    alert(`🌐 डोमेन '${tempDomainInput}' यशस्वीरीत्या '${currentSite.businessName}' या वेबसाईटशी कनेक्ट झाले!`);
+    setTempDomainInput('');
   };
 
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
@@ -794,9 +804,46 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  // 100% AGENCY-GRADE LIVE EDITABLE WEBPAGE CANVAS WITH OWNER HEADSHOT & EDITABLE TESTIMONIALS
+  // 100% AGENCY-GRADE LIVE EDITABLE WEBPAGE CANVAS WITH IN-CANVAS PUBLISH & DOMAIN ATTACHMENT
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
+      
+      {/* IN-CANVAS PUBLISH & DOMAIN ACTION BAR (Attached directly inside the website canvas) */}
+      <div className="bg-[#0b101d] border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2">
+          {currentSite.isPublished ? (
+            <span className="px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold flex items-center gap-1">
+              <CheckCircle2 size={13} /> Live: <a href={currentSite.publishedUrl} target="_blank" rel="noreferrer" className="underline font-mono text-[11px]">{currentSite.publishedUrl}</a>
+            </span>
+          ) : (
+            <button onClick={handlePublishWebsite} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 cursor-pointer">
+              <Globe size={14} /> 🚀 Publish This Website Live
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {currentSite.customDomain ? (
+            <span className="px-3 py-1 bg-blue-950 text-blue-400 border border-blue-500/30 rounded-xl font-bold font-mono">
+              🌐 {currentSite.customDomain}
+            </span>
+          ) : (
+            <div className="flex items-center gap-1.5 bg-[#07090e] border border-slate-700 rounded-xl px-2.5 py-1">
+              <input 
+                type="text" 
+                value={tempDomainInput} 
+                onChange={(e) => setTempDomainInput(e.target.value)} 
+                placeholder="www.mybusiness.com" 
+                className="bg-transparent text-white text-xs outline-none w-36 font-mono" 
+              />
+              <button onClick={handleConnectDomain} className="px-2.5 py-1 bg-blue-600 text-white rounded-lg font-bold text-[11px] cursor-pointer">
+                Connect Domain
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       <header className="bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
         <div>
           <input 
@@ -1387,41 +1434,17 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
-                  <div><h2 className="text-base font-black text-white">AI Agency-Grade Professional Website Builder</h2><p className="text-xs text-slate-400">प्रॉम्प्ट द्या, मालकाचा फोटो टाका, लाईव्ह एडिट करा आणि एका क्लिकवर पब्लिश करा.</p></div>
+                  <div><h2 className="text-base font-black text-white">AI Agency-Grade Professional Website Builder</h2><p className="text-xs text-slate-400">प्रॉम्प्ट द्या, मालकाचा फोटो टाका, लाईव्ह एडिट करा आणि थेट वेबसाईटच्या कॅनव्हासमधून पब्लिश करा.</p></div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Preview</button>
-                  <button onClick={handlePublishWebsite} className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30"><Globe size={14} /> 🚀 Publish Live</button>
                 </div>
-              </div>
-
-              {/* PUBLISHED SUCCESS BANNER */}
-              {isPublished && (
-                <div className="p-4 bg-emerald-950/60 border border-emerald-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle size={18} className="text-emerald-400" />
-                    <div>
-                      <span className="font-bold text-white block">वेबसाईट यशस्वीरीत्या पब्लिश झाली आहे!</span>
-                      <a href={publishedUrl} target="_blank" rel="noreferrer" className="text-blue-400 underline font-mono text-[11px]">{publishedUrl}</a>
-                    </div>
-                  </div>
-                  <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('लाईव्ह लिंक कॉपी झाली!'); }} className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold">Copy Link</button>
-                </div>
-              )}
-
-              {/* CUSTOM DOMAIN SETUP BOX */}
-              <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="space-y-1 flex-1 min-w-[250px]">
-                  <span className="font-bold text-white block flex items-center gap-1.5"><Globe size={14} className="text-blue-400" /> Connect Custom Domain (कस्टम डोमेन जोडा)</span>
-                  <input type="text" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="उदा. www.mybusiness.com" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none mt-1 font-mono" />
-                </div>
-                <button onClick={handleConnectDomain} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg mt-5">Connect Domain</button>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex-1 min-w-[280px] bg-[#080b12] border border-slate-700 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <Sparkles size={18} className="text-blue-400 shrink-0" />
-                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'Hotel Sai Luxury Dining'..." className="bg-transparent text-white text-xs outline-none w-full" />
+                  <input type="text" value={promptInput} onChange={(e) => setPromptInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleGenerateWebsite()} placeholder="उदा. 'Hotel Sai Luxury Dining' किंवा 'Elite Gym'..." className="bg-transparent text-white text-xs outline-none w-full" />
                 </div>
                 <button type="button" onClick={toggleVoiceRecording} className={`px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 border ${isListening ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-800 text-slate-200 border-slate-700'}`}>
                   {isListening ? <MicOff size={16} /> : <Mic size={16} className="text-rose-400" />}
@@ -2008,7 +2031,7 @@ export default function DashboardPage() {
                     <p className="text-[11px] text-slate-400">फेसबुक, इन्स्टाग्राम आणि व्हॉट्सॲप स्टेटसवर एकाच क्लिकवर जाहिरात पोस्ट करा.</p>
                   </div>
                 </div>
-                <span className="text-[10px] bg-blue-950 text-blue-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">Meta Graph API Ready</span>
+                <span className="text-[10px] bg-blue-950 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">Meta Graph API Ready</span>
               </div>
 
               <div className="space-y-3">
