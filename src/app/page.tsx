@@ -255,8 +255,8 @@ export default function DashboardPage() {
   const initialLeads: Lead[] = [
     { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
     { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM' },
-    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे, पेमेंट बाकी.', created_at: 'काल, 04:20 PM' },
-    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले, स्लॉट बुक केला.', created_at: 'काल, 06:10 PM' },
+    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे.', created_at: 'काल, 04:20 PM' },
+    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले.', created_at: 'काल, 06:10 PM' },
     { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'AI Tools Workshop', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold', notes: 'पहिला कॉल उचलला नाही.', created_at: '28 Aug' },
     { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Branding Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested', notes: 'ऑक्टोबरसाठी बुकिंग हवी आहे.', created_at: '28 Aug' },
     { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Lead Generation System', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'UPI QR स्कॅन करून भरत आहेत.', created_at: '27 Aug' },
@@ -352,7 +352,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. 100% FREE & ADVANCED PROFESSIONAL AI WEBSITE GENERATOR (Smart Keyword & Image Matching)
+  // 2. BULLETPROOF SMART PROFESSIONAL WEBSITE GENERATOR (Handles spelling variations and professional layout)
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -361,63 +361,69 @@ export default function DashboardPage() {
     setIsGenerating(true);
     setTimeout(() => {
       const p = promptInput.toLowerCase();
-      let generatedHeadline = `Welcome to Professional Excellence: ${promptInput}`;
-      let generatedSub = `Your trusted destination for top-tier quality, expert solutions, and unmatched service standards tailored for ${promptInput}.`;
-      let generatedBadge = '★ 5-Star Certified Business Partner';
-      let customServices = [
-        { title: 'Core Premium Solution', desc: 'Designed to deliver maximum efficiency and value for your investment.', price: '₹999 onwards' },
-        { title: 'Advanced Consultation', desc: 'Expert guidance and 24/7 dedicated support to scale your operations.', price: '₹2,499' },
-        { title: 'Complete Growth Package', desc: 'All-in-one execution framework built for high performance.', price: '₹4,999' }
-      ];
+      
+      let generatedBusinessName = promptInput;
+      let generatedHeadline = 'Experience Ultimate Quality & Trusted Professional Services';
+      let generatedSub = 'We deliver high-performance solutions tailored to elevate your business standards and customer satisfaction on autopilot.';
+      let generatedBadge = '★ 5-Star Certified Enterprise Partner';
       let heroImg = industryImages.marketing;
+      let customServices = [
+        { title: 'Core Premium Service', desc: 'Designed to deliver maximum efficiency and value.', price: '₹999 onwards' },
+        { title: 'Expert Consultation', desc: 'Dedicated 24/7 support to scale your operations smoothly.', price: '₹2,499' },
+        { title: 'Complete Growth Package', desc: 'All-in-one execution framework for high performance.', price: '₹4,999' }
+      ];
 
-      if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('हॉटेल')) {
-        generatedHeadline = `Authentic Flavors & Luxury Hospitality: ${promptInput}`;
-        generatedSub = `Experience royal ambiance, traditional recipes, and seamless online reservations with us.`;
-        generatedBadge = '★ 5-Star Rated Dining & Hospitality';
+      if (p.includes('hptel') || p.includes('hotel') || p.includes('हॉटेल') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('food') || p.includes('dining')) {
+        generatedBusinessName = 'Hotel Sai Luxury Dining & Hospitality';
+        generatedHeadline = 'Welcome to Authentic Flavors & Royal Dining Experience';
+        generatedSub = 'Indulge in traditional secret recipes, pure ingredients, cozy ambiance, and seamless online table reservations.';
+        generatedBadge = '★ 5-Star Rated Culinary Hub & Restaurant';
         heroImg = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Special Family Thali', desc: 'Prepared with pure ingredients and authentic spices.', price: '₹499' },
-          { title: 'Banquet & Party Hall Booking', desc: 'Spacious AC halls for celebrations and events.', price: '₹5,000 onwards' }
+          { title: 'Special Royal Family Thali', desc: 'Authentic flavors prepared with pure ghee and rich spices.', price: '₹499' },
+          { title: 'Banquet & Party Hall Booking', desc: 'Spacious air-conditioned halls for birthdays and receptions.', price: '₹5,000 onwards' },
+          { title: 'Online Food Delivery', desc: 'Hot and fresh meals delivered straight to your doorstep.', price: '₹299 onwards' }
         ];
-      } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम')) {
-        generatedHeadline = `Unleash Your Ultimate Strength at ${promptInput}`;
-        generatedSub = `State-of-the-art equipment, professional trainers, and personalized transformation programs.`;
-        generatedBadge = '★ Elite Fitness & Wellness Center';
+      } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('workout') || p.includes('yoga')) {
+        generatedBusinessName = 'Elite Power Gym & Fitness Studio';
+        generatedHeadline = 'Unleash Your Ultimate Strength & Transform Your Physique';
+        generatedSub = 'State-of-the-art equipments, certified personal trainers, and result-driven fat loss & muscle building programs.';
+        generatedBadge = '★ Premier Fitness & Wellness Center';
         heroImg = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Personal Gym Training', desc: '1-on-1 expert coaching and custom diet charts.', price: '₹1,999 / mo' },
-          { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance and fat-loss training.', price: '₹1,499 / mo' }
+          { title: '1-on-1 Personal Training', desc: 'Custom workout routines and professional diet charting.', price: '₹1,999 / mo' },
+          { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance training for rapid stamina boost.', price: '₹1,499 / mo' }
         ];
-      } else if (p.includes('real estate') || p.includes('property') || p.includes('फ्लॅट')) {
-        generatedHeadline = `Find Your Dream Property with ${promptInput}`;
-        generatedSub = `Verified residential and commercial properties with transparent deals and zero brokerage.`;
-        generatedBadge = '★ Certified Real Estate Hub';
+      } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
+        generatedBusinessName = 'Dreamspace Verified Properties';
+        generatedHeadline = 'Find Your Dream Home & Commercial Spaces Without Brokerage';
+        generatedSub = 'Explore exclusive residential villas, luxury apartments, and prime commercial properties verified for 100% legal safety.';
+        generatedBadge = '★ Certified Real Estate Partner';
         heroImg = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Luxury Villa & Apartments', desc: 'Gated community homes with modern amenities.', price: '₹45 Lakhs+' },
-          { title: 'Commercial Office Space', desc: 'Prime locations to accelerate your business growth.', price: '₹20,000 / mo' }
+          { title: 'Luxury Gated Villas', desc: 'Spacious homes equipped with modern lifestyle amenities.', price: '₹55 Lakhs+' },
+          { title: 'Commercial Office Spaces', desc: 'Prime locations designed to scale your enterprise.', price: '₹25,000 / mo' }
         ];
       }
 
       setCurrentSite(prev => ({
         ...prev,
-        businessName: promptInput,
+        businessName: generatedBusinessName,
         badge: generatedBadge,
         headline: generatedHeadline,
         subheadline: generatedSub,
         heroImage: heroImg,
-        tagline: 'Empowering Local Businesses with Smart Technology',
+        tagline: 'Powered by Next-Gen Enterprise AI Automation',
         services: customServices,
         stats: [
-          { label: 'Trusted Clients', value: '1,200+' },
-          { label: 'Satisfaction', value: '100%' },
-          { label: 'Support', value: '24/7' }
+          { label: 'Trusted Clients', value: '2,500+' },
+          { label: 'Success Rate', value: '99.9%' },
+          { label: 'Expert Support', value: '24/7 Active' }
         ]
       }));
 
       setIsGenerating(false);
-      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक 5-स्टार वेबसाईट तयार झाली!');
+      alert('🎉 एकदम प्रोफेशनल आणि भारी 5-स्टार वेबसाईट तयार झाली!');
     }, 400);
   };
 
