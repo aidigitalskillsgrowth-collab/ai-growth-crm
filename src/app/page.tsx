@@ -352,7 +352,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. BULLETPROOF SMART PROFESSIONAL WEBSITE GENERATOR (Handles spelling variations and professional layout)
+  // 2. ADVANCED PROFESSIONAL AI WEBSITE GENERATOR (Proper Categorisation & Clean Headings)
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -423,7 +423,7 @@ export default function DashboardPage() {
       }));
 
       setIsGenerating(false);
-      alert('🎉 एकदम प्रोफेशनल आणि भारी 5-स्टार वेबसाईट तयार झाली!');
+      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक 5-स्टार वेबसाईट तयार झाली!');
     }, 400);
   };
 
@@ -760,12 +760,25 @@ export default function DashboardPage() {
     }
   };
 
+  // 100% LIVE EDITABLE WEBPAGE CONTENT (Click any text to edit instantly)
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
       <header className="bg-[#0b101d] border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center sticky top-0 z-20">
         <div>
-          <h4 className="font-black text-white text-sm tracking-wide leading-tight">{currentSite.businessName}</h4>
-          <span className="text-[10px] text-blue-400 font-semibold">{currentSite.tagline}</span>
+          <input 
+            type="text" 
+            value={currentSite.businessName} 
+            onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} 
+            className="font-black text-white text-sm bg-transparent outline-none border-b border-dashed border-blue-500 w-48"
+            title="Click to edit business name"
+          />
+          <input 
+            type="text" 
+            value={currentSite.tagline} 
+            onChange={(e) => setCurrentSite({...currentSite, tagline: e.target.value})} 
+            className="text-[10px] text-blue-400 font-semibold bg-transparent outline-none border-b border-dashed border-blue-500/50 w-full mt-0.5"
+            title="Click to edit tagline"
+          />
         </div>
         <div className="flex items-center gap-2">
           <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md"><MessageSquare size={12} /> WhatsApp</a>
@@ -775,10 +788,32 @@ export default function DashboardPage() {
 
       <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold"><Sparkles size={12} /> {currentSite.badge}</div>
-        <h1 className="text-xl md:text-2xl font-black text-white leading-snug">{currentSite.headline}</h1>
-        <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-2xl">{currentSite.subheadline}</p>
+        
+        <textarea 
+          rows={2} 
+          value={currentSite.headline} 
+          onChange={(e) => setCurrentSite({...currentSite, headline: e.target.value})} 
+          className="text-xl md:text-2xl font-black text-white bg-transparent outline-none border border-dashed border-blue-500/50 rounded-xl p-2 w-full resize-none leading-snug"
+          title="Click to edit headline"
+        />
+        
+        <textarea 
+          rows={2} 
+          value={currentSite.subheadline} 
+          onChange={(e) => setCurrentSite({...currentSite, subheadline: e.target.value})} 
+          className="text-xs md:text-sm text-slate-300 bg-transparent outline-none border border-dashed border-blue-500/50 rounded-xl p-2 w-full resize-none leading-relaxed"
+          title="Click to edit subheadline"
+        />
+
         <div className="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl group">
           <img src={currentSite.heroImage} alt="Hero" className="w-full h-52 md:h-64 object-cover" />
+          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[11px] text-white flex items-center gap-1.5 cursor-pointer">
+            <ImageIcon size={14} className="text-blue-400" />
+            <label className="cursor-pointer">
+              Change Banner Photo
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+            </label>
+          </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
             <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center gap-2"><Zap size={14} /> {currentSite.primaryCta}</a>
           </div>
@@ -787,28 +822,88 @@ export default function DashboardPage() {
 
       <section className="grid grid-cols-3 gap-2 px-6 py-4 bg-[#0b101e] border-y border-slate-800 text-center">
         {currentSite.stats.map((st, i) => (
-          <div key={i} className="p-2"><p className="text-lg md:text-xl font-black text-blue-400">{st.value}</p><span className="text-[10px] text-slate-400 block">{st.label}</span></div>
+          <div key={i} className="p-2">
+            <input 
+              type="text" 
+              value={st.value} 
+              onChange={(e) => {
+                const newStats = [...currentSite.stats];
+                newStats[i].value = e.target.value;
+                setCurrentSite({...currentSite, stats: newStats});
+              }} 
+              className="text-lg md:text-xl font-black text-blue-400 bg-transparent outline-none text-center w-full border-b border-dashed border-blue-500/40" 
+            />
+            <input 
+              type="text" 
+              value={st.label} 
+              onChange={(e) => {
+                const newStats = [...currentSite.stats];
+                newStats[i].label = e.target.value;
+                setCurrentSite({...currentSite, stats: newStats});
+              }} 
+              className="text-[10px] text-slate-400 bg-transparent outline-none text-center w-full mt-1" 
+            />
+          </div>
         ))}
       </section>
 
       <section className="p-6 md:p-8 space-y-4 text-left">
-        <div className="text-center space-y-1 mb-5"><span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा</span><h3 className="text-base md:text-lg font-black text-white">लोकप्रिय उत्पादने आणि सेवा</h3></div>
+        <div className="text-center space-y-1 mb-5"><span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा (Editable Services)</span><h3 className="text-base md:text-lg font-black text-white">लोकप्रिय उत्पादने आणि सेवा</h3></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {currentSite.services.map((srv, idx) => (
             <div key={idx} className="p-4 rounded-2xl bg-[#0d1424] border border-slate-800 space-y-2 flex flex-col justify-between shadow-md">
-              <div>
-                <h4 className="font-bold text-white text-xs">{srv.title}</h4>
-                <p className="text-[11px] text-slate-400 mt-1">{srv.desc}</p>
+              <div className="space-y-1">
+                <input 
+                  type="text" 
+                  value={srv.title} 
+                  onChange={(e) => {
+                    const srvs = [...currentSite.services];
+                    srvs[idx].title = e.target.value;
+                    setCurrentSite({...currentSite, services: srvs});
+                  }} 
+                  className="font-bold text-white text-xs bg-transparent outline-none w-full border-b border-dashed border-slate-700 pb-1"
+                />
+                <textarea 
+                  rows={2}
+                  value={srv.desc} 
+                  onChange={(e) => {
+                    const srvs = [...currentSite.services];
+                    srvs[idx].desc = e.target.value;
+                    setCurrentSite({...currentSite, services: srvs});
+                  }} 
+                  className="text-[11px] text-slate-400 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded p-1 mt-1"
+                />
               </div>
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between"><span className="font-black text-emerald-400 text-xs">{srv.price}</span></div>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <input 
+                  type="text" 
+                  value={srv.price} 
+                  onChange={(e) => {
+                    const srvs = [...currentSite.services];
+                    srvs[idx].price = e.target.value;
+                    setCurrentSite({...currentSite, services: srvs});
+                  }} 
+                  className="font-black text-emerald-400 text-xs bg-transparent outline-none w-24 border-b border-dashed border-emerald-500/40"
+                />
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="bg-[#05070c] border-t border-slate-800 p-6 text-left text-xs">
-        <p className="font-bold text-white text-sm">{currentSite.businessName}</p>
-        <p className="text-[11px] text-slate-400 mt-1">{currentSite.address}</p>
+      <footer className="bg-[#05070c] border-t border-slate-800 p-6 text-left text-xs space-y-2">
+        <input 
+          type="text" 
+          value={currentSite.businessName} 
+          onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} 
+          className="font-bold text-white text-sm bg-transparent outline-none w-full border-b border-dashed border-slate-700"
+        />
+        <input 
+          type="text" 
+          value={currentSite.address} 
+          onChange={(e) => setCurrentSite({...currentSite, address: e.target.value})} 
+          className="text-[11px] text-slate-400 bg-transparent outline-none w-full"
+        />
       </footer>
     </div>
   );
@@ -1174,7 +1269,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
-                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Website Generator</h2><p className="text-xs text-slate-400">माईकवर बोलून किंवा प्रॉम्प्ट देऊन प्रोफेशनल वेबसाईट बनवा.</p></div>
+                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Live Editable Website Generator</h2><p className="text-xs text-slate-400">प्रॉम्प्ट देऊन वेबसाईट बनवा आणि थेट खाली क्लिक करून कोणतीही माहिती एडिट करा.</p></div>
                 </div>
                 <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Preview</button>
               </div>
@@ -1205,9 +1300,10 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-4 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs max-h-[850px] overflow-y-auto shadow-xl">
-                <h3 className="font-bold text-white uppercase text-[11px]">Live Content Editor</h3>
+                <h3 className="font-bold text-white uppercase text-[11px]">Live Content Editor & Tools</h3>
+                <p className="text-[11px] text-slate-400">किंवा थेट खालील लाईव्ह कॅनव्हास (Live Canvas) मधील मजकुरावर क्लिक करून बदल करा!</p>
                 <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <label className="text-slate-300 font-bold block text-[11px]">बॅनर फोटो अपलोड करा</label>
+                  <label className="text-slate-300 font-bold block text-[11px]">बॅनर फोटो बदला</label>
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white" />
                 </div>
                 <div><label className="text-slate-400 block mb-1">Business Name</label><input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
@@ -1217,7 +1313,7 @@ export default function DashboardPage() {
 
               <div className="lg:col-span-8 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
                 <div className="flex justify-between text-xs border-b border-slate-800 pb-3 items-center">
-                  <span className="font-mono text-slate-300 text-[11px]">Live Canvas</span>
+                  <span className="font-mono text-slate-300 text-[11px]">Live Editable Canvas (Click & Edit)</span>
                   <button onClick={() => setIsPreviewModalOpen(true)} className="text-[11px] text-blue-400 font-bold hover:underline flex items-center gap-1"><Eye size={13} /> Full Screen</button>
                 </div>
                 {renderWebpageContent(false)}
@@ -1883,7 +1979,7 @@ export default function DashboardPage() {
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="text-slate-400 block mb-1 font-bold">नाव *</label><input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                  <div><label className="text-slate-400 block mb-1 font-bold">मोबाईल *</label><input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" /></div>
+                  <div><label className="text-slate-400 block mb-1 font-bold">मोबाईल *</label><input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadPoint => leadForm.phone, e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="text-slate-400 block mb-1 font-bold">सेवा</label><input type="text" value={leadForm.service} onChange={(e) => setLeadForm({ ...leadForm, service: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
@@ -1944,7 +2040,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(18px)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
