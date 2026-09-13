@@ -11,10 +11,9 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save, Globe, CheckCircle2 as CheckIcon
+  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save, Globe
 } from 'lucide-react';
 
-// Supabase Direct Client Initialization
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -106,7 +105,6 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
-  // Publishing & Domain States
   const [isPublished, setIsPublished] = useState<boolean>(false);
   const [publishedUrl, setPublishedUrl] = useState<string>('');
   const [customDomain, setCustomDomain] = useState<string>('');
@@ -323,7 +321,6 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // 1. ROBUST CONTINUOUS VOICE RECOGNITION FIX
   const toggleVoiceRecording = () => {
     if (typeof window === 'undefined') return;
     if (isListening) { setIsListening(false); return; }
@@ -352,7 +349,6 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. ULTRA-PROFESSIONAL AI WEBSITE GENERATOR WITH MATCHING TESTIMONIALS
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -380,13 +376,13 @@ export default function DashboardPage() {
 
       if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('dining') || p.includes('hptel')) {
         generatedBusinessName = 'Hotel Sai Luxury & Fine Dining';
-        generatedHeadline = 'Experience Royal Hospitality, Authentic Flavors & Exquisite Ambience';
-        generatedSub = 'Savor traditional secret recipes crafted with pure ingredients, enjoy breathtaking luxury interiors, and book your tables instantly online.';
+        generatedHeadline = 'Welcome to Authentic Flavors & Royal Dining Experience';
+        generatedSub = 'Indulge in traditional secret recipes, pure ingredients, cozy ambiance, and seamless online table reservations.';
         generatedBadge = '★ 5-Star Rated Hospitality & Culinary Experience';
         heroImg = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80';
         ownerAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Royal Family Grand Thali', desc: 'An authentic feast prepared with pure ghee and rare exotic spices.', price: '₹699' },
+          { title: 'Special Royal Family Thali', desc: 'Authentic flavors prepared with pure ghee and rich spices.', price: '₹699' },
           { title: 'Private Banquet & Party Hall', desc: 'Spacious air-conditioned celebration suites for weddings and birthdays.', price: '₹10,000 onwards' },
           { title: 'VIP Table Reservation', desc: 'Skip the waiting line and secure your preferred dining spot instantly.', price: 'Free Booking' }
         ];
@@ -407,7 +403,7 @@ export default function DashboardPage() {
         ];
         customTestimonials = [
           { name: 'रोहित सावंत', avatar: avatars.client1, location: 'सांगली', review: 'या जिममधील ट्रेनर्स खूप सपोर्टिव्ह आहेत. माझे वजन ३ महिन्यात ८ किलो कमी झाले!', rating: 5 },
-          { name: 'किरण मोरे', avatar: avatars.client2, location: 'मिरज',, review: 'सर्व आधुनिक मशीन आणि कडक वातावरण. वर्कआउट करायला खूप मज्जा येते!', rating: 5 }
+          { name: 'किरण मोरे', avatar: avatars.client2, location: 'मिरज', review: 'सर्व आधुनिक मशीन आणि कडक वातावरण. वर्कआउट करायला खूप मज्जा येते!', rating: 5 }
         ];
       } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
         generatedBusinessName = 'Aura Prime Luxury Real Estate';
@@ -449,7 +445,6 @@ export default function DashboardPage() {
     }, 500);
   };
 
-  // Image Upload Handlers
   const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -474,7 +469,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Publish Website Action
   const handlePublishWebsite = () => {
     const slug = currentSite.businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20) || 'my-business';
     const liveLink = `https://ai-growth-crm-nine.vercel.app/site/${slug}`;
@@ -483,7 +477,6 @@ export default function DashboardPage() {
     alert(`🚀 तुमची वेबसाईट यशस्वीरीत्या लाईव्ह पब्लिश झाली!\n\nLive URL: ${liveLink}`);
   };
 
-  // Connect Custom Domain Action
   const handleConnectDomain = () => {
     if (!customDomain.trim()) {
       alert('कृपया तुमचे स्वतःचे डोमेन नाव टाका (उदा. www.mybusiness.com)');
@@ -493,14 +486,12 @@ export default function DashboardPage() {
     alert(`🌐 डोमेन '${customDomain}' यशस्वीरीत्या कनेक्ट झाले! CNAME रेकॉर्ड्स अपडेट केले आहेत.`);
   };
 
-  // Dynamic Payment Setup using clientSettings
   const [customerName, setCustomerName] = useState<string>('सचिन कांबळे');
   const [customerPhone, setCustomerPhone] = useState<string>('9123456780');
   const [paymentDesc, setPaymentDesc] = useState<string>('AI Masterclass Advance Payment');
   const [amount, setAmount] = useState<string>('2500');
   const [isAutoWhatsAppPdfActive, setIsAutoWhatsAppPdfActive] = useState<boolean>(true);
 
-  // Transactions History
   const [transactions, setTransactions] = useState<Transaction[]>([
     { id: 'TXN-98214', customerName: 'सचिन कांबळे', phone: '9123456780', amount: 2500, gateway: 'Razorpay Live', status: 'Success', date: 'आज, 12:45 PM' },
     { id: 'TXN-98213', customerName: 'प्रियांका शिंदे', phone: '9765432109', amount: 3200, gateway: 'Instamojo Secure', status: 'Success', date: 'आज, 11:10 AM' },
@@ -516,13 +507,11 @@ export default function DashboardPage() {
   });
   const [scheduledTime, setScheduledTime] = useState('Immediate (Now)');
 
-  // Clean UPI Intent & Live Working QR URL using dynamic clientSettings
   const cleanAmt = (Number(amount) || 1).toFixed(2);
   const upiIntent = `upi://pay?pa=${clientSettings.upiId.trim()}&pn=${encodeURIComponent(clientSettings.businessName)}&am=${cleanAmt}&cu=INR&tn=${encodeURIComponent(paymentDesc)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntent)}`;
   const livePayUrl = `https://ai-growth-crm-nine.vercel.app/pay?pa=${encodeURIComponent(clientSettings.upiId)}&pn=${encodeURIComponent(clientSettings.businessName)}&am=${cleanAmt}&tn=${encodeURIComponent(paymentDesc)}`;
 
-  // Handle Razorpay Checkout with Dynamic Key
   const handleRazorpayPay = async () => {
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
@@ -1201,7 +1190,7 @@ export default function DashboardPage() {
                activeTab === 'payments' ? 'Payment Gateways & UPI' :
                activeTab === 'agents' ? 'AI Agents & 24/7 Chatbot' :
                activeTab === 'meta_ads' ? 'Meta Lead Ads Launcher' :
-               activeTab === 'templates' ? 'Templates & Messenger' :
+               activeTab === 'templates' ? 'Template Manager' :
                activeTab === 'workflow' ? 'AI Workflow Builder' :
                activeTab === 'inbox' ? 'AI Inbox & WhatsApp Suite' :
                activeTab === 'ivr' ? 'AI Sales & Outbound IVR' :
