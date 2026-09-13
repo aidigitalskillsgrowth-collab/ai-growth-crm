@@ -352,7 +352,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. ADVANCED PROFESSIONAL AI WEBSITE GENERATOR (Proper Categorisation & Clean Headings)
+  // 2. ADVANCED PROFESSIONAL AI WEBSITE GENERATOR
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -1335,7 +1335,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-white text-sm">MULTI-GATEWAYS: RAZORPAY, CASHFREE & INSTAMOJO</h3>
-                      <p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर ग्राहकाच्या WhatsApp वर स्वयंचलित PDF पावती पाठवली जाईल.</p>
+                      <p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर ग्राहकाच्या WhatsApp वर स्वयंचलित सुरक्षित PDF पावती पाठवली जाईल.</p>
                     </div>
                   </div>
                   <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold">
@@ -1979,7 +1979,7 @@ export default function DashboardPage() {
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="text-slate-400 block mb-1 font-bold">नाव *</label><input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                  <div><label className="text-slate-400 block mb-1 font-bold">मोबाईल *</label><input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadPoint => leadForm.phone, e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" /></div>
+                  <div><label className="text-slate-400 block mb-1 font-bold">मोबाईल *</label><input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="text-slate-400 block mb-1 font-bold">सेवा</label><input type="text" value={leadForm.service} onChange={(e) => setLeadForm({ ...leadForm, service: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
@@ -2040,7 +2040,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white flex items-center gap-2"><Eye size={16} className="text-blue-400" /> Fullscreen Webpage Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(18px)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
