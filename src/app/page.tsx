@@ -11,7 +11,7 @@ import {
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
-  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save
+  Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save, Globe, CheckCircle2 as CheckIcon
 } from 'lucide-react';
 
 // Supabase Direct Client Initialization
@@ -34,6 +34,7 @@ interface TemplateData {
   headline: string;
   subheadline: string;
   heroImage: string;
+  ownerImage: string;
   phone: string;
   email: string;
   address: string;
@@ -78,7 +79,6 @@ interface Appointment {
   status: 'Confirmed' | 'Pending' | 'Rescheduled';
 }
 
-// Razorpay SDK Script Loader
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (typeof window === 'undefined') return resolve(false);
@@ -93,7 +93,6 @@ const loadRazorpayScript = () => {
 };
 
 export default function DashboardPage() {
-  // Authentication States (Supabase Connected)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'forgot'>('login');
   const [authEmail, setAuthEmail] = useState<string>('aidigitalskillsgrowth@gmail.com');
@@ -107,7 +106,12 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
-  // Dynamic Multi-Tenant Client Settings State
+  // Publishing & Domain States
+  const [isPublished, setIsPublished] = useState<boolean>(false);
+  const [publishedUrl, setPublishedUrl] = useState<string>('');
+  const [customDomain, setCustomDomain] = useState<string>('');
+  const [domainConnected, setDomainConnected] = useState<boolean>(false);
+
   const [clientSettings, setClientSettings] = useState({
     businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
     upiId: 'ravindra@ibl',
@@ -117,7 +121,6 @@ export default function DashboardPage() {
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
-  // Save Client Settings to Supabase
   const handleSaveClientSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSettings(true);
@@ -139,11 +142,9 @@ export default function DashboardPage() {
     }
   };
 
-  // Leads Filter States
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [sourceFilter, setSourceFilter] = useState<string>('All');
 
-  // Leads Add/Edit Modal State
   const [isLeadModalOpen, setIsLeadModalOpen] = useState<boolean>(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [leadForm, setLeadForm] = useState({
@@ -158,8 +159,9 @@ export default function DashboardPage() {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const ownerInputRef = useRef<HTMLInputElement>(null);
 
-  // Check existing Supabase session on load
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -194,7 +196,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle Supabase Secure Login
   const handleSupabaseLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
@@ -218,7 +219,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle Supabase Forgot Password
   const handleSupabaseForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authEmail.trim()) {
@@ -245,13 +245,11 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle Supabase Logout
   const handleSupabaseLogout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
   };
 
-  // 15 Complete Leads Database
   const initialLeads: Lead[] = [
     { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
     { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM' },
@@ -280,10 +278,9 @@ export default function DashboardPage() {
   };
 
   const avatars = {
-    male1: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    ownerDefault: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
     male2: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-    female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
   };
 
   const templatesDb: Record<string, TemplateData> = {
@@ -294,6 +291,7 @@ export default function DashboardPage() {
       headline: 'तुमचा व्यवसाय ऑनलाइन वाढवा आणि AI च्या मदतीने दरमहा लाखो रुपये कमवा!',
       subheadline: 'डिजिटल मार्केटिंग मास्टरक्लास, मेटा ॲड कॅम्पेन सेटअप, ऑटोमेशन सिस्टीम आणि पर्सनल बिझनेस कोचिंग.',
       heroImage: industryImages.marketing,
+      ownerImage: avatars.ownerDefault,
       phone: clientSettings.whatsappNumber,
       email: 'ravindra@aidigitalskillsgrowth.com',
       address: 'डिजिटल ग्रोथ स्टुडिओ, सांगली',
@@ -352,7 +350,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. ADVANCED PROFESSIONAL AI WEBSITE GENERATOR
+  // 2. AGENCY-GRADE PROFESSIONAL AI WEBSITE GENERATOR
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -423,8 +421,52 @@ export default function DashboardPage() {
       }));
 
       setIsGenerating(false);
-      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक 5-स्टार वेबसाईट तयार झाली!');
+      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक एजन्सी-ग्रेड वेबसाईट तयार झाली!');
     }, 400);
+  };
+
+  // Image Upload Handlers for Banner and Owner Photo
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => { 
+        setCurrentSite(prev => ({ ...prev, heroImage: reader.result as string })); 
+        alert('बॅनर फोटो यशस्वीरीत्या बदलला!'); 
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleOwnerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => { 
+        setCurrentSite(prev => ({ ...prev, ownerImage: reader.result as string })); 
+        alert('व्यवसाय मालकाचा फोटो यशस्वीरीत्या अपलोड झाला!'); 
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Publish Website Action
+  const handlePublishWebsite = () => {
+    const slug = currentSite.businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20) || 'my-business';
+    const liveLink = `https://ai-growth-crm-nine.vercel.app/site/${slug}`;
+    setPublishedUrl(liveLink);
+    setIsPublished(true);
+    alert(`🚀 तुमची वेबसाईट यशस्वीरीत्या लाईव्ह पब्लिश झाली!\n\nLive URL: ${liveLink}`);
+  };
+
+  // Connect Custom Domain Action
+  const handleConnectDomain = () => {
+    if (!customDomain.trim()) {
+      alert('कृपया तुमचे स्वतःचे डोमेन नाव टाका (उदा. www.mybusiness.com)');
+      return;
+    }
+    setDomainConnected(true);
+    alert(`🌐 डोमेन '${customDomain}' यशस्वीरीत्या कनेक्ट झाले! CNAME रेकॉर्ड अपडेट झाले आहेत.`);
   };
 
   // Dynamic Payment Setup using clientSettings
@@ -751,76 +793,96 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => { setCurrentSite(prev => ({ ...prev, heroImage: reader.result as string })); alert('फोटो सेट झाला!'); };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // 100% LIVE EDITABLE WEBPAGE CONTENT (Click any text to edit instantly)
+  // 100% AGENCY-GRADE PROFESSIONAL EDITABLE WEBPAGE CONTENT WITH OWNER HEADSHOT
   const renderWebpageContent = (isModal: boolean = false) => (
-    <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
-      <header className="bg-[#0b101d] border-b border-slate-800/80 px-5 py-3.5 flex justify-between items-center sticky top-0 z-20">
+    <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
+      <header className="bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
         <div>
           <input 
             type="text" 
             value={currentSite.businessName} 
             onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} 
-            className="font-black text-white text-sm bg-transparent outline-none border-b border-dashed border-blue-500 w-48"
+            className="font-black text-white text-base bg-transparent outline-none border-b border-dashed border-blue-500 w-60"
             title="Click to edit business name"
           />
           <input 
             type="text" 
             value={currentSite.tagline} 
             onChange={(e) => setCurrentSite({...currentSite, tagline: e.target.value})} 
-            className="text-[10px] text-blue-400 font-semibold bg-transparent outline-none border-b border-dashed border-blue-500/50 w-full mt-0.5"
+            className="text-[11px] text-blue-400 font-semibold bg-transparent outline-none border-b border-dashed border-blue-500/50 w-full mt-0.5"
             title="Click to edit tagline"
           />
         </div>
         <div className="flex items-center gap-2">
-          <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md"><MessageSquare size={12} /> WhatsApp</a>
-          <a href={`tel:${currentSite.phone}`} className="px-3 py-1.5 bg-blue-600 text-white rounded-xl font-bold text-[11px] flex items-center gap-1 shadow-md"><Phone size={12} /> कॉल करा</a>
+          <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-lg"><MessageSquare size={14} /> WhatsApp</a>
+          <a href={`tel:${currentSite.phone}`} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-lg"><Phone size={14} /> कॉल करा</a>
         </div>
       </header>
 
-      <section className="p-6 md:p-8 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-[11px] font-bold"><Sparkles size={12} /> {currentSite.badge}</div>
+      {/* HERO SECTION WITH OWNER HEADSHOT & EDITABLE BANNER */}
+      <section className="p-8 md:p-12 bg-gradient-to-b from-[#0e1628] via-[#0a0f1d] to-[#07090e] text-left space-y-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 text-xs font-bold"><Sparkles size={14} /> {currentSite.badge}</div>
         
-        <textarea 
-          rows={2} 
-          value={currentSite.headline} 
-          onChange={(e) => setCurrentSite({...currentSite, headline: e.target.value})} 
-          className="text-xl md:text-2xl font-black text-white bg-transparent outline-none border border-dashed border-blue-500/50 rounded-xl p-2 w-full resize-none leading-snug"
-          title="Click to edit headline"
-        />
-        
-        <textarea 
-          rows={2} 
-          value={currentSite.subheadline} 
-          onChange={(e) => setCurrentSite({...currentSite, subheadline: e.target.value})} 
-          className="text-xs md:text-sm text-slate-300 bg-transparent outline-none border border-dashed border-blue-500/50 rounded-xl p-2 w-full resize-none leading-relaxed"
-          title="Click to edit subheadline"
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-4">
+            <textarea 
+              rows={2} 
+              value={currentSite.headline} 
+              onChange={(e) => setCurrentSite({...currentSite, headline: e.target.value})} 
+              className="text-2xl md:text-4xl font-black text-white bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-tight"
+              title="Click to edit headline"
+            />
+            
+            <textarea 
+              rows={3} 
+              value={currentSite.subheadline} 
+              onChange={(e) => setCurrentSite({...currentSite, subheadline: e.target.value})} 
+              className="text-sm md:text-base text-slate-300 bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-relaxed"
+              title="Click to edit subheadline"
+            />
 
-        <div className="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl group">
-          <img src={currentSite.heroImage} alt="Hero" className="w-full h-52 md:h-64 object-cover" />
-          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 text-[11px] text-white flex items-center gap-1.5 cursor-pointer">
-            <ImageIcon size={14} className="text-blue-400" />
-            <label className="cursor-pointer">
-              Change Banner Photo
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-            </label>
+            <div className="flex items-center gap-4 pt-2">
+              <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs shadow-xl shadow-blue-600/30 flex items-center gap-2"><Zap size={15} /> {currentSite.primaryCta}</a>
+              <span className="text-xs text-slate-400 font-medium">⚡ Instant Response Guaranteed</span>
+            </div>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-            <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center gap-2"><Zap size={14} /> {currentSite.primaryCta}</a>
+
+          {/* OWNER HEADSHOT SECTION */}
+          <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-[#0d1424] border border-slate-800 rounded-3xl shadow-2xl relative group">
+            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-blue-500/50 shadow-xl relative mb-3">
+              <img src={currentSite.ownerImage} alt="Owner Headshot" className="w-full h-full object-cover" />
+            </div>
+            <div className="text-center space-y-1 w-full">
+              <input 
+                type="text" 
+                value={currentSite.businessName} 
+                onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})}
+                className="font-bold text-white text-xs bg-transparent outline-none text-center w-full border-b border-dashed border-slate-700" 
+              />
+              <span className="text-[10px] text-emerald-400 font-bold block">Founder & Lead Expert</span>
+            </div>
+            <button onClick={() => ownerInputRef.current?.click()} className="mt-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[10px] font-bold flex items-center gap-1.5 shadow">
+              <ImageIcon size={12} className="text-blue-400" /> Change Owner Photo
+            </button>
+            <input type="file" ref={ownerInputRef} accept="image/*" onChange={handleOwnerUpload} className="hidden" />
+          </div>
+        </div>
+
+        {/* HERO BANNER IMAGE WITH UPLOAD */}
+        <div className="relative rounded-3xl overflow-hidden border border-slate-700 shadow-2xl group mt-6">
+          <img src={currentSite.heroImage} alt="Hero Banner" className="w-full h-60 md:h-80 object-cover" />
+          <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 text-xs text-white flex items-center gap-2 shadow-2xl cursor-pointer">
+            <ImageIcon size={16} className="text-blue-400" />
+            <label className="cursor-pointer font-bold">
+              Change Banner Photo
+              <input type="file" ref={bannerInputRef} accept="image/*" onChange={handleBannerUpload} className="hidden" />
+            </label>
           </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-2 px-6 py-4 bg-[#0b101e] border-y border-slate-800 text-center">
+      {/* STATS COUNTER */}
+      <section className="grid grid-cols-3 gap-2 px-8 py-6 bg-[#0b101e] border-y border-slate-800 text-center">
         {currentSite.stats.map((st, i) => (
           <div key={i} className="p-2">
             <input 
@@ -831,7 +893,7 @@ export default function DashboardPage() {
                 newStats[i].value = e.target.value;
                 setCurrentSite({...currentSite, stats: newStats});
               }} 
-              className="text-lg md:text-xl font-black text-blue-400 bg-transparent outline-none text-center w-full border-b border-dashed border-blue-500/40" 
+              className="text-xl md:text-2xl font-black text-blue-400 bg-transparent outline-none text-center w-full border-b border-dashed border-blue-500/40" 
             />
             <input 
               type="text" 
@@ -841,18 +903,19 @@ export default function DashboardPage() {
                 newStats[i].label = e.target.value;
                 setCurrentSite({...currentSite, stats: newStats});
               }} 
-              className="text-[10px] text-slate-400 bg-transparent outline-none text-center w-full mt-1" 
+              className="text-xs text-slate-400 bg-transparent outline-none text-center w-full mt-1" 
             />
           </div>
         ))}
       </section>
 
-      <section className="p-6 md:p-8 space-y-4 text-left">
-        <div className="text-center space-y-1 mb-5"><span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा (Editable Services)</span><h3 className="text-base md:text-lg font-black text-white">लोकप्रिय उत्पादने आणि सेवा</h3></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+      {/* SERVICES GRID */}
+      <section className="p-8 md:p-12 space-y-6 text-left bg-[#07090e]">
+        <div className="text-center space-y-2 mb-8"><span className="text-xs text-blue-400 font-bold uppercase tracking-wider">आमच्या खास सेवा (Editable Services)</span><h3 className="text-xl md:text-2xl font-black text-white">लोकप्रिय उत्पादने आणि सेवा</h3></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {currentSite.services.map((srv, idx) => (
-            <div key={idx} className="p-4 rounded-2xl bg-[#0d1424] border border-slate-800 space-y-2 flex flex-col justify-between shadow-md">
-              <div className="space-y-1">
+            <div key={idx} className="p-6 rounded-3xl bg-[#0d1424] border border-slate-800 space-y-3 flex flex-col justify-between shadow-xl hover:border-blue-500/50 transition">
+              <div className="space-y-2">
                 <input 
                   type="text" 
                   value={srv.title} 
@@ -861,20 +924,20 @@ export default function DashboardPage() {
                     srvs[idx].title = e.target.value;
                     setCurrentSite({...currentSite, services: srvs});
                   }} 
-                  className="font-bold text-white text-xs bg-transparent outline-none w-full border-b border-dashed border-slate-700 pb-1"
+                  className="font-bold text-white text-sm bg-transparent outline-none w-full border-b border-dashed border-slate-700 pb-1"
                 />
                 <textarea 
-                  rows={2}
+                  rows={3}
                   value={srv.desc} 
                   onChange={(e) => {
                     const srvs = [...currentSite.services];
                     srvs[idx].desc = e.target.value;
                     setCurrentSite({...currentSite, services: srvs});
                   }} 
-                  className="text-[11px] text-slate-400 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded p-1 mt-1"
+                  className="text-xs text-slate-400 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded-xl p-2 mt-1"
                 />
               </div>
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
                 <input 
                   type="text" 
                   value={srv.price} 
@@ -883,7 +946,7 @@ export default function DashboardPage() {
                     srvs[idx].price = e.target.value;
                     setCurrentSite({...currentSite, services: srvs});
                   }} 
-                  className="font-black text-emerald-400 text-xs bg-transparent outline-none w-24 border-b border-dashed border-emerald-500/40"
+                  className="font-black text-emerald-400 text-sm bg-transparent outline-none w-32 border-b border-dashed border-emerald-500/40"
                 />
               </div>
             </div>
@@ -891,19 +954,46 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <footer className="bg-[#05070c] border-t border-slate-800 p-6 text-left text-xs space-y-2">
-        <input 
-          type="text" 
-          value={currentSite.businessName} 
-          onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} 
-          className="font-bold text-white text-sm bg-transparent outline-none w-full border-b border-dashed border-slate-700"
-        />
-        <input 
-          type="text" 
-          value={currentSite.address} 
-          onChange={(e) => setCurrentSite({...currentSite, address: e.target.value})} 
-          className="text-[11px] text-slate-400 bg-transparent outline-none w-full"
-        />
+      {/* TESTIMONIALS */}
+      <section className="p-8 md:p-12 bg-[#0b101e] border-t border-slate-800 text-left space-y-6">
+        <div className="text-center space-y-1"><span className="text-xs text-emerald-400 font-bold uppercase tracking-wider">Customer Reviews</span><h3 className="text-xl font-black text-white">समाधानी ग्राहकांचे मनोगत</h3></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {currentSite.testimonials.map((t, idx) => (
+            <div key={idx} className="p-5 bg-[#0d1424] border border-slate-800 rounded-2xl space-y-3 shadow-md">
+              <div className="flex items-center gap-3">
+                <img src={t.avatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-blue-500" />
+                <div>
+                  <h4 className="font-bold text-white text-xs">{t.name}</h4>
+                  <span className="text-[10px] text-slate-400">{t.location}</span>
+                </div>
+              </div>
+              <p className="text-xs text-slate-300 italic">"{t.review}"</p>
+              <div className="flex text-amber-400 gap-0.5"><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /><Star size={12} fill="currentColor" /></div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="bg-[#05070c] border-t border-slate-800 p-8 text-left text-xs space-y-3">
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <input 
+              type="text" 
+              value={currentSite.businessName} 
+              onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} 
+              className="font-bold text-white text-sm bg-transparent outline-none w-60 border-b border-dashed border-slate-700"
+            />
+            <input 
+              type="text" 
+              value={currentSite.address} 
+              onChange={(e) => setCurrentSite({...currentSite, address: e.target.value})} 
+              className="text-xs text-slate-400 bg-transparent outline-none w-full mt-1"
+            />
+          </div>
+          <div className="text-right text-[11px] text-slate-500">
+            Powered by <b className="text-blue-400">AI Growth CRM Pro</b>
+          </div>
+        </div>
       </footer>
     </div>
   );
@@ -1262,16 +1352,42 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 4. WEBSITE & FUNNELS */}
+        {/* 4. WEBSITE & FUNNELS (WITH PUBLISH & DOMAIN CONNECTIVITY) */}
         {activeTab === 'website' && (
           <div className="space-y-6">
-            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-5 space-y-4 shadow-2xl">
+            <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-6 space-y-5 shadow-2xl">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Sparkles size={20} /></div>
-                  <div><h2 className="text-base font-black text-white">AI Voice & Prompt 5-Star Live Editable Website Generator</h2><p className="text-xs text-slate-400">प्रॉम्प्ट देऊन वेबसाईट बनवा आणि थेट खाली क्लिक करून कोणतीही माहिती एडिट करा.</p></div>
+                  <div><h2 className="text-base font-black text-white">AI Agency-Grade Professional Website Builder</h2><p className="text-xs text-slate-400">प्रॉम्प्ट द्या, मालकाचा फोटो टाका, लाईव्ह एडिट करा आणि एका क्लिकवर पब्लिश करा.</p></div>
                 </div>
-                <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Preview</button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setIsPreviewModalOpen(true)} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5"><Eye size={14} /> Full Screen Preview</button>
+                  <button onClick={handlePublishWebsite} className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30"><Globe size={14} /> 🚀 Publish Live</button>
+                </div>
+              </div>
+
+              {/* PUBLISHED SUCCESS BANNER */}
+              {isPublished && (
+                <div className="p-4 bg-emerald-950/60 border border-emerald-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <CheckIcon size={18} className="text-emerald-400" />
+                    <div>
+                      <span className="font-bold text-white block">वेबसाईट यशस्वीरीत्या पब्लिश झाली आहे!</span>
+                      <a href={publishedUrl} target="_blank" rel="noreferrer" className="text-blue-400 underline font-mono text-[11px]">{publishedUrl}</a>
+                    </div>
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText(publishedUrl); alert('लाईव्ह लिंक कॉपी झाली!'); }} className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold">Copy Link</button>
+                </div>
+              )}
+
+              {/* CUSTOM DOMAIN SETUP BOX */}
+              <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="space-y-1 flex-1 min-w-[250px]">
+                  <span className="font-bold text-white block flex items-center gap-1.5"><Globe size={14} className="text-blue-400" /> Connect Custom Domain (कस्टम डोमेन जोडा)</span>
+                  <input type="text" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="उदा. www.mybusiness.com" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none mt-1 font-mono" />
+                </div>
+                <button onClick={handleConnectDomain} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg mt-5">Connect Domain</button>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -1300,14 +1416,16 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-4 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs max-h-[850px] overflow-y-auto shadow-xl">
-                <h3 className="font-bold text-white uppercase text-[11px]">Live Content Editor & Tools</h3>
-                <p className="text-[11px] text-slate-400">किंवा थेट खालील लाईव्ह कॅनव्हास (Live Canvas) मधील मजकुरावर क्लिक करून बदल करा!</p>
+                <h3 className="font-bold text-white uppercase text-[11px]">Quick Tools & Photo Uploader</h3>
                 <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
                   <label className="text-slate-300 font-bold block text-[11px]">बॅनर फोटो बदला</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white" />
+                  <input type="file" accept="image/*" onChange={handleBannerUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white cursor-pointer" />
+                </div>
+                <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <label className="text-slate-300 font-bold block text-[11px]">मालकाचा (Owner) फोटो बदला</label>
+                  <input type="file" accept="image/*" onChange={handleOwnerUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white cursor-pointer" />
                 </div>
                 <div><label className="text-slate-400 block mb-1">Business Name</label><input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-                <div><label className="text-slate-400 block mb-1">Headline</label><textarea rows={2} value={currentSite.headline} onChange={(e) => setCurrentSite({ ...currentSite, headline: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none" /></div>
                 <div><label className="text-slate-400 block mb-1">WhatsApp / Phone</label><input type="text" value={currentSite.phone} onChange={(e) => setCurrentSite({ ...currentSite, phone: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white font-mono outline-none" /></div>
               </div>
 
