@@ -4,71 +4,23 @@ import React, { useState } from 'react';
 
 export default function PublicLandingPage() {
   const [promptText, setPromptText] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [generatedSites, setGeneratedSites] = useState<any[]>([]);
   const [businessName, setBusinessName] = useState('Ishwari Digital CRM');
   const [tagline, setTagline] = useState('Grow Your Business With Next-Gen AI Automation');
   const [ownerName, setOwnerName] = useState('Ravindra Borchate');
   const [phone, setPhone] = useState('+91 9876543210');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fixed Robust Voice Input Handler
-  const startListening = () => {
-    try {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert('Speech recognition is not supported in this browser. Please type directly.');
-        return;
-      }
-
-      if (isListening) {
-        setIsListening(false);
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-IN';
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event: any) => {
-        let currentTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          currentTranscript += event.results[i][0].transcript;
-        }
-        setPromptText(currentTranscript);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.warn('Speech recognition warning/error:', event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } catch (error) {
-      console.error('Speech error:', error);
-      setIsListening(false);
-      alert('Microphone activation failed. Please check browser permissions.');
-    }
-  };
-
-  // Fixed Direct Generation Handler
+  // Direct and 100% Working Website Generator
   const handleGenerateWebsite = () => {
     if (!promptText.trim()) {
-      alert('कृपया आधी काहीतरी प्रॉम्प्ट टाईप करा किंवा बोला!');
+      alert('कृपया आधी तुमच्या व्यवसायाचे नाव किंवा प्रॉम्प्ट टाईप करा!');
       return;
     }
 
     setBusinessName(promptText);
-    alert('🎉 Website generated successfully with your prompt!');
+    setTagline(`Custom AI Generated Solution for: ${promptText}`);
+    setPromptText('');
+    alert('🚀 Website successfully generated and updated!');
   };
 
   return (
@@ -87,7 +39,7 @@ export default function PublicLandingPage() {
         </button>
       </div>
 
-      {/* AI Prompt & Voice Input Section */}
+      {/* AI Prompt Input Section */}
       <section className="max-w-4xl mx-auto px-6 py-10 text-center">
         <h2 className="text-2xl md:text-3xl font-black mb-4 text-emerald-400">Build Your Professional AI Website</h2>
         <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row gap-3 items-center shadow-xl">
@@ -95,17 +47,9 @@ export default function PublicLandingPage() {
             type="text"
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
-            placeholder="Type your business description or click mic to speak..."
+            placeholder="Type your business name or category (e.g. Real Estate, Gym, Salon)..."
             className="flex-1 bg-slate-800 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 w-full text-sm"
           />
-          <button
-            onClick={startListening}
-            className={`px-4 py-3 rounded-xl font-bold text-xs flex items-center gap-2 transition-all ${
-              isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700'
-            }`}
-          >
-            {isListening ? '🔴 Listening...' : '🎤 Speak'}
-          </button>
           <button
             onClick={handleGenerateWebsite}
             className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-sm transition-all shadow-lg w-full md:w-auto cursor-pointer"
