@@ -244,20 +244,35 @@ export default function DashboardPage() {
   const initialLeads: Lead[] = [
     { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM' },
     { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM' },
-    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे.', created_at: 'काल, 04:20 PM' },
-    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले.', created_at: 'काल, 06:10 PM' }
+    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे, पेमेंट बाकी.', created_at: 'काल, 04:20 PM' },
+    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले, स्लॉट बुक केला.', created_at: 'काल, 06:10 PM' },
+    { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'AI Tools Workshop', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold', notes: 'पहिला कॉल उचलला नाही.', created_at: '28 Aug' },
+    { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Branding Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested', notes: 'ऑक्टोबरसाठी बुकिंग हवी आहे.', created_at: '28 Aug' },
+    { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Lead Generation System', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'UPI QR स्कॅन करून भरत आहेत.', created_at: '27 Aug' },
+    { id: '8', name: 'महेश जाधव', phone: '9552114477', service: 'Funnel Setup', deal_value: 1200, status: 'Won', source: 'Referral', sentiment: 'Positive', notes: 'प्रोजेक्ट पूर्ण झाला.', created_at: '27 Aug' },
+    { id: '9', name: 'पूजा कुलकर्णी', phone: '9890665544', service: 'Digital Marketing Course', deal_value: 6000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'सिलॅबस व्हॉट्सॲपवर पाठवला.', created_at: '26 Aug' },
+    { id: '10', name: 'किरण थोरात', phone: '9371889900', service: 'Business Automation', deal_value: 500, status: 'Contacted', source: 'WhatsApp Direct', sentiment: 'Follow-up', notes: 'कागदपत्रे बाकी.', created_at: '26 Aug' },
+    { id: '11', name: 'दिनेश गायकवाड', phone: '9860127890', service: 'Coaching 3-Month Plan', deal_value: 1000, status: 'Won', source: 'Instagram Ad', sentiment: 'Positive', notes: 'पास कार्ड ॲक्टिव्हेट केले.', created_at: '25 Aug' },
+    { id: '12', name: 'सुप्रिया भोसले', phone: '9158334455', service: 'Ad Campaign Setup', deal_value: 2500, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'उद्या दुपारची वेळ दिली आहे.', created_at: '25 Aug' },
+    { id: '13', name: 'रोहन शिंदे', phone: '9730445566', service: 'Consultation Enquiry', deal_value: 4000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'रविवारच्या मिटिंगसाठी नोंद.', created_at: '24 Aug' },
+    { id: '14', name: 'अनिल काळे', phone: '9823998877', service: 'VIP Mastermind', deal_value: 1500, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Positive', notes: 'आरक्षण कन्फर्म.', created_at: '24 Aug' },
+    { id: '15', name: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Enterprise Coaching', deal_value: 35000, status: 'Won', source: 'Website', sentiment: 'Positive', notes: 'पूर्ण ॲडव्हान्स पेमेंट मिळाले.', created_at: '23 Aug' }
   ];
 
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const stages = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
 
   const industryImages: Record<string, string> = {
-    marketing: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80'
+    marketing: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
+    coaching: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=80',
+    generic: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80'
   };
 
   const avatars = {
+    male1: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     male2: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+    female1: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    female2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   };
 
   const templatesDb: Record<string, TemplateData> = {
@@ -266,17 +281,18 @@ export default function DashboardPage() {
       businessName: clientSettings.businessName,
       tagline: 'ऑटोमेशन, मेटा ॲड्स आणि AI टूल्सद्वारे बिझनेस ग्रोथ',
       headline: 'तुमचा व्यवसाय ऑनलाइन वाढवा आणि AI च्या मदतीने दरमहा लाखो रुपये कमवा!',
-      subheadline: 'डिजिटल मार्केटिंग मास्टरक्लास, मेटा ॲड कॅम्पेन सेटअप आणि ऑटोमेशन सिस्टीम.',
+      subheadline: 'डिजिटल मार्केटिंग मास्टरक्लास, मेटा ॲड कॅम्पेन सेटअप, ऑटोमेशन सिस्टीम आणि पर्सनल बिझनेस कोचिंग.',
       heroImage: industryImages.marketing,
       phone: clientSettings.whatsappNumber,
       email: 'ravindra@aidigitalskillsgrowth.com',
       address: 'डिजिटल ग्रोथ स्टुडिओ, सांगली',
-      timing: 'सकाळी ९:०० ते रात्री ८:००',
+      timing: 'सकाळी ९:०० ते रात्री ८:०० (सर्व दिवस सुरू)',
       primaryCta: 'मास्टरक्लाससाठी नोंदणी करा',
-      badge: '★ प्रो साॅस ॲक्टिव्ह',
+      badge: '★ प्रो साॅस ॲक्टिव्ह (Pro SaaS Active)',
       services: [
-        { title: 'AI डिजिटल स्किल्स मास्टरक्लास', desc: 'ChatGPT, Gemini आणि आधुनिक AI टूल्स.', price: '₹९९९ पासून' },
-        { title: 'मेटा ॲड्स & लीड जनरेशन', desc: 'कस्टमर लीड्स मिळवा.', price: '₹४,९९९' }
+        { title: 'AI डिजिटल स्किल्स मास्टरक्लास', desc: 'ChatGPT, Gemini आणि आधुनिक AI टूल्स शिकण्याची उत्तम संधी.', price: '₹९९९ पासून' },
+        { title: 'मेटा ॲड्स & लीड जनरेशन', desc: 'तुमच्या व्यवसायाला थेट मोबाईलवर हव्यात तेवढ्या कस्टमर लीड्स मिळवा.', price: '₹४,९९९' },
+        { title: '1-on-1 बिझनेस कोचिंग', desc: 'रवी पाटील यांच्याकडून वैयक्तिक मार्गदर्शन आणि बिझनेस ऑटोमेशन सेटअप.', price: '₹९,९९९' }
       ],
       stats: [
         { label: 'प्रशिक्षित विद्यार्थी', value: '१०,०००+' },
@@ -284,7 +300,8 @@ export default function DashboardPage() {
         { label: 'समाधानी क्लायंट्स', value: '१००%' }
       ],
       testimonials: [
-        { name: 'सचिन कांबळे', avatar: avatars.male2, location: 'सांगली', review: 'अप्रतिम अनुभव!', rating: 5 }
+        { name: 'सचिन कांबळे', avatar: avatars.male2, location: 'सांगली', review: 'रवी सरंच्या मार्गदर्शनामुळे माझा बिझनेस पूर्णपणे ऑटोमेशनवर आला. खूप अप्रतिम अनुभव!', rating: 5 },
+        { name: 'प्रियांका शिंदे', avatar: avatars.female1, location: 'मिरज', review: 'मेटा ॲड शिकल्यापासून माझ्या पेजवर रोज नवीन कस्टमर येत आहेत. धन्यवाद रवी सर!', rating: 5 }
       ]
     }
   };
@@ -355,55 +372,95 @@ export default function DashboardPage() {
 
   const [botConfig, setBotConfig] = useState({
     name: 'Ravi Patil AI Assistant',
-    systemPrompt: 'तुम्ही रवी पाटील यांच्या AI Growth CRM चे अधिकृत असिस्टंट आहात.'
+    personality: 'Professional & Friendly',
+    language: 'मराठी + English (Hinglish)',
+    autoDiscount: true,
+    discountPercent: 10,
+    systemPrompt: 'तुम्ही रवी पाटील यांच्या AI Growth CRM चे अधिकृत असिस्टंट आहात. ग्राहकांना मराठीत नम्रतेने उत्तरे द्या.'
   });
+
   const [chatMessages, setChatMessages] = useState<{ sender: 'bot' | 'user'; text: string; time: string }[]>([
-    { sender: 'bot', text: 'नमस्कार! AI Growth CRM मध्ये आपले स्वागत आहे.', time: '10:00 AM' }
+    { sender: 'bot', text: 'नमस्कार! 🙏 रवी पाटील AI Growth CRM मध्ये आपले स्वागत आहे. मी आपल्याला कशी मदत करू?', time: '10:00 AM' }
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
   const handleSendChat = () => {
     if (!inputMsg.trim()) return;
-    setChatMessages(prev => [...prev, { sender: 'user', text: inputMsg, time: '10:05 AM' }]);
+    const txt = inputMsg;
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    setChatMessages(prev => [...prev, { sender: 'user', text: txt, time: currentTime }]);
     setInputMsg('');
+
+    setTimeout(() => {
+      let botReply = `आपल्या '${txt}' या चौकशीबद्दल धन्यवाद! `;
+      const lower = txt.toLowerCase();
+      if (lower.includes('price') || lower.includes('किंमत') || lower.includes('कोर्स')) {
+        botReply += `आज आमच्या डिजिटल मार्केटिंग कोर्सवर स्पेशल डिस्काउंट उपलब्ध आहे!`;
+      } else {
+        botReply += `रवी पाटील यांची टीम तुम्हाला लवकरच संपर्क करेल!`;
+      }
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
+    }, 400);
+  };
+
+  const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
+  const [inboxText, setInboxText] = useState<string>('');
+  const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({
+    '1': [
+      { from: 'them', text: 'नमस्कार सर, मला डिजिटल मार्केटिंग सेटअपची माहिती हवी होती.', time: '10:25 AM' },
+      { from: 'me', text: 'नमस्कार रविराज जी, रवी पाटील CRM मध्ये आपले स्वागत आहे.', time: '10:30 AM' }
+    ]
+  });
+
+  const handleSendInbox = () => {
+    if (!inboxText.trim()) return;
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    setInboxChats(prev => ({
+      ...prev,
+      [selectedLead.id]: [...(prev[selectedLead.id] || []), { from: 'me', text: inboxText, time: currentTime }]
+    }));
+    setInboxText('');
+  };
+
+  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
+  const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
+
+  const handleTriggerIvrCall = (lead: Lead) => {
+    setCallingStatus(prev => ({ ...prev, [lead.id]: 'Calling' }));
+    setTimeout(() => {
+      setCallingStatus(prev => ({ ...prev, [lead.id]: 'Connected' }));
+      setTimeout(() => {
+        setCallingStatus(prev => ({ ...prev, [lead.id]: 'Completed' }));
+        alert(`📞 ${lead.name} (${lead.phone}) सोबत AI Voice Call यशस्वीरीत्या पूर्ण झाला!`);
+      }, 2000);
+    }, 1500);
   };
 
   const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: 'Digital Marketing Setup', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' }
+    { id: '1', clientName: 'सचिन कांबळे', phone: '9123456780', service: 'Digital Marketing Setup', date: '2026-08-31', time: '11:00 AM', status: 'Confirmed' },
+    { id: '2', clientName: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', date: '2026-08-31', time: '02:00 PM', status: 'Pending' }
   ]);
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
   const [newSlot, setNewSlot] = useState({ clientName: '', phone: '', service: '', date: '2026-09-02', time: '10:00 AM' });
 
   const handleBookSlot = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newSlot.clientName.trim()) return;
-    setAppointments(prev => [{ id: Date.now().toString(), ...newSlot, status: 'Confirmed' }, ...prev]);
+    if (!newSlot.clientName.trim() || !newSlot.phone.trim()) {
+      alert('कृपया ग्राहकाचे नाव आणि मोबाईल नंबर टाका!');
+      return;
+    }
+    const newApp: Appointment = {
+      id: Date.now().toString(),
+      clientName: newSlot.clientName,
+      phone: newSlot.phone,
+      service: newSlot.service || 'General Service',
+      date: newSlot.date,
+      time: newSlot.time,
+      status: 'Confirmed'
+    };
+    setAppointments(prev => [newApp, ...prev]);
     setIsSlotModalOpen(false);
-    alert('स्लॉट बुक झाला!');
-  };
-
-  const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
-  const [inboxText, setInboxText] = useState<string>('');
-  const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({});
-
-  const handleSendInbox = () => {
-    if (!inboxText.trim()) return;
-    setInboxChats(prev => ({
-      ...prev,
-      [selectedLead.id]: [...(prev[selectedLead.id] || []), { from: 'me', text: inboxText, time: '10:30 AM' }]
-    }));
-    setInboxText('');
-  };
-
-  const [aiVoiceScript, setAiVoiceScript] = useState('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे.');
-  const [callingStatus, setCallingStatus] = useState<Record<string, string>>({});
-
-  const handleTriggerIvrCall = (lead: Lead) => {
-    setCallingStatus(prev => ({ ...prev, [lead.id]: 'Calling' }));
-    setTimeout(() => {
-      setCallingStatus(prev => ({ ...prev, [lead.id]: 'Completed' }));
-      alert(`AI Call completed for ${lead.name}`);
-    }, 1500);
+    alert('नवीन अपॉइंटमेंट स्लॉट यशस्वीरीत्या बुक झाला!');
   };
 
   const cleanAmt = (Number(amount) || 1).toFixed(2);
@@ -595,12 +652,57 @@ export default function DashboardPage() {
               <h2 className="text-lg font-black text-white">Growth Leads Directory ({filteredLeads.length})</h2>
               <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold">+ Add Lead</button>
             </div>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[850px] text-xs">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
+                    <tr><th className="p-4">Name & Phone</th><th className="p-4">Service</th><th className="p-4">Deal Value</th><th className="p-4">Status</th><th className="p-4 text-center">Actions</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    {filteredLeads.map((l) => (
+                      <tr key={l.id} className="hover:bg-slate-800/30">
+                        <td className="p-4"><p className="font-bold text-white">{l.name}</p><span className="text-[11px] text-slate-400">+91 {l.phone}</span></td>
+                        <td className="p-4">{l.service}</td>
+                        <td className="p-4 font-black text-white">₹{l.deal_value}</td>
+                        <td className="p-4">
+                          <select value={l.status} onChange={(e) => handleStatusChange(l.id, e.target.value)} className="bg-slate-900 border border-slate-700 text-slate-200 px-2 py-1 rounded-xl text-xs">
+                            {stages.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex justify-center gap-2">
+                            <a href={`https://wa.me/91${l.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1"><MessageSquare size={12} /> WhatsApp</a>
+                            <button onClick={() => handleOpenEditModal(l)} className="p-1 text-slate-400 hover:text-blue-400"><Edit3 size={15} /></button>
+                            <button onClick={() => handleDeleteLead(l.id, l.name)} className="p-1 text-slate-400 hover:text-rose-400"><Trash2 size={15} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <h2 className="text-lg font-black text-white">Growth CRM & Pipeline</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {['New Lead', 'Contacted', 'Payment Sent', 'Won'].map((stg) => (
+                <div key={stg} className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-3 min-h-[400px]">
+                  <div className="flex justify-between border-b border-slate-800 pb-2"><span className="font-bold text-xs text-white uppercase">{stg}</span><span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full">{leads.filter(l => l.status === stg).length}</span></div>
+                  <div className="space-y-2.5">
+                    {leads.filter(l => l.status === stg).map((l) => (
+                      <div key={l.id} className="p-3 bg-[#080b12] border border-slate-700 rounded-xl space-y-1">
+                        <div className="flex justify-between font-bold text-xs"><span className="text-white">{l.name}</span><span className="text-emerald-400">₹{l.deal_value}</span></div>
+                        <p className="text-[11px] text-slate-400">{l.service}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -645,55 +747,56 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'agents' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">AI Agents & Chatbot Studio</h3>
+            <p className="text-slate-400">तुम्ही रवी पाटील यांच्या AI Growth CRM चे अधिकृत असिस्टंट आहात.</p>
           </div>
         )}
 
         {activeTab === 'meta_ads' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">Meta Lead Ads Launcher</h3>
           </div>
         )}
 
         {activeTab === 'templates' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">Template Manager</h3>
           </div>
         )}
 
         {activeTab === 'workflow' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">AI Workflow Builder</h3>
           </div>
         )}
 
         {activeTab === 'inbox' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">AI Inbox / WhatsApp Suite</h3>
           </div>
         )}
 
         {activeTab === 'calendar' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">Smart Calendar & Bookings</h3>
           </div>
         )}
 
         {activeTab === 'ivr' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">AI Sales & Outbound IVR</h3>
           </div>
         )}
 
         {activeTab === 'finance' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">AI Finance & Revenue Analytics</h3>
           </div>
         )}
 
         {activeTab === 'social' && (
-          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4">
+          <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 text-xs space-y-4 shadow-xl">
             <h3 className="font-bold text-white text-sm">Social Media Auto-Poster</h3>
           </div>
         )}
