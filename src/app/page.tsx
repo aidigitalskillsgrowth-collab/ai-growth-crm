@@ -16,7 +16,7 @@ import {
 
 // Supabase Direct Client Initialization
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6IkFub24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -350,7 +350,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. AGENCY-GRADE PROFESSIONAL AI WEBSITE GENERATOR
+  // 2. ULTRA-PROFESSIONAL AGENCY-GRADE AI WEBSITE GENERATOR (Like Lovable/Framer Style)
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -361,46 +361,50 @@ export default function DashboardPage() {
       const p = promptInput.toLowerCase();
       
       let generatedBusinessName = promptInput;
-      let generatedHeadline = 'Experience Ultimate Quality & Trusted Professional Services';
-      let generatedSub = 'We deliver high-performance solutions tailored to elevate your business standards and customer satisfaction on autopilot.';
-      let generatedBadge = '★ 5-Star Certified Enterprise Partner';
+      let generatedHeadline = 'Build, Scale & Automate Your Business with Next-Gen AI Technology';
+      let generatedSub = 'Transform your digital presence with high-converting glassmorphic funnels, automated CRM workflows, and lightning-fast execution designed for modern brands.';
+      let generatedBadge = '★ Next-Gen Enterprise SaaS Solution';
       let heroImg = industryImages.marketing;
+      let ownerAvatar = avatars.ownerDefault;
       let customServices = [
-        { title: 'Core Premium Service', desc: 'Designed to deliver maximum efficiency and value.', price: '₹999 onwards' },
-        { title: 'Expert Consultation', desc: 'Dedicated 24/7 support to scale your operations smoothly.', price: '₹2,499' },
-        { title: 'Complete Growth Package', desc: 'All-in-one execution framework for high performance.', price: '₹4,999' }
+        { title: 'Automated Growth Engine', desc: 'Scale acquisition channels seamlessly with intelligent routing and instant conversion.', price: '₹2,999 / mo' },
+        { title: 'AI Voice & Chatbot Suite', desc: 'Engage 100% of your inbound leads instantly with human-like natural conversation flows.', price: '₹4,999' },
+        { title: 'Custom Funnel Architecture', desc: 'High-speed landing pages engineered for maximum ROI and lead capture efficiency.', price: '₹9,999' }
       ];
 
-      if (p.includes('hptel') || p.includes('hotel') || p.includes('हॉटेल') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('food') || p.includes('dining')) {
-        generatedBusinessName = 'Hotel Sai Luxury Dining & Hospitality';
-        generatedHeadline = 'Welcome to Authentic Flavors & Royal Dining Experience';
-        generatedSub = 'Indulge in traditional secret recipes, pure ingredients, cozy ambiance, and seamless online table reservations.';
-        generatedBadge = '★ 5-Star Rated Culinary Hub & Restaurant';
+      if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('dining') || p.includes('hptel')) {
+        generatedBusinessName = 'Hotel Sai Luxury & Fine Dining';
+        generatedHeadline = 'Experience Royal Hospitality, Authentic Flavors & Exquisite Ambience';
+        generatedSub = 'Savor traditional secret recipes crafted with pure ingredients, enjoy breathtaking luxury interiors, and book your tables instantly online.';
+        generatedBadge = '★ 5-Star Rated Hospitality & Culinary Experience';
         heroImg = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop&q=80';
+        ownerAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Special Royal Family Thali', desc: 'Authentic flavors prepared with pure ghee and rich spices.', price: '₹499' },
-          { title: 'Banquet & Party Hall Booking', desc: 'Spacious air-conditioned halls for birthdays and receptions.', price: '₹5,000 onwards' },
-          { title: 'Online Food Delivery', desc: 'Hot and fresh meals delivered straight to your doorstep.', price: '₹299 onwards' }
+          { title: 'Royal Family Grand Thali', desc: 'An authentic feast prepared with pure ghee and rare exotic spices.', price: '₹699' },
+          { title: 'Private Banquet & Party Hall', desc: 'Spacious air-conditioned celebration suites for weddings and birthdays.', price: '₹10,000 onwards' },
+          { title: 'VIP Table Reservation', desc: 'Skip the waiting line and secure your preferred dining spot instantly.', price: 'Free Booking' }
         ];
-      } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('workout') || p.includes('yoga')) {
-        generatedBusinessName = 'Elite Power Gym & Fitness Studio';
-        generatedHeadline = 'Unleash Your Ultimate Strength & Transform Your Physique';
-        generatedSub = 'State-of-the-art equipments, certified personal trainers, and result-driven fat loss & muscle building programs.';
-        generatedBadge = '★ Premier Fitness & Wellness Center';
+      } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('yoga') || p.includes('workout')) {
+        generatedBusinessName = 'Titanium Fitness & CrossFit Arena';
+        generatedHeadline = 'Sculpt Your Physique, Build Elite Strength & Push Your Limits';
+        generatedSub = 'Equipped with cutting-edge international gear, elite personal coaches, and customized fat-loss & muscle hypertrophy programs.';
+        generatedBadge = '★ Premier Fitness & Wellness Hub';
         heroImg = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&auto=format&fit=crop&q=80';
+        ownerAvatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80';
         customServices = [
-          { title: '1-on-1 Personal Training', desc: 'Custom workout routines and professional diet charting.', price: '₹1,999 / mo' },
-          { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance training for rapid stamina boost.', price: '₹1,499 / mo' }
+          { title: '1-on-1 Elite Personal Training', desc: 'Customized training schedules and professional macronutrient diet charting.', price: '₹2,499 / mo' },
+          { title: 'CrossFit & High-Intensity Cardio', desc: 'Explosive endurance sessions designed to shred fat rapidly.', price: '₹1,499 / mo' }
         ];
       } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
-        generatedBusinessName = 'Dreamspace Verified Properties';
-        generatedHeadline = 'Find Your Dream Home & Commercial Spaces Without Brokerage';
-        generatedSub = 'Explore exclusive residential villas, luxury apartments, and prime commercial properties verified for 100% legal safety.';
-        generatedBadge = '★ Certified Real Estate Partner';
+        generatedBusinessName = 'Aura Prime Luxury Real Estate';
+        generatedHeadline = 'Discover Architectural Masterpieces & Exclusive Properties Without Brokerage';
+        generatedSub = 'Browse verified luxury gated villas, high-yield commercial hubs, and modern skyline apartments backed by complete legal transparency.';
+        generatedBadge = '★ Certified Luxury Property Partner';
         heroImg = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80';
+        ownerAvatar = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80';
         customServices = [
-          { title: 'Luxury Gated Villas', desc: 'Spacious homes equipped with modern lifestyle amenities.', price: '₹55 Lakhs+' },
-          { title: 'Commercial Office Spaces', desc: 'Prime locations designed to scale your enterprise.', price: '₹25,000 / mo' }
+          { title: 'Skyline Luxury Penthouse', desc: 'Panoramic city views equipped with private infinity pools.', price: '₹1.5 Crores+' },
+          { title: 'Commercial Retail Hub', desc: 'High footfall retail spaces designed to amplify business revenues.', price: '₹40,000 / mo' }
         ];
       }
 
@@ -411,21 +415,22 @@ export default function DashboardPage() {
         headline: generatedHeadline,
         subheadline: generatedSub,
         heroImage: heroImg,
-        tagline: 'Powered by Next-Gen Enterprise AI Automation',
+        ownerImage: ownerAvatar,
+        tagline: 'Crafted with Precision & High-End Agency Standards',
         services: customServices,
         stats: [
-          { label: 'Trusted Clients', value: '2,500+' },
-          { label: 'Success Rate', value: '99.9%' },
-          { label: 'Expert Support', value: '24/7 Active' }
+          { label: 'Active Customers', value: '5,400+' },
+          { label: 'Client Retention', value: '99.4%' },
+          { label: 'Expert Guidance', value: '24/7 Live' }
         ]
       }));
 
       setIsGenerating(false);
-      alert('🎉 अत्यंत प्रोफेशनल आणि आकर्षक एजन्सी-ग्रेड वेबसाईट तयार झाली!');
-    }, 400);
+      alert('🎉 अत्यंत प्रोफेशनल, मॉडर्न आणि हाय-एजन्सी लेव्हल वेबसाईट यशस्वीरीत्या तयार झाली!');
+    }, 500);
   };
 
-  // Image Upload Handlers for Banner and Owner Photo
+  // Image Upload Handlers
   const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -444,7 +449,7 @@ export default function DashboardPage() {
       const reader = new FileReader();
       reader.onloadend = () => { 
         setCurrentSite(prev => ({ ...prev, ownerImage: reader.result as string })); 
-        alert('व्यवसाय मालकाचा फोटो यशस्वीरीत्या अपलोड झाला!'); 
+        alert('व्यवसायाचा/मालकाचा फोटो यशस्वीरीत्या अपलोड झाला!'); 
       };
       reader.readAsDataURL(file);
     }
@@ -466,7 +471,7 @@ export default function DashboardPage() {
       return;
     }
     setDomainConnected(true);
-    alert(`🌐 डोमेन '${customDomain}' यशस्वीरीत्या कनेक्ट झाले! CNAME रेकॉर्ड अपडेट झाले आहेत.`);
+    alert(`🌐 डोमेन '${customDomain}' यशस्वीरीत्या कनेक्ट झाले! CNAME रेकॉर्ड्स अपडेट केले आहेत.`);
   };
 
   // Dynamic Payment Setup using clientSettings
@@ -793,7 +798,7 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  // 100% AGENCY-GRADE PROFESSIONAL EDITABLE WEBPAGE CONTENT WITH OWNER HEADSHOT
+  // 100% AGENCY-GRADE LIVE EDITABLE WEBPAGE CANVAS WITH OWNER HEADSHOT & BANNER UPLOAD
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
       <header className="bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
@@ -861,8 +866,8 @@ export default function DashboardPage() {
               />
               <span className="text-[10px] text-emerald-400 font-bold block">Founder & Lead Expert</span>
             </div>
-            <button onClick={() => ownerInputRef.current?.click()} className="mt-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[10px] font-bold flex items-center gap-1.5 shadow">
-              <ImageIcon size={12} className="text-blue-400" /> Change Owner Photo
+            <button onClick={() => ownerInputRef.current?.click()} className="mt-3 px-3.5 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition cursor-pointer">
+              <ImageIcon size={14} /> Change Owner Photo
             </button>
             <input type="file" ref={ownerInputRef} accept="image/*" onChange={handleOwnerUpload} className="hidden" />
           </div>
@@ -873,10 +878,10 @@ export default function DashboardPage() {
           <img src={currentSite.heroImage} alt="Hero Banner" className="w-full h-60 md:h-80 object-cover" />
           <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 text-xs text-white flex items-center gap-2 shadow-2xl cursor-pointer">
             <ImageIcon size={16} className="text-blue-400" />
-            <label className="cursor-pointer font-bold">
+            <button onClick={() => bannerInputRef.current?.click()} className="bg-transparent text-white font-bold cursor-pointer">
               Change Banner Photo
-              <input type="file" ref={bannerInputRef} accept="image/*" onChange={handleBannerUpload} className="hidden" />
-            </label>
+            </button>
+            <input type="file" ref={bannerInputRef} accept="image/*" onChange={handleBannerUpload} className="hidden" />
           </div>
         </div>
       </section>
@@ -1352,7 +1357,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 4. WEBSITE & FUNNELS (WITH PUBLISH & DOMAIN CONNECTIVITY) */}
+        {/* 4. WEBSITE & FUNNELS */}
         {activeTab === 'website' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800/90 rounded-3xl p-6 space-y-5 shadow-2xl">
@@ -2058,7 +2063,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <label className="text-slate-300 font-bold block mb-1">Your Working UPI ID (पेमेंटसाठी)</label>
-                  <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                  <input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings,upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
                 </div>
               </div>
 
