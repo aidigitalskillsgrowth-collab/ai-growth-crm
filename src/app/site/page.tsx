@@ -12,67 +12,63 @@ export default function PublicLandingPage() {
   const [phone, setPhone] = useState('+91 9876543210');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Speech Recognition Handler (Fixed for continuous listening)
+  // Fixed Robust Voice Input Handler
   const startListening = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition is not supported in this browser. Please type your prompt.');
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-IN';
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
+    try {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Speech recognition is not supported in this browser. Please type directly.');
+        return;
       }
-      setPromptText(transcript);
-    };
 
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error', event.error);
-      setIsListening(false);
-    };
+      if (isListening) {
+        setIsListening(false);
+        return;
+      }
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-IN';
 
-    if (isListening) {
-      recognition.stop();
-      setIsListening(false);
-    } else {
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let currentTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
+        }
+        setPromptText(currentTranscript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition warning/error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
       recognition.start();
+    } catch (error) {
+      console.error('Speech error:', error);
+      setIsListening(false);
+      alert('Microphone activation failed. Please check browser permissions.');
     }
   };
 
-  // Generate Website Handler
+  // Fixed Direct Generation Handler
   const handleGenerateWebsite = () => {
     if (!promptText.trim()) {
-      alert('Please enter or speak a prompt to generate the website!');
+      alert('कृपया आधी काहीतरी प्रॉम्प्ट टाईप करा किंवा बोला!');
       return;
     }
 
-    const newSite = {
-      id: Date.now(),
-      title: promptText,
-      theme: 'Dark Professional',
-      createdAt: new Date().toLocaleDateString()
-    };
-
-    setGeneratedSites([newSite, ...generatedSites]);
     setBusinessName(promptText);
-    setPromptText('');
-    alert('Website generated successfully with professional layout!');
+    alert('🎉 Website generated successfully with your prompt!');
   };
 
   return (
@@ -112,7 +108,7 @@ export default function PublicLandingPage() {
           </button>
           <button
             onClick={handleGenerateWebsite}
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-sm transition-all shadow-lg w-full md:w-auto"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-sm transition-all shadow-lg w-full md:w-auto cursor-pointer"
           >
             🚀 Generate Website
           </button>
