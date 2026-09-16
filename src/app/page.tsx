@@ -345,7 +345,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 2. TRULY DYNAMIC PROMPT-TO-WEBSITE ENGINE (Clean professional headlines, NO prompt text leaking)
+  // DYNAMIC PROMPT-TO-WEBSITE ENGINE
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -355,7 +355,7 @@ export default function DashboardPage() {
     setTimeout(() => {
       const p = promptInput.toLowerCase();
       
-      let bizName = 'Elite Business Pro';
+      let bizName = promptInput;
       let headlineText = 'Transforming Industry Standards with Premium Excellence';
       let subText = 'We deliver cutting-edge solutions, high-performance execution, and unmatched customer support tailored specifically for your brand.';
       let badgeText = '★ Verified 5-Star Enterprise Solution';
@@ -374,7 +374,6 @@ export default function DashboardPage() {
       ];
 
       if (p.includes('hotel') || p.includes('restaurant') || p.includes('खानावोल') || p.includes('dining') || p.includes('hptel')) {
-        bizName = 'Hotel Sai Luxury & Fine Dining';
         headlineText = 'Welcome to Authentic Flavors & Royal Dining Experience';
         subText = 'Indulge in traditional secret recipes, pure ingredients, cozy luxury ambiance, and seamless table reservations.';
         badgeText = '★ 5-Star Rated Culinary Hub & Restaurant';
@@ -389,7 +388,6 @@ export default function DashboardPage() {
           { name: 'दिलीप माने', avatar: avatars.client2, location: 'कोल्हापूर', review: 'मस्त वातावरण आणि अप्रतिम खाद्यपदार्थ. सगळ्यांनी एकदा नक्की भेट द्यावी!', rating: 5 }
         ];
       } else if (p.includes('gym') || p.includes('fitness') || p.includes('जिम') || p.includes('yoga') || p.includes('workout')) {
-        bizName = 'Titanium Fitness & CrossFit Arena';
         headlineText = 'Unleash Your Ultimate Strength & Transform Your Physique';
         subText = 'State-of-the-art international equipments, certified personal trainers, and result-driven transformation programs.';
         badgeText = '★ Elite Fitness & Wellness Center';
@@ -399,7 +397,6 @@ export default function DashboardPage() {
           { title: 'CrossFit & Cardio Batch', desc: 'High-intensity endurance training for rapid stamina boost and fat loss.', price: '₹1,499 / mo' }
         ];
       } else if (p.includes('real') || p.includes('estate') || p.includes('property') || p.includes('फ्लॅट') || p.includes('घर')) {
-        bizName = 'Aura Prime Luxury Real Estate';
         headlineText = 'Find Your Dream Property Without Brokerage & Hassle';
         subText = 'Explore exclusive residential villas, luxury apartments, and prime commercial properties verified for 100% legal safety.';
         badgeText = '★ Certified Real Estate Partner';
@@ -408,10 +405,6 @@ export default function DashboardPage() {
           { title: 'Luxury Gated Villas', desc: 'Spacious homes equipped with modern lifestyle amenities and private gardens.', price: '₹55 Lakhs+' },
           { title: 'Commercial Office Spaces', desc: 'Prime commercial locations designed to scale your enterprise.', price: '₹25,000 / mo' }
         ];
-      } else {
-        bizName = promptInput;
-        headlineText = `Empowering Growth & Innovation with ${promptInput}`;
-        subText = `We deliver high-end professional solutions designed to elevate your brand standards and customer loyalty.`;
       }
 
       setCurrentSite(prev => ({
@@ -465,7 +458,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Publish Website Action (Attached directly inside website preview canvas)
   const handlePublishWebsite = () => {
     const slug = currentSite.businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20) || 'my-business';
     const liveLink = `https://ai-growth-crm-nine.vercel.app/site/${slug}`;
@@ -473,7 +465,6 @@ export default function DashboardPage() {
     alert(`🚀 "${currentSite.businessName}" ही वेबसाईट यशस्वीरीत्या लाईव्ह पब्लिश झाली!\n\nLive URL: ${liveLink}`);
   };
 
-  // Connect Custom Domain Action (Attached directly inside website preview canvas)
   const handleConnectDomain = () => {
     if (!tempDomainInput.trim()) {
       alert('कृपया तुमचे स्वतःचे डोमेन नाव टाका (उदा. www.mybusiness.com)');
@@ -808,7 +799,7 @@ export default function DashboardPage() {
   const renderWebpageContent = (isModal: boolean = false) => (
     <div className={`mx-auto bg-[#07090e] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 ${!isModal && deviceView === 'Mobile' ? 'max-w-sm' : 'w-full'}`}>
       
-      {/* IN-CANVAS PUBLISH & DOMAIN ACTION BAR (Attached directly inside the website canvas) */}
+      {/* IN-CANVAS PUBLISH & DOMAIN ACTION BAR */}
       <div className="bg-[#0b101d] border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
           {currentSite.isPublished ? (
