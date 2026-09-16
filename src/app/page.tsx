@@ -345,6 +345,7 @@ export default function DashboardPage() {
     }
   };
 
+  // DYNAMIC PROMPT-TO-WEBSITE ENGINE
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
