@@ -12,7 +12,7 @@ import {
   Eye, Mic, MicOff, Star, Image as ImageIcon, Loader2, Printer,
   CreditCard, Landmark, ShieldCheck, DollarSign, Receipt, Radio,
   Sliders, MessageCircle, BarChart3, ChevronRight, Pause, Lock, CheckCircle, LogOut, KeyRound, Mail, User, Home, Save, Globe,
-  BarChart, PieChart, Users2, SendHorizonal, CalendarDays, Bell
+  BarChart, PieChart, Users2, SendHorizonal, CalendarDays, Bell, CheckCheck
 } from 'lucide-react';
 
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
@@ -471,12 +471,6 @@ export default function DashboardPage() {
     { id: '2', trigger: 'Payment Link Clicked', action: 'Send 10% Discount Coupon' }
   ]);
 
-  const handleCreateWorkflow = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCustomWorkflows(prev => [...prev, { id: Date.now().toString(), trigger: workflowTrigger, action: workflowAction }]);
-    alert('नवीन ऑटोमेशन वर्कफ्लो यशस्वीरीत्या तयार झाला!');
-  };
-
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount] = useState('act_982347892347');
   const [adBudget, setAdBudget] = useState(500);
@@ -548,7 +542,7 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
+  const [aiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
 
   const handleTriggerIvrCall = (lead: Lead) => {
@@ -637,7 +631,6 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  // FULL RESTORED ULTRA-PRO WEBPAGE CANVAS
   const renderWebpageContent = (isModal: boolean = false) => {
     const themeBg = currentSite.theme === 'neon' ? 'bg-[#030712] border-blue-500/40' : currentSite.theme === 'royal' ? 'bg-[#0f0c05] border-amber-600/30' : 'bg-[#07090e] border-slate-800';
     const accentText = currentSite.theme === 'neon' ? 'text-cyan-400' : currentSite.theme === 'royal' ? 'text-amber-400' : 'text-blue-400';
@@ -1124,32 +1117,89 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* META AI & AD LAUNCHER */}
         {activeTab === 'meta_ads' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm">Meta Lead Ads Account & 1-Click Campaign Launcher</h3>
-              <div className="flex gap-4">
-                <button onClick={() => { setIsMetaConnected(true); alert('मेटा ॲड अकाउंट कनेक्ट झाले!'); }} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">Connect Meta Ad Account</button>
-                <button onClick={() => alert('मेटा ॲड कॅम्पियन लाँच!')} className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold">Launch Campaign (₹{adBudget}/day)</button>
+            <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Megaphone size={20} /></div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">Meta AI & 1-Click Lead Ads Campaign Launcher</h3>
+                    <p className="text-[11px] text-slate-400">Meta AI Graph API द्वारे थेट लीड्स जनरेट करा आणि ऑटोमॅटिक सिंक करा.</p>
+                  </div>
+                </div>
+                {isMetaConnected ? (
+                  <span className="px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full font-bold text-[10px] flex items-center gap-1">
+                    <CheckCircle size={12} /> Connected ({metaAdAccount})
+                  </span>
+                ) : (
+                  <button onClick={() => { setIsMetaConnected(true); alert('मेटा ॲड अकाउंट व Meta AI API कनेक्ट झाले!'); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg cursor-pointer">
+                    Connect Meta AI Account
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <span className="font-bold text-white block">Daily Budget (₹)</span>
+                  <input type="number" value={adBudget} onChange={(e) => setAdBudget(Number(e.target.value))} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold outline-none" />
+                </div>
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <span className="font-bold text-white block">Target Audience Location</span>
+                  <input type="text" value={targetLocation} onChange={(e) => setTargetLocation(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+                </div>
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <span className="font-bold text-white block">Meta AI Assistant Mode</span>
+                  <span className="text-xs text-blue-400 font-semibold block pt-1">● Auto-Optimize & Lead Scoring ON</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button 
+                  onClick={() => { if(!isMetaConnected) { alert('प्रथम Meta AI अकाउंट कनेक्ट करा!'); return; } alert('🚀 Meta AI Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} 
+                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles size={16} /> Launch Meta AI Ad Campaign
+                </button>
+                <button 
+                  onClick={() => alert('Webhook Sync स्टेटस: सर्व लीड्स लाईव्ह अपडेट होत आहेत.')} 
+                  className="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer"
+                >
+                  Sync Webhooks
+                </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* RESTORED TEMPLATE MANAGER WITH AI MESSENGER */}
         {activeTab === 'templates' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm">Template Manager & AI Messenger</h3>
-              <form onSubmit={handleGenerateTemplate} className="space-y-3 bg-[#080b12] p-4 rounded-2xl border border-slate-800">
-                <input type="text" value={customTemplateName} onChange={(e) => setCustomTemplateName(e.target.value)} placeholder="टेम्पलेट नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none" />
-                <textarea rows={2} value={customTemplateText} onChange={(e) => setCustomTemplateText(e.target.value)} placeholder="मजकूर ({Name}, {Service}, {Amount})" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2 text-white outline-none" />
-                <button type="submit" className="py-2 px-5 bg-blue-600 text-white font-bold rounded-xl">Save Template</button>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2"><FileText size={16} className="text-blue-400" /> Template Manager & AI Messenger Studio</h3>
+                <span className="text-[10px] text-blue-400 bg-blue-950 px-2.5 py-0.5 rounded-full font-bold">Dynamic Variables Supported</span>
+              </div>
+              <form onSubmit={handleGenerateTemplate} className="space-y-3 bg-[#080b12] p-5 rounded-2xl border border-slate-800">
+                <span className="font-bold text-white block text-xs">+ नवीन WhatsApp / SMS टेम्पलेट तयार करा</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div><label className="text-slate-400 block mb-1">टेम्पलेट नाव</label><input type="text" value={customTemplateName} onChange={(e) => setCustomTemplateName(e.target.value)} placeholder="उदा. VIP Festival Offer" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
+                </div>
+                <div><label className="text-slate-400 block mb-1">मजकूर ({`{Name}, {Service}, {Amount}, {Date}`})</label><textarea rows={3} value={customTemplateText} onChange={(e) => setCustomTemplateText(e.target.value)} placeholder="नमस्कार {Name} जी..." className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-3 text-white outline-none resize-none font-mono text-[11px]" /></div>
+                <button type="submit" className="py-2.5 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save & Enable Template</button>
               </form>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                 {savedTemplates.map((t, i) => (
-                  <div key={i} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-2 flex flex-col justify-between">
-                    <div><span className="font-bold text-white block mb-1">{t.title}</span><p className="bg-[#0d1424] p-3 rounded-xl text-slate-300 font-mono text-[11px]">{t.text}</p></div>
-                    <button onClick={() => { navigator.clipboard.writeText(t.text); alert('टेम्पलेट कॉपी झाले!'); }} className="w-full py-1.5 bg-slate-800 text-slate-300 rounded-lg font-bold text-[10px]">Copy Template</button>
+                  <div key={i} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5"><span className="font-bold text-white text-xs">{t.title}</span><span className="text-[9px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full font-bold">Ready</span></div>
+                      <p className="bg-[#0d1424] p-3 rounded-xl text-slate-300 font-mono text-[11px] leading-relaxed border border-slate-800/80">{t.text}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { navigator.clipboard.writeText(t.text); alert('टेम्पलेट कॉपी झाले!'); }} className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-bold text-[10px]">Copy</button>
+                      <button onClick={() => alert(`"${t.title}" टेम्पलेट टेस्ट मेसेज म्हणून पाठवले!`)} className="flex-1 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-[10px]">Test Send</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1210,58 +1260,127 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* RESTORED FULL FEATURED AI INBOX / WHATSAPP SUITE */}
         {activeTab === 'inbox' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between bg-[#0d1424] border border-slate-800 p-4 rounded-2xl">
-              <span className="font-bold text-white text-xs">Unified WhatsApp & Omnichannel Inbox</span>
-              <span className="text-[10px] text-emerald-400 font-bold">● Webhook Connected</span>
+          <div className="space-y-4 text-xs">
+            <div className="flex flex-wrap items-center justify-between bg-[#0d1424] border border-slate-800 p-4 rounded-2xl gap-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="font-bold text-white">Unified Omnichannel & WhatsApp Business Inbox</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px]">
+                <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-xl border border-emerald-500/30 font-bold">Meta Cloud API Connected</span>
+                <span className="px-2.5 py-1 bg-blue-950 text-blue-400 rounded-xl border border-blue-500/30 font-bold">AI Auto-Reply: Active</span>
+              </div>
             </div>
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[550px] shadow-xl text-xs">
-              <div className="md:col-span-4 border-r border-slate-800 p-3 overflow-y-auto space-y-1 bg-[#080c16]">
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[580px] shadow-xl">
+              <div className="md:col-span-4 border-r border-slate-800 p-3 overflow-y-auto space-y-1.5 bg-[#080c16]">
+                <div className="px-2 py-1 flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold">
+                  <span>Conversations</span>
+                  <span>Unread: 3</span>
+                </div>
                 {leads.map((l) => (
-                  <div key={l.id} onClick={() => setSelectedLead(l)} className={`p-3 rounded-2xl cursor-pointer ${selectedLead.id === l.id ? 'bg-blue-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-800/40'}`}>
-                    <p className="text-xs font-bold">{l.name}</p>
-                    <p className="text-[10px] opacity-80">+91 {l.phone}</p>
+                  <div key={l.id} onClick={() => setSelectedLead(l)} className={`p-3 rounded-2xl cursor-pointer transition ${selectedLead.id === l.id ? 'bg-blue-600 text-white font-bold shadow-lg' : 'text-slate-300 hover:bg-slate-800/50'}`}>
+                    <div className="flex justify-between items-center mb-0.5">
+                      <p className="text-xs font-bold truncate">{l.name}</p>
+                      <span className="text-[9px] opacity-75 font-mono">10:30 AM</span>
+                    </div>
+                    <p className="text-[10px] opacity-80 truncate">{l.service} • +91 {l.phone}</p>
                   </div>
                 ))}
               </div>
               <div className="md:col-span-8 p-4 flex flex-col justify-between bg-[#080b12]">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <div><h4 className="font-bold text-white text-sm">{selectedLead.name}</h4><span className="text-[10px] text-emerald-400 font-mono">+91 {selectedLead.phone}</span></div>
-                  <a href={`https://wa.me/91${selectedLead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] flex items-center gap-1"><MessageSquare size={12} /> WhatsApp Web</a>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-600/30 text-blue-400 font-black flex items-center justify-center">{selectedLead.name.slice(0,1)}</div>
+                    <div>
+                      <h4 className="font-bold text-white text-sm">{selectedLead.name}</h4>
+                      <span className="text-[10px] text-emerald-400 font-mono">● Online | +91 {selectedLead.phone}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => alert(`🤖 ${selectedLead.name} साठी AI समरी तयार केली जात आहे...`)} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-[10px] font-bold flex items-center gap-1">
+                      <Sparkles size={11} /> AI Chat Summary
+                    </button>
+                    <a href={`https://wa.me/91${selectedLead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] flex items-center gap-1 shadow">
+                      <MessageSquare size={11} /> WA Web
+                    </a>
+                  </div>
                 </div>
-                <div className="space-y-3 py-4 overflow-y-auto h-72">
-                  {(inboxChats[selectedLead.id] || [{ from: 'them', text: `नमस्कार, मला ${selectedLead.service} हवी आहे.`, time: '10:15 AM' }]).map((m, i) => (
+
+                <div className="space-y-3 py-4 overflow-y-auto h-80 px-2">
+                  {(inboxChats[selectedLead.id] || [
+                    { from: 'them', text: `नमस्कार सर, मला ${selectedLead.service} बद्दल माहिती हवी होती.`, time: '10:15 AM' },
+                    { from: 'me', text: `नमस्कार ${selectedLead.name} जी, स्वागत आहे! आपण आजच आमचे पॅकर्स/कोर्स तपासू शकता.`, time: '10:18 AM' }
+                  ]).map((m, i) => (
                     <div key={i} className={`flex flex-col ${m.from === 'me' ? 'items-end' : 'items-start'}`}>
-                      <div className={`p-3 rounded-2xl max-w-[75%] text-xs ${m.from === 'me' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-200'}`}>{m.text}</div>
+                      <div className={`p-3 rounded-2xl max-w-[75%] text-xs shadow-md ${m.from === 'me' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 border border-slate-700/60 rounded-bl-none'}`}>
+                        {m.text}
+                      </div>
+                      <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-500">
+                        <span>{m.time}</span>
+                        {m.from === 'me' && <CheckCheck size={12} className="text-blue-400" />}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-2 pt-2 border-t border-slate-800">
-                  <input type="text" value={inboxText} onChange={(e) => setInboxText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} placeholder="Type reply..." className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none" />
-                  <button onClick={handleSendInbox} className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold"><Send size={14} /></button>
+
+                <div className="space-y-2 pt-2 border-t border-slate-800">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 text-[10px]">
+                    <button onClick={() => setInboxText('नमस्कार, आजचे विशेष ऑफर पॅकेज माहितीसाठी हा मेसेज आहे.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: Offer Text</button>
+                    <button onClick={() => setInboxText(`https://ai-growth-crm-nine.vercel.app/pay?pa=${clientSettings.upiId}&amount=2500`)} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: UPI Payment Link</button>
+                    <button onClick={() => setInboxText('कृपया आपली भेटण्याची वेळ (Appointment Slot) सांगा.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: Appointment Ask</button>
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="text" value={inboxText} onChange={(e) => setInboxText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} placeholder="Type WhatsApp reply here..." className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500" />
+                    <button onClick={handleSendInbox} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center gap-1 shadow-lg cursor-pointer">
+                      <Send size={14} /> Send
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* RESTORED FULL FEATURED SMART CALENDAR & BOOKINGS */}
         {activeTab === 'calendar' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 className="font-bold text-white text-sm">Smart Calendar & Booking Schedule</h3>
-                <button onClick={() => setIsSlotModalOpen(true)} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-1.5">+ Book Appointment</button>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-5 shadow-xl">
+              <div className="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
+                <div>
+                  <h3 className="font-bold text-white text-base flex items-center gap-2"><CalendarDays size={18} className="text-blue-400" /> Smart Calendar & Booking Schedule</h3>
+                  <p className="text-[11px] text-slate-400">ग्राहकांच्या सर्व अपॉइंटमेंट्स, कॉल्स, मीटिंग्स आणि ऑटो-रिमाइंडर सिस्टीम.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-blue-950 text-blue-400 border border-blue-500/30 rounded-xl font-bold text-[10px]">Google/Cal Sync Active</span>
+                  <button onClick={() => setIsSlotModalOpen(true)} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-lg shadow-blue-600/30 cursor-pointer">
+                    <Plus size={15} /> + Book New Appointment
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
                 {appointments.map((slot) => (
-                  <div key={slot.id} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-2.5">
-                    <span className="text-[10px] text-blue-400 font-bold font-mono bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-500/30">{slot.date} | {slot.time}</span>
-                    <p className="font-black text-white text-sm">{slot.clientName} (+91 {slot.phone})</p>
-                    <p className="text-[11px] text-slate-300">सेवा: <b>{slot.service}</b></p>
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-                      <span className="text-emerald-400 font-bold text-[10px]">● {slot.status}</span>
-                      <button onClick={() => handleCancelAppointment(slot.id, slot.clientName)} className="text-rose-400 font-bold text-[11px]">रद्द करा</button>
+                  <div key={slot.id} className="bg-[#080b12] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md hover:border-blue-500/50 transition">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-blue-400 font-bold font-mono bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-500/30">{slot.date} | {slot.time}</span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${slot.status === 'Confirmed' ? 'bg-emerald-950 text-emerald-400 border-emerald-500/30' : 'bg-amber-950 text-amber-400 border-amber-500/30'}`}>
+                        {slot.status}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-black text-white text-sm">{slot.clientName}</p>
+                      <p className="text-[11px] text-slate-400 font-mono mt-0.5">+91 {slot.phone}</p>
+                      <p className="text-[11px] text-slate-300 font-medium mt-1.5 bg-[#0d1424] px-2.5 py-1.5 rounded-xl border border-slate-800">सेवा: <b className="text-blue-400">{slot.service}</b></p>
+                    </div>
+                    <div className="pt-2.5 border-t border-slate-800/80 flex justify-between items-center">
+                      <a href={`https://wa.me/91${slot.phone}?text=${encodeURIComponent(`नमस्कार ${slot.clientName} जी, आपली ${slot.service} ची ${slot.date} रोजी ${slot.time} ची अपॉइंटमेंट कन्फर्म आहे.`)}`} target="_blank" rel="noreferrer" className="px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold text-[10px] flex items-center gap-1">
+                        <MessageSquare size={11} /> Remind on WA
+                      </a>
+                      <button onClick={() => handleCancelAppointment(slot.id, slot.clientName)} className="p-1 text-slate-400 hover:text-rose-400 transition" title="रद्द करा">
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1270,32 +1389,113 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* RESTORED FULL FEATURED AI SALES & OUTBOUND IVR */}
         {activeTab === 'ivr' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm">AI SALES & OUTBOUND IVR VOICE BOT</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <span className="font-bold text-white">Voice Calling Script</span>
-                  <p className="text-slate-300 leading-relaxed">{aiVoiceScript}</p>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600/25 border border-blue-500/35 text-blue-400 flex items-center justify-center font-bold">
+                    <PhoneCall size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">AI SALES & OUTBOUND IVR VOICE BOT ENGINE</h3>
+                    <p className="text-[11px] text-slate-400">लीड्सना स्वयंचलित (Automated) फोन कॉल्स, मराठी/हिंदी TTS आणि सॅटिंमेंट ॲनालायझर.</p>
+                  </div>
                 </div>
-                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2 flex flex-col justify-between">
-                  <span className="font-bold text-white">Outbound Dial Engine</span>
-                  <span className="text-emerald-400 font-bold">● Active 24/7 Queue</span>
+                <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Marathi Natural TTS Ready</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2.5 bg-[#080b12] p-4 rounded-2xl border border-slate-800">
+                  <label className="text-slate-200 block font-bold">AI Voice Calling Script (मराठी/हिंदी)</label>
+                  <textarea 
+                    rows={4} 
+                    value={aiVoiceScript} 
+                    onChange={(e) => setAiVoiceScript(e.target.value)} 
+                    className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500 resize-none leading-relaxed text-xs" 
+                  />
+                  <button onClick={() => alert('वॉयस कॉलिंग स्क्रिप्ट सेव्ह झाली!')} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow cursor-pointer">
+                    Save Calling Script
+                  </button>
+                </div>
+
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-3 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <span className="font-bold text-white block">Outbound Dial Engine & Analytics</span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">हा AI बॉट प्रत्येक नवीन लीडला कॉल करून त्यांची पसंती विचारतो आणि पॉझिटिव्ह रिस्पॉन्स मिळताच CRM मध्ये स्टेटस 'Won' किंवा 'Contacted' करतो.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <div className="p-2.5 bg-[#0d1424] rounded-xl border border-slate-800 text-center">
+                      <span className="text-[10px] text-slate-400 block">Total Calls Today</span>
+                      <span className="text-white font-black text-sm">142</span>
+                    </div>
+                    <div className="p-2.5 bg-[#0d1424] rounded-xl border border-slate-800 text-center">
+                      <span className="text-[10px] text-slate-400 block">Answered Rate</span>
+                      <span className="text-emerald-400 font-black text-sm">82.4%</span>
+                    </div>
+                  </div>
+                  <div className="p-2.5 bg-emerald-950/35 rounded-xl border border-emerald-500/30 flex justify-between items-center text-[11px]">
+                    <span className="text-emerald-300 font-bold">Auto-Dialing Queue Status</span>
+                    <span className="text-emerald-400 font-bold">● Running (24/7)</span>
+                  </div>
                 </div>
               </div>
-              <div className="overflow-x-auto pt-3">
-                <table className="w-full text-left min-w-[600px]">
-                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]"><tr><th className="p-3">Customer</th><th className="p-3">Service</th><th className="p-3 text-center">Status</th><th className="p-3 text-center">Action</th></tr></thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {leads.slice(0, 5).map(l => (
-                      <tr key={l.id}>
-                        <td className="p-3 font-bold text-white">{l.name} (+91 {l.phone})</td>
-                        <td className="p-3">{l.service}</td>
-                        <td className="p-3 text-center"><span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px]">{callingStatus[l.id] || 'Ready'}</span></td>
-                        <td className="p-3 text-center"><button onClick={() => handleTriggerIvrCall(l)} className="px-3 py-1 bg-blue-600 text-white rounded-lg font-bold text-[10px]">Start AI Call</button></td>
-                      </tr>
-                    ))}
+            </div>
+
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+                <span className="font-bold text-white uppercase text-xs tracking-wider">Outbound Calling Queue ({leads.length} Leads)</span>
+                <span className="text-[10px] text-slate-400">Click start to test natural voice trigger</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[750px]">
+                  <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3.5">Customer Name & Phone</th>
+                      <th className="p-3.5">Service Interest</th>
+                      <th className="p-3.5">AI Sentiment Score</th>
+                      <th className="p-3.5 text-center">Call Status</th>
+                      <th className="p-3.5 text-center">Trigger AI Call</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    {leads.slice(0, 8).map((lead) => {
+                      const status = callingStatus[lead.id] || 'Idle';
+                      return (
+                        <tr key={lead.id} className="hover:bg-slate-800/30 transition">
+                          <td className="p-3.5">
+                            <p className="font-bold text-white">{lead.name}</p>
+                            <span className="text-[10px] text-slate-400 font-mono">+91 {lead.phone}</span>
+                          </td>
+                          <td className="p-3.5">{lead.service}</td>
+                          <td className="p-3.5">
+                            <span className="px-2.5 py-0.5 rounded-md bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                              ● {lead.sentiment}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                              status === 'Calling' ? 'bg-amber-950 text-amber-400 border-amber-500/40 animate-pulse' :
+                              status === 'Connected' ? 'bg-blue-950 text-blue-400 border-blue-500/40 animate-pulse' :
+                              status === 'Completed' ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40' :
+                              'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}>
+                              {status === 'Idle' ? 'Ready' : status}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <button 
+                              onClick={() => handleTriggerIvrCall(lead)} 
+                              disabled={status === 'Calling' || status === 'Connected'} 
+                              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-1 mx-auto transition shadow-md disabled:opacity-50 cursor-pointer"
+                            >
+                              <PhoneCall size={13} /> {status === 'Completed' ? 'Re-call' : 'Start AI Call'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1303,44 +1503,163 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* RESTORED FULL FEATURED AI FINANCE & REVENUE */}
         {activeTab === 'finance' && (
           <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 className="font-bold text-white text-sm">AI FINANCE & REVENUE ANALYTICS (MRR Dashboard)</h3>
-                <span className="text-emerald-400 font-bold">Total: ₹45,900</span>
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-5 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600/25 border border-emerald-500/35 text-emerald-400 flex items-center justify-center font-bold">
+                    <Wallet size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">AI FINANCE & REVENUE ANALYTICS (MRR & Payouts)</h3>
+                    <p className="text-[11px] text-slate-400">महसूल (MRR), सबस्क्रिप्शन प्लान्स, क्लायंट बिलिंग आणि स्वयंचलित इनव्हॉइस रिपोर्ट.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-3 py-1 rounded-full font-bold">
+                  Live MRR Dashboard
+                </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-[#080b12] p-4 rounded-2xl border border-slate-800"><span className="text-slate-400">MRR</span><p className="text-xl font-black text-emerald-400">₹45,900</p></div>
-                <div className="bg-[#080b12] p-4 rounded-2xl border border-slate-800"><span className="text-slate-400">Paid Clients</span><p className="text-xl font-black text-blue-400">24 Active</p></div>
-                <div className="bg-[#080b12] p-4 rounded-2xl border border-slate-800"><span className="text-slate-400">Pending Payout</span><p className="text-xl font-black text-amber-400">₹8,500</p></div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Monthly Recurring Revenue (MRR)</span>
+                  <p className="text-2xl font-black text-emerald-400">₹45,900</p>
+                  <span className="text-[10px] text-emerald-500 font-bold block">+18.4% पिछले महीने से अधिक</span>
+                </div>
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Active SaaS Clients</span>
+                  <p className="text-2xl font-black text-blue-400">24 Paid</p>
+                  <span className="text-[10px] text-blue-400 font-bold block">100% Renewal Rate</span>
+                </div>
+                <div className="bg-[#080b12] border border-slate-800 p-4 rounded-2xl space-y-1">
+                  <span className="text-slate-400 text-[11px]">Pending Settlements</span>
+                  <p className="text-2xl font-black text-amber-400">₹8,500</p>
+                  <span className="text-[10px] text-amber-400 font-bold block">Next payout in 24 hrs</span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <span className="font-bold text-white text-xs uppercase tracking-wider block mb-3">Active SaaS Subscription Tiers</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { name: 'Starter Growth Plan', price: '₹1,999 / mo', clients: '8 Clients', status: 'Active' },
+                    { name: 'Pro AI Automation Plan', price: '₹4,999 / mo', clients: '12 Clients', status: 'Popular' },
+                    { name: 'Enterprise Multi-Store', price: '₹9,999 / mo', clients: '4 Clients', status: 'VIP' }
+                  ].map((plan, idx) => (
+                    <div key={idx} className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2.5">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-white text-xs">{plan.name}</span>
+                        <span className="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded-full font-bold">{plan.status}</span>
+                      </div>
+                      <p className="text-lg font-black text-emerald-400">{plan.price}</p>
+                      <p className="text-[11px] text-slate-400">{plan.clients} subscribed</p>
+                      <button onClick={() => alert(`${plan.name} चे इनव्हॉइस PDF डाउनलोड होत आहे...`)} className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold text-[10px] cursor-pointer">
+                        Download Invoices (PDF)
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* RESTORED FULL FEATURED SOCIAL MEDIA AUTO-POST */}
         {activeTab === 'social' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm">SOCIAL MEDIA AUTO-POSTER & PUBLISHER</h3>
-              <textarea rows={4} value={socialPostText} onChange={(e) => setSocialPostText(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-2xl p-3 text-white outline-none" />
-              <div className="flex gap-4">
-                <label className="flex items-center gap-1.5"><input type="checkbox" checked={selectedPlatforms.facebook} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, facebook: e.target.checked})} /> Facebook</label>
-                <label className="flex items-center gap-1.5"><input type="checkbox" checked={selectedPlatforms.instagram} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, instagram: e.target.checked})} /> Instagram</label>
-                <label className="flex items-center gap-1.5"><input type="checkbox" checked={selectedPlatforms.whatsappStatus} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, whatsappStatus: e.target.checked})} /> WhatsApp Status</label>
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600/25 border border-blue-500/35 text-blue-400 flex items-center justify-center font-bold">
+                    <Share2 size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">SOCIAL MEDIA AUTO-POSTER & PUBLISHER</h3>
+                    <p className="text-[11px] text-slate-400">फेसबुक, इन्स्टाग्राम आणि व्हॉट्सॲप स्टेटसवर एकाच क्लिकवर जाहिरात पोस्ट करा.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] bg-blue-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Meta Graph API Ready</span>
               </div>
-              <button onClick={() => alert('फेसबुक, इन्स्टाग्राम आणि WhatsApp स्टेटसवर पोस्ट पब्लिश झाली!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Publish Post Now</button>
+
+              <div className="space-y-2">
+                <label className="text-slate-300 block font-bold">Social Media Post Caption & Offer Text</label>
+                <textarea 
+                  rows={4} 
+                  value={socialPostText} 
+                  onChange={(e) => setSocialPostText(e.target.value)} 
+                  className="w-full bg-[#080b12] border border-slate-700 rounded-2xl p-3 text-white outline-none focus:border-blue-500 resize-none leading-relaxed text-xs" 
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <span className="font-bold text-white block">Select Platforms</span>
+                  <div className="space-y-2 pt-1">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+                      <input type="checkbox" checked={selectedPlatforms.facebook} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, facebook: e.target.checked})} className="w-4 h-4 accent-blue-600" /> Facebook Page & Groups
+                    </label>
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+                      <input type="checkbox" checked={selectedPlatforms.instagram} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, instagram: e.target.checked})} className="w-4 h-4 accent-pink-600" /> Instagram Business Feed
+                    </label>
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+                      <input type="checkbox" checked={selectedPlatforms.whatsappStatus} onChange={(e) => setSelectedPlatforms({...selectedPlatforms, whatsappStatus: e.target.checked})} className="w-4 h-4 accent-emerald-600" /> WhatsApp Business Status
+                    </label>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
+                  <span className="font-bold text-white block">Publish Timing</span>
+                  <select value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
+                    <option value="Immediate (Now)">Immediate (Now)</option>
+                    <option value="Schedule for Tomorrow Morning">Schedule for Tomorrow Morning (9:00 AM)</option>
+                    <option value="Schedule for Evening Prime Time">Schedule for Evening Prime Time (7:00 PM)</option>
+                  </select>
+                  <p className="text-[10px] text-slate-400 mt-2">निवडलेल्या प्लॅटफॉर्मवर स्वयंचलितपणे पोस्ट लाईव्ह होईल.</p>
+                </div>
+
+                <div className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl flex flex-col justify-between">
+                  <div>
+                    <span className="font-bold text-white block mb-1">Media Attachment</span>
+                    <p className="text-[10px] text-slate-400">आपल्या प्रॉडक्टचा फोटो किंवा बॅनर जोडा.</p>
+                  </div>
+                  <button onClick={() => alert('बॅनर फाईल निवडली गेली!')} className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                    <ImageIcon size={14} /> Upload Banner Image
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => {
+                  alert('🎉 सोशल मीडिया पोस्ट यशस्वीरीत्या सर्व निवडलेल्या प्लॅटफॉर्म्सवर पब्लिश झाली!');
+                }} 
+                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Share2 size={16} /> Publish Post to All Social Channels Now
+              </button>
             </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
           <div className="max-w-4xl mx-auto w-full space-y-6 text-xs">
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-white uppercase text-xs flex items-center gap-2"><Settings size={16} className="text-blue-400" /> Client Multi-Tenant Settings (UPI, WhatsApp & Meta API)</h3>
+              <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Dynamic Isolated</span>
+            </div>
             <form onSubmit={handleSaveClientSettings} className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-              <div><label className="text-slate-300 font-bold block mb-1">Business Name</label><input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
-              <div><label className="text-slate-300 font-bold block mb-1">UPI ID</label><input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
-              <div><label className="text-slate-300 font-bold block mb-1">Razorpay Key</label><input type="text" value={clientSettings.razorpayKey} onChange={(e) => setClientSettings({...clientSettings, razorpayKey: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
-              <button type="submit" disabled={savingSettings} className="py-3 px-6 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save Settings</button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label className="text-slate-300 font-bold block mb-1">Business Name</label><input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
+                <div><label className="text-slate-300 font-bold block mb-1">UPI ID</label><input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label className="text-slate-300 font-bold block mb-1">WhatsApp Phone Number</label><input type="text" value={clientSettings.whatsappNumber} onChange={(e) => setClientSettings({...clientSettings, whatsappNumber: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+                <div><label className="text-slate-300 font-bold block mb-1">Razorpay Live Key</label><input type="text" value={clientSettings.razorpayKey} onChange={(e) => setClientSettings({...clientSettings, razorpayKey: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+              </div>
+              <button type="submit" disabled={savingSettings} className="py-3 px-6 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center gap-2">
+                {savingSettings && <Loader2 size={16} className="animate-spin" />} Save Settings
+              </button>
             </form>
           </div>
         )}
@@ -1351,7 +1670,7 @@ export default function DashboardPage() {
               <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Lead'}</h3>
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
-                <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
+                <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
                 <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg">{editingLead ? 'अपडेट करा' : 'सेव्ह करा'}</button>
               </form>
             </div>
@@ -1364,7 +1683,7 @@ export default function DashboardPage() {
               <h3 className="font-black text-white text-base">Book Appointment</h3>
               <form onSubmit={handleBookSlot} className="space-y-3.5">
                 <input type="text" required value={newSlot.clientName} onChange={(e) => setNewSlot({ ...newSlot, clientName: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
-                <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
+                <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
                 <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl">बुक करा</button>
               </form>
             </div>
