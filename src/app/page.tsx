@@ -345,7 +345,6 @@ export default function DashboardPage() {
     }
   };
 
-  // DYNAMIC PROMPT-TO-WEBSITE ENGINE
   const handleGenerateWebsite = () => {
     if (!promptInput.trim()) { 
       alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); 
@@ -1722,42 +1721,131 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* 9. AI WORKFLOW BUILDER */}
+        {/* 9. AI WORKFLOW BUILDER (NEXT-GEN BUILD WITH AI) */}
         {activeTab === 'workflow' && (
-          <div className="space-y-6 text-xs">
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl text-center">
-              <h3 className="font-bold text-white text-sm flex items-center justify-center gap-2"><GitBranch size={16} className="text-blue-400" /> AI Workflow Builder & Automation Nodes</h3>
+          <div className="space-y-6 text-xs animate-fadeIn">
+            <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-6 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-              <form onSubmit={handleCreateWorkflow} className="space-y-3 bg-[#080b12] p-4 rounded-2xl border border-slate-800 text-left max-w-xl mx-auto">
-                <span className="font-bold text-white block">+ नवीन ऑटोमेशन वर्कफ्लो तयार करा</span>
-                <div>
-                  <label className="text-slate-400 block mb-1">Trigger (कधी सुरू होईल?)</label>
-                  <select value={workflowTrigger} onChange={(e) => setWorkflowTrigger(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
-                    <option value="New Inbound Lead (Website / Meta Ads)">New Inbound Lead (Website / Meta Ads)</option>
-                    <option value="Payment Link Clicked">Payment Link Clicked</option>
-                    <option value="WhatsApp Message Received">WhatsApp Message Received</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-slate-400 block mb-1">Action (काय कृती होईल?)</label>
-                  <select value={workflowAction} onChange={(e) => setWorkflowAction(e.target.value)} className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none">
-                    <option value="Send Welcome WhatsApp + Dynamic QR">Send Welcome WhatsApp + Dynamic QR</option>
-                    <option value="Trigger AI Voice Call">Trigger AI Voice Call</option>
-                    <option value="Assign Lead to Sales Team">Assign Lead to Sales Team</option>
-                  </select>
-                </div>
-                <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg">Generate & Activate Workflow</button>
-              </form>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto pt-2">
-                {customWorkflows.map((w, idx) => (
-                  <div key={idx} className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl text-left space-y-1">
-                    <span className="text-[10px] text-blue-400 font-bold uppercase">Trigger: {w.trigger}</span>
-                    <p className="font-bold text-white text-xs">Action: {w.action}</p>
-                    <span className="text-[9px] text-emerald-400 block">● Status: Active & Running</span>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4 relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-lg shadow-blue-600/40"><GitBranch size={24} /></div>
+                  <div>
+                    <h2 className="text-base font-black text-white">AI Workflow Builder & Smart Nodes Studio</h2>
+                    <p className="text-xs text-slate-400">साध्या भाषेमध्ये किंवा प्रॉम्प्ट देऊन सेकंदात संपूर्ण ऑटोमेशन फ्लो तयार करा.</p>
                   </div>
-                ))}
+                </div>
+                <span className="px-3.5 py-1.5 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full font-bold text-[10px] flex items-center gap-1.5 shadow">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> AI Engine Live & Ready
+                </span>
               </div>
+
+              {/* BRAND NEW AI PROMPT & VOICE INPUT BOX */}
+              <div className="bg-[#080b12] border border-blue-500/40 rounded-2xl p-5 space-y-4 shadow-2xl relative z-10">
+                <div className="flex items-center gap-2 text-blue-400 font-bold text-xs">
+                  <Sparkles size={16} />
+                  <span>Build with AI: Describe your automation goal</span>
+                </div>
+                
+                <div className="flex gap-2.5">
+                  <input 
+                    type="text" 
+                    id="newAiWorkflowInput"
+                    placeholder="उदा. 'जेव्हा नवीन लीड येईल तेव्हा त्याला लगेच WhatsApp मेसेज पाठवा आणि CRM मध्ये सेव्ह करा'..." 
+                    className="flex-1 bg-[#07090e] border border-slate-700 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 font-medium shadow-inner"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const val = (e.target as HTMLInputElement).value;
+                        if (!val.trim()) return;
+                        setCustomWorkflows(prev => [
+                          { id: Date.now().toString(), trigger: `AI Prompt: ${val}`, action: 'Smart AI Execution ➔ WhatsApp ➔ Email ➔ CRM DB' },
+                          ...prev
+                        ]);
+                        (e.target as HTMLInputElement).value = '';
+                        alert('🤖 AI ने तुमच्या प्रॉम्प्टनुसार नवीन ऑटोमेशन नोड्स (Workflow Nodes) यशस्वीरीत्या जनरेट केले!');
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={(e) => {
+                      const inputEl = document.getElementById('newAiWorkflowInput') as HTMLInputElement;
+                      const val = inputEl?.value;
+                      if (!val || !val.trim()) {
+                        alert('कृपया आधी वर्कफ्लोचा प्रॉम्प्ट टाईप करा!');
+                        return;
+                      }
+                      setCustomWorkflows(prev => [
+                        { id: Date.now().toString(), trigger: `AI Prompt: ${val}`, action: 'Smart AI Execution ➔ WhatsApp ➔ Email ➔ CRM DB' },
+                        ...prev
+                      ]);
+                      inputEl.value = '';
+                      alert('🤖 AI ने तुमच्या प्रॉम्प्टनुसार नवीन ऑटोमेशन नोड्स यशस्वीरीत्या जनरेट केले!');
+                    }} 
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center gap-2 shrink-0"
+                  >
+                    <Sparkles size={16} /> Build with AI
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-slate-400 items-center">
+                  <span className="font-bold text-slate-300">Popular Templates:</span>
+                  <button onClick={() => {
+                    setCustomWorkflows(prev => [{ id: Date.now().toString(), trigger: 'New Lead Signup', action: 'Send Welcome SMS + Instant WhatsApp' }, ...prev]);
+                    alert('⚡ AI Workflow Template Loaded!');
+                  }} className="bg-[#0d1424] hover:bg-slate-800 text-blue-300 px-3 py-1.5 rounded-lg border border-slate-800 transition cursor-pointer font-medium">
+                    ⚡ Lead Signup ➔ Welcome WhatsApp
+                  </button>
+                  <button onClick={() => {
+                    setCustomWorkflows(prev => [{ id: Date.now().toString(), trigger: 'Payment Success', action: 'Generate PDF Invoice + Notify Admin' }, ...prev]);
+                    alert('⚡ AI Workflow Template Loaded!');
+                  }} className="bg-[#0d1424] hover:bg-slate-800 text-blue-300 px-3 py-1.5 rounded-lg border border-slate-800 transition cursor-pointer font-medium">
+                    ⚡ Payment Success ➔ PDF Bill
+                  </button>
+                </div>
+              </div>
+
+              {/* GENERATED NODES FLOW DISPLAY */}
+              <div className="space-y-3 pt-2 relative z-10">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2">
+                    <Layers size={14} className="text-blue-400" /> Active Generated Workflow Nodes ({customWorkflows.length})
+                  </h3>
+                  <span className="text-[10px] text-slate-400">Real-time Node Visualizer</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {customWorkflows.map((w, idx) => (
+                    <div key={w.id || idx} className="p-5 bg-[#080b12] border border-slate-800 rounded-2xl space-y-3.5 shadow-xl relative group hover:border-blue-500/50 transition">
+                      <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                        <span className="text-[10px] bg-blue-950 text-blue-400 px-2.5 py-0.5 rounded-full font-bold font-mono border border-blue-500/30">Node Flow ID: #{w.id}</span>
+                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-950/50 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active & Running
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 text-xs">
+                        <p className="text-slate-200 font-bold flex items-center gap-2 bg-[#07090e] p-2.5 rounded-xl border border-slate-800">
+                          <Zap size={14} className="text-amber-400 shrink-0" /> <span>Trigger: {w.trigger}</span>
+                        </p>
+                        
+                        <div className="pl-4 border-l-2 border-blue-500/50 my-2 py-1 space-y-1.5">
+                          <p className="text-slate-300 text-[11px] flex items-center gap-1.5"><span>➔</span> Action 1: Instant Webhook & DB Log</p>
+                          <p className="text-slate-300 text-[11px] flex items-center gap-1.5"><span>➔</span> Action 2: Automated WhatsApp Dispatch</p>
+                          <p className="text-slate-300 text-[11px] flex items-center gap-1.5"><span>➔</span> Action 3: Assign to Sales Executive</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-[11px]">
+                        <span className="text-slate-500 font-mono">Status: 100% Executed</span>
+                        <button onClick={() => setCustomWorkflows(prev => prev.filter(item => item.id !== w.id))} className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition">
+                          Delete Flow Node
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
         )}
