@@ -542,7 +542,7 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  const [aiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
+  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
 
   const handleTriggerIvrCall = (lead: Lead) => {
@@ -622,7 +622,7 @@ export default function DashboardPage() {
       const imported: Lead[] = [];
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(',').map(p => p.replace(/"/g, '').trim());
-        if (parts.length >= 2 && parts) {
+        if (parts.length >= 2) {
           imported.push({ 
             id: Date.now().toString() + i, 
             name: String(parts || 'Lead'), 
