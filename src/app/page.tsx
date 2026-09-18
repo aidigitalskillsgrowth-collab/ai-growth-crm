@@ -312,6 +312,7 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [tempDomainInput, setTempDomainInput] = useState<string>('');
+  const [aiVoiceScript, setAiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
 
   const toggleVoiceRecording = () => {
     if (typeof window === 'undefined') return;
@@ -542,7 +543,6 @@ export default function DashboardPage() {
     setInboxText('');
   };
 
-  const [aiVoiceScript] = useState<string>('नमस्कार, मी रवी पाटील यांच्याकडून AI असिस्टंट बोलत आहे. आपल्या चौकशीबद्दल धन्यवाद.');
   const [callingStatus, setCallingStatus] = useState<Record<string, 'Idle' | 'Calling' | 'Connected' | 'Completed'>>({});
 
   const handleTriggerIvrCall = (lead: Lead) => {
@@ -623,7 +623,7 @@ export default function DashboardPage() {
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(',').map(p => p.replace(/"/g, '').trim());
         if (parts.length >= 2 && parts) {
-          imported.push({ id: Date.now().toString() + i, name: parts, phone: parts || '9876543210', service: parts || 'Service', deal_value: Number(parts[4]) || 2000, status: parts[5] || 'New Lead', source: parts[6] || 'CSV', sentiment: 'Interested', created_at: 'Imported' });
+          imported.push({ id: Date.now().toString() + i, name: parts, phone: parts || '9876543210', service: parts || 'Service', deal_value: Number(parts) || 2000, status: parts || 'New Lead', source: parts || 'CSV', sentiment: 'Interested', created_at: 'Imported' });
         }
       }
       if (imported.length > 0) { setLeads(prev => [...imported, ...prev]); alert(`${imported.length} कॉन्टॅक्ट्स आयात झाले!`); }
@@ -1670,7 +1670,7 @@ export default function DashboardPage() {
               <h3 className="font-black text-white text-base">{editingLead ? 'Edit Lead' : '+ Add New Lead'}</h3>
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
-                <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                 <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg">{editingLead ? 'अपडेट करा' : 'सेव्ह करा'}</button>
               </form>
             </div>
@@ -1683,7 +1683,7 @@ export default function DashboardPage() {
               <h3 className="font-black text-white text-base">Book Appointment</h3>
               <form onSubmit={handleBookSlot} className="space-y-3.5">
                 <input type="text" required value={newSlot.clientName} onChange={(e) => setNewSlot({ ...newSlot, clientName: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
-                <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" />
+                <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
                 <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl">बुक करा</button>
               </form>
             </div>
