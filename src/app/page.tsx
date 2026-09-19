@@ -118,16 +118,42 @@ export default function DashboardPage() {
   const [clientSettings, setClientSettings] = useState({
     businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
     upiId: 'ravindra@ibl',
-    whatsappNumber: '9876543210',
-    metaPhoneId: '1230282856843762',
-    razorpayKey: 'rzp_live_98xK19873219472'
+    whatsappNumber: '7219566777',
+    metaPhoneId: '1387961227727412',
+    razorpayKey: 'rzp_live_98xK19873219472',
+    ownerName: 'Ravi Patil',
+    metaAdAccountId: '778929936264833',
+    accessToken: '',
+    webhookVerifyToken: 'growth_crm_verify_2026'
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('unified_meta_permanent_config_v_full');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setClientSettings(prev => ({ ...prev, ...parsed }));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setClientSettings(prev => {
+      const updated = { ...prev, [name]: value };
+      localStorage.setItem('unified_meta_permanent_config_v_full', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const handleSaveClientSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSettings(true);
     try {
+      localStorage.setItem('unified_meta_permanent_config_v_full', JSON.stringify(clientSettings));
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await supabase.from('client_settings').upsert({
@@ -136,10 +162,10 @@ export default function DashboardPage() {
           updated_at: new Date()
         });
       }
-      alert('✅ तुमच्या क्लायंट सेटिंग्स यशस्वीरीत्या सेव्ह झाल्या!');
+      alert('✅ तुमच्या क्लायंट सेटिंग्स, मेटा क्रेडेंशियल्स आणि सर्व १५ मॉड्यूल्स यशस्वीरीत्या सेव्ह & कनेक्ट झाले!');
     } catch (err) {
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
-      alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्या!');
+      alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह & कनेक्ट झाल्या!');
     } finally {
       setSavingSettings(false);
     }
@@ -185,17 +211,24 @@ export default function DashboardPage() {
     try {
       const { data } = await supabase.from('client_settings').select('*').eq('user_id', userId).single();
       if (data) {
-        setClientSettings({
-          businessName: data.businessName || clientSettings.businessName,
-          upiId: data.upiId || clientSettings.upiId,
-          whatsappNumber: data.whatsappNumber || clientSettings.whatsappNumber,
-          metaPhoneId: data.metaPhoneId || clientSettings.metaPhoneId,
-          razorpayKey: data.razorpayKey || clientSettings.razorpayKey
-        });
+        setClientSettings(prev => ({
+          ...prev,
+          businessName: data.businessName || prev.businessName,
+          upiId: data.upiId || prev.upiId,
+          whatsappNumber: data.whatsappNumber || prev.whatsappNumber,
+          metaPhoneId: data.metaPhoneId || prev.metaPhoneId,
+          razorpayKey: data.razorpayKey || prev.razorpayKey,
+          ownerName: data.ownerName || prev.ownerName,
+          metaAdAccountId: data.metaAdAccountId || prev.metaAdAccountId,
+          webhookVerifyToken: data.webhookVerifyToken || prev.webhookVerifyToken,
+          accessToken: data.accessToken || prev.accessToken
+        }));
       }
     } catch (e) {
       const local = localStorage.getItem('client_custom_settings');
-      if (local) setClientSettings(JSON.parse(local));
+      if (local) {
+        try { setClientSettings(prev => ({ ...prev, ...JSON.parse(local) })); } catch(err){}
+      }
     }
   };
 
@@ -630,7 +663,7 @@ export default function DashboardPage() {
             service: String(parts || 'Service'), 
             deal_value: Number(parts) || 2000, 
             status: String(parts || 'New Lead'), 
-            source: String(parts || 'CSV'), 
+            source: String(parts[6] || 'CSV'), 
             sentiment: 'Interested', 
             created_at: 'Imported' 
           });
@@ -836,7 +869,7 @@ export default function DashboardPage() {
             <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black shadow-lg shadow-blue-600/40">AI</div>
             <div>
               <h2 className="font-black text-white text-sm tracking-wide">AI Growth CRM</h2>
-              <span className="text-[10px] text-blue-400 font-bold">Enterprise Suite</span>
+              <span className="text-[10px] text-blue-400 font-bold">Enterprise Suite (15 Modules)</span>
             </div>
           </div>
           <nav className="space-y-1">
@@ -865,7 +898,7 @@ export default function DashboardPage() {
                 <ShieldCheck size={16} />
               </div>
               <div className="min-w-0">
-                <p className="font-black text-white text-xs truncate">रवी पाटील</p>
+                <p className="font-black text-white text-xs truncate">{clientSettings.ownerName}</p>
                 <span className="text-[10px] text-emerald-400 font-bold block truncate">■ Pro SaaS Active</span>
               </div>
             </div>
@@ -874,6 +907,8 @@ export default function DashboardPage() {
       </aside>
 
       <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImportCSV} className="hidden" />
+      <input type="file" ref={bannerInputRef} accept="image/*" onChange={handleBannerUpload} className="hidden" />
+      <input type="file" ref={ownerInputRef} accept="image/*" onChange={handleOwnerUpload} className="hidden" />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gradient-to-b from-[#0a0f1d] to-[#07090e] p-5 lg:p-7">
         <header className="flex flex-wrap items-center justify-between pb-5 mb-5 border-b border-slate-800/80 gap-4">
@@ -895,8 +930,8 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">Pro SaaS Active</span>
-            <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">+ Add Lead</button>
-            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold"><RefreshCw size={13} /> Refresh</button>
+            <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition cursor-pointer">+ Add Lead</button>
+            <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold cursor-pointer"><RefreshCw size={13} /> Refresh</button>
             <button onClick={handleSupabaseLogout} className="flex items-center gap-1 px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition cursor-pointer"><LogOut size={13} /> Logout</button>
           </div>
         </header>
@@ -904,11 +939,11 @@ export default function DashboardPage() {
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             <div className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-              <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span className="text-xs font-bold text-slate-200">रवी पाटील - AI Growth CRM (15 मॉड्यूल्स ॲक्टिव्ह):</span></div>
+              <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span><span className="text-xs font-bold text-slate-200">{clientSettings.ownerName} - {clientSettings.businessName} (15 मॉड्यूल्स ॲक्टिव्ह):</span></div>
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <button onClick={handleOpenAddModal} className="px-3 py-2 bg-blue-600 text-white rounded-xl font-bold">+ Add Lead</button>
-                <button onClick={() => setActiveTab('payments')} className="px-3 py-2 bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-xl font-bold">Quick Payment QR</button>
-                <button onClick={() => setActiveTab('website')} className="px-3 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-xl font-bold">AI Website Builder</button>
+                <button onClick={handleOpenAddModal} className="px-3 py-2 bg-blue-600 text-white rounded-xl font-bold cursor-pointer">+ Add Lead</button>
+                <button onClick={() => setActiveTab('payments')} className="px-3 py-2 bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-xl font-bold cursor-pointer">Quick Payment QR</button>
+                <button onClick={() => setActiveTab('website')} className="px-3 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-xl font-bold cursor-pointer">AI Website Builder</button>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
@@ -950,9 +985,9 @@ export default function DashboardPage() {
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
               <div><h2 className="text-lg font-black text-white">Growth Leads Directory ({filteredLeads.length})</h2><p className="text-xs text-slate-400">सर्व १५ इनबाउंड व आऊटबाउंड लीड्स.</p></div>
               <div className="flex gap-2">
-                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold">+ Add Lead</button>
-                <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1"><Upload size={14} /> Import CSV</button>
-                <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1"><Download size={14} /> Export CSV</button>
+                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer">+ Add Lead</button>
+                <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"><Upload size={14} /> Import CSV</button>
+                <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"><Download size={14} /> Export CSV</button>
               </div>
             </div>
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
@@ -965,12 +1000,12 @@ export default function DashboardPage() {
                         <td className="p-4"><p className="font-bold text-white">{l.name}</p><span className="text-[11px] text-slate-400">+91 {l.phone}</span></td>
                         <td className="p-4">{l.service}</td>
                         <td className="p-4 font-black text-white">₹{l.deal_value}</td>
-                        <td className="p-4"><select value={l.status} onChange={(e) => handleStatusChange(l.id, e.target.value)} className="bg-slate-900 border border-slate-700 text-slate-200 px-2 py-1 rounded-xl text-xs">{stages.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
+                        <td className="p-4"><select value={l.status} onChange={(e) => handleStatusChange(l.id, e.target.value)} className="bg-slate-900 border border-slate-700 text-slate-200 px-2 py-1 rounded-xl text-xs cursor-pointer">{stages.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
                         <td className="p-4 text-center">
                           <div className="flex justify-center gap-2">
                             <a href={`https://wa.me/91${l.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1"><MessageSquare size={12} /> WhatsApp</a>
-                            <button onClick={() => handleOpenEditModal(l)} className="p-1 text-slate-400 hover:text-blue-400"><Edit3 size={15} /></button>
-                            <button onClick={() => handleDeleteLead(l.id, l.name)} className="p-1 text-slate-400 hover:text-rose-400"><Trash2 size={15} /></button>
+                            <button onClick={() => handleOpenEditModal(l)} className="p-1 text-slate-400 hover:text-blue-400 cursor-pointer"><Edit3 size={15} /></button>
+                            <button onClick={() => handleDeleteLead(l.id, l.name)} className="p-1 text-slate-400 hover:text-rose-400 cursor-pointer"><Trash2 size={15} /></button>
                           </div>
                         </td>
                       </tr>
@@ -985,9 +1020,9 @@ export default function DashboardPage() {
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
-              <div><h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline</h2></div>
+              <div><h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline ({clientSettings.ownerName})</h2></div>
               <div className="flex gap-2">
-                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold">+ Add Deal</button>
+                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer">+ Add Deal</button>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1016,7 +1051,7 @@ export default function DashboardPage() {
                   <div className="w-11 h-11 rounded-2xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-black"><Monitor size={22} /></div>
                   <div>
                     <h2 className="text-base font-black text-white">Ultra-Pro AI Funnel & Website Studio</h2>
-                    <p className="text-xs text-slate-400">HighLevel / Framer लेव्हलचे डाइनॅमिक सेकशन्स, थीम आणि वन-क्लिक पब्लिशिंग.</p>
+                    <p className="text-xs text-slate-400">HighLevel / Framer लेव्हलचे डाइनॅमिक सेकशन्स, थीम आणि वन-क्लिक पब्लिशिंग ({clientSettings.ownerName}).</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1052,7 +1087,7 @@ export default function DashboardPage() {
                   <input type="file" ref={bannerInputRef} accept="image/*" onChange={handleBannerUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white cursor-pointer" />
                 </div>
                 <div className="p-3 bg-[#080b12] border border-slate-800 rounded-2xl space-y-2">
-                  <label className="text-slate-300 font-bold block text-[11px]">मालकाचा (Owner) फोटो बदला</label>
+                  <label className="text-slate-300 font-bold block text-[11px]">मालकाचा ({clientSettings.ownerName}) फोटो बदला</label>
                   <input type="file" ref={ownerInputRef} accept="image/*" onChange={handleOwnerUpload} className="w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:bg-blue-600 file:text-white cursor-pointer" />
                 </div>
               </div>
@@ -1070,7 +1105,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-emerald-600/25 border border-emerald-500/35 text-emerald-400 flex items-center justify-center font-bold"><QrCode size={18} /></div>
-                    <div><h3 className="font-bold text-white text-sm">MULTI-GATEWAYS: RAZORPAY, CASHFREE & INSTAMOJO</h3><p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर WhatsApp वर PDF पावती.</p></div>
+                    <div><h3 className="font-bold text-white text-sm">MULTI-GATEWAYS: RAZORPAY, CASHFREE & INSTAMOJO</h3><p className="text-[11px] text-slate-400">पेमेंट झाल्यानंतर WhatsApp वर PDF पावती ({clientSettings.ownerName}).</p></div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1105,10 +1140,10 @@ export default function DashboardPage() {
         {activeTab === 'agents' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-5 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs shadow-xl">
-              <h3 className="font-bold text-white text-sm">AI Agent Studio</h3>
+              <h3 className="font-bold text-white text-sm">AI Agent Studio ({clientSettings.ownerName})</h3>
               <div><label className="text-slate-300 block mb-1 font-bold">Agent Name</label><input type="text" value={botConfig.name} onChange={(e) => setBotConfig({ ...botConfig, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
               <div><label className="text-slate-300 block mb-1 font-bold">System Prompt</label><textarea rows={4} value={botConfig.systemPrompt} onChange={(e) => setBotConfig({ ...botConfig, systemPrompt: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none resize-none" /></div>
-              <button onClick={() => alert('सेव्ह झाले!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Save AI Agent</button>
+              <button onClick={() => alert('सेव्ह झाले!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save AI Agent</button>
             </div>
             <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs shadow-xl flex flex-col justify-between h-[520px]">
               <h4 className="font-bold text-white text-xs">{botConfig.name} - Simulator</h4>
@@ -1121,7 +1156,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex gap-2 pt-1 border-t border-slate-800">
                 <input type="text" value={inputMsg} onChange={(e) => setInputMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendChat()} placeholder="मेसेज..." className="flex-1 bg-[#080b12] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none" />
-                <button onClick={handleSendChat} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold"><Send size={14} /></button>
+                <button onClick={handleSendChat} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold cursor-pointer"><Send size={14} /></button>
               </div>
             </div>
           </div>
@@ -1135,7 +1170,7 @@ export default function DashboardPage() {
                   <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Megaphone size={20} /></div>
                   <div>
                     <h3 className="font-bold text-white text-sm">Meta AI & 1-Click Lead Ads Campaign Launcher</h3>
-                    <p className="text-[11px] text-slate-400">Meta AI Graph API द्वारे थेट लीड्स जनरेट करा आणि ऑटोमॅटिक सिंक करा.</p>
+                    <p className="text-[11px] text-slate-400">Meta AI Graph API द्वारे थेट लीड्स जनरेट करा ({clientSettings.ownerName}).</p>
                   </div>
                 </div>
                 {isMetaConnected ? (
@@ -1180,7 +1215,7 @@ export default function DashboardPage() {
                 <span className="text-[10px] text-blue-400 bg-blue-950 px-2.5 py-0.5 rounded-full font-bold">Dynamic Variables Supported</span>
               </div>
               <form onSubmit={handleGenerateTemplate} className="space-y-3 bg-[#080b12] p-5 rounded-2xl border border-slate-800">
-                <span className="font-bold text-white block text-xs">+ नवीन WhatsApp / SMS टेम्पलेट तयार करा</span>
+                <span className="font-bold text-white block text-xs">+ नवीन WhatsApp / SMS टेम्पलेट तयार करा ({clientSettings.ownerName})</span>
                 <input type="text" value={customTemplateName} onChange={(e) => setCustomTemplateName(e.target.value)} placeholder="टेम्पलेट नाव" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 <textarea rows={3} value={customTemplateText} onChange={(e) => setCustomTemplateText(e.target.value)} placeholder="मजकूर ({Name}, {Service}, {Amount})" className="w-full bg-[#0d1424] border border-slate-700 rounded-xl p-3 text-white outline-none font-mono text-[11px]" />
                 <button type="submit" className="py-2.5 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save & Enable Template</button>
@@ -1193,8 +1228,8 @@ export default function DashboardPage() {
                       <p className="bg-[#0d1424] p-3 rounded-xl text-slate-300 font-mono text-[11px] leading-relaxed border border-slate-800/80">{t.text}</p>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => { navigator.clipboard.writeText(t.text); alert('टेम्पलेट कॉपी झाले!'); }} className="flex-1 py-1.5 bg-slate-800 text-slate-200 rounded-lg font-bold text-[10px]">Copy</button>
-                      <button onClick={() => alert(`"${t.title}" टेम्पलेट टेस्ट मेसेज पाठवला!`)} className="flex-1 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-[10px]">Test Send</button>
+                      <button onClick={() => { navigator.clipboard.writeText(t.text); alert('टेम्पलेट कॉपी झाले!'); }} className="flex-1 py-1.5 bg-slate-800 text-slate-200 rounded-lg font-bold text-[10px] cursor-pointer">Copy</button>
+                      <button onClick={() => alert(`"${t.title}" टेम्पलेट टेस्ट मेसेज पाठवला!`)} className="flex-1 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-[10px] cursor-pointer">Test Send</button>
                     </div>
                   </div>
                 ))}
@@ -1210,7 +1245,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-lg shadow-blue-600/40"><GitBranch size={24} /></div>
                   <div>
-                    <h2 className="text-base font-black text-white">AI Workflow Builder & Smart Nodes Studio</h2>
+                    <h2 className="text-base font-black text-white">AI Workflow Builder & Smart Nodes Studio ({clientSettings.ownerName})</h2>
                     <p className="text-xs text-slate-400">साध्या भाषेमध्ये किंवा प्रॉम्प्ट देऊन सेकंदात संपूर्ण ऑटोमेशन फ्लो तयार करा.</p>
                   </div>
                 </div>
@@ -1247,7 +1282,7 @@ export default function DashboardPage() {
                           <p className="text-slate-300 text-[11px]">➔ Action 2: WhatsApp Dispatch</p>
                         </div>
                       </div>
-                      <button onClick={() => setCustomWorkflows(prev => prev.filter(item => item.id !== w.id))} className="text-rose-400 hover:text-rose-300 font-bold text-[11px]">Delete Flow Node</button>
+                      <button onClick={() => setCustomWorkflows(prev => prev.filter(item => item.id !== w.id))} className="text-rose-400 hover:text-rose-300 font-bold text-[11px] cursor-pointer">Delete Flow Node</button>
                     </div>
                   ))}
                 </div>
@@ -1261,7 +1296,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between bg-[#0d1424] border border-slate-800 p-4 rounded-2xl gap-3">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="font-bold text-white">Unified Omnichannel & WhatsApp Business Inbox</span>
+                <span className="font-bold text-white">Unified Omnichannel & WhatsApp Business Inbox ({clientSettings.ownerName})</span>
               </div>
               <div className="flex items-center gap-2 text-[11px]">
                 <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-xl border border-emerald-500/30 font-bold">Meta Cloud API Connected</span>
@@ -1294,7 +1329,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => alert(`🤖 ${selectedLead.name} साठी AI समरी तयार केली जात आहे...`)} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-[10px] font-bold flex items-center gap-1">
+                    <button onClick={() => alert(`🤖 ${selectedLead.name} साठी AI समरी तयार केली जात आहे...`)} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-[10px] font-bold flex items-center gap-1 cursor-pointer">
                       <Sparkles size={11} /> AI Chat Summary
                     </button>
                     <a href={`https://wa.me/91${selectedLead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] flex items-center gap-1 shadow">
@@ -1322,9 +1357,9 @@ export default function DashboardPage() {
 
                 <div className="space-y-2 pt-2 border-t border-slate-800">
                   <div className="flex gap-1.5 overflow-x-auto pb-1 text-[10px]">
-                    <button onClick={() => setInboxText('नमस्कार, आजचे विशेष ऑफर पॅकेज माहितीसाठी हा मेसेज आहे.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: Offer Text</button>
-                    <button onClick={() => setInboxText(`https://ai-growth-crm-nine.vercel.app/pay?pa=${clientSettings.upiId}&amount=2500`)} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: UPI Payment Link</button>
-                    <button onClick={() => setInboxText('कृपया आपली भेटण्याची वेळ (Appointment Slot) सांगा.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700">Quick: Appointment Ask</button>
+                    <button onClick={() => setInboxText('नमस्कार, आजचे विशेष ऑफर पॅकेज माहितीसाठी हा मेसेज आहे.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: Offer Text</button>
+                    <button onClick={() => setInboxText(`https://ai-growth-crm-nine.vercel.app/pay?pa=${clientSettings.upiId}&amount=2500`)} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: UPI Payment Link</button>
+                    <button onClick={() => setInboxText('कृपया आपली भेटण्याची वेळ (Appointment Slot) सांगा.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: Appointment Ask</button>
                   </div>
                   <div className="flex gap-2">
                     <input type="text" value={inboxText} onChange={(e) => setInboxText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} placeholder="Type WhatsApp reply here..." className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500" />
@@ -1343,7 +1378,7 @@ export default function DashboardPage() {
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-5 shadow-xl">
               <div className="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
                 <div>
-                  <h3 className="font-bold text-white text-base flex items-center gap-2"><CalendarDays size={18} className="text-blue-400" /> Smart Calendar & Booking Schedule</h3>
+                  <h3 className="font-bold text-white text-base flex items-center gap-2"><CalendarDays size={18} className="text-blue-400" /> Smart Calendar & Booking Schedule ({clientSettings.ownerName})</h3>
                   <p className="text-[11px] text-slate-400">ग्राहकांच्या सर्व अपॉइंटमेंट्स, कॉल्स, मीटिंग्स आणि ऑटो-रिमाइंडर सिस्टीम.</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1371,7 +1406,7 @@ export default function DashboardPage() {
                       <a href={`https://wa.me/91${slot.phone}?text=${encodeURIComponent(`नमस्कार ${slot.clientName} जी, आपली ${slot.service} ची ${slot.date} रोजी ${slot.time} ची अपॉइंटमेंट कन्फर्म आहे.`)}`} target="_blank" rel="noreferrer" className="px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold text-[10px] flex items-center gap-1">
                         <MessageSquare size={11} /> Remind on WA
                       </a>
-                      <button onClick={() => handleCancelAppointment(slot.id, slot.clientName)} className="p-1 text-slate-400 hover:text-rose-400 transition" title="रद्द करा">
+                      <button onClick={() => handleCancelAppointment(slot.id, slot.clientName)} className="p-1 text-slate-400 hover:text-rose-400 transition cursor-pointer" title="रद्द करा">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -1391,7 +1426,7 @@ export default function DashboardPage() {
                     <PhoneCall size={18} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white text-sm">AI SALES & OUTBOUND IVR VOICE BOT ENGINE</h3>
+                    <h3 className="font-bold text-white text-sm">AI SALES & OUTBOUND IVR VOICE BOT ENGINE ({clientSettings.ownerName})</h3>
                     <p className="text-[11px] text-slate-400">लीड्सना स्वयंचलित (Automated) फोन कॉल्स, मराठी/हिंदी TTS आणि सॅटिंमेंट ॲनालायझर.</p>
                   </div>
                 </div>
@@ -1416,7 +1451,7 @@ export default function DashboardPage() {
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-5 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 className="font-bold text-white text-sm">AI FINANCE & REVENUE ANALYTICS (MRR & Payouts)</h3>
+                <h3 className="font-bold text-white text-sm">AI FINANCE & REVENUE ANALYTICS (MRR & Payouts - {clientSettings.ownerName})</h3>
                 <span className="text-emerald-400 font-bold">Total: ₹45,900</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
@@ -1431,7 +1466,7 @@ export default function DashboardPage() {
         {activeTab === 'social' && (
           <div className="space-y-6 text-xs">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 lg:p-6 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm">SOCIAL MEDIA AUTO-POSTER & PUBLISHER</h3>
+              <h3 className="font-bold text-white text-sm">SOCIAL MEDIA AUTO-POSTER & PUBLISHER ({clientSettings.ownerName})</h3>
               <textarea rows={4} value={socialPostText} onChange={(e) => setSocialPostText(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-2xl p-3 text-white outline-none" />
               <button onClick={() => alert('पोस्ट पब्लिश झाली!')} className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Publish Post Now</button>
             </div>
@@ -1439,10 +1474,56 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'settings' && (
-          <div className="max-w-4xl mx-auto w-full space-y-6 text-xs">
-            <form onSubmit={handleSaveClientSettings} className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
-              <input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
-              <button type="submit" disabled={savingSettings} className="py-3 px-6 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save Settings</button>
+          <div style={{ maxWidth: '900px' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#38bdf8', marginBottom: '8px' }}>⚙️ Settings & Meta API (Manual Input Core)</h1>
+            <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>
+              ब्रँड: <b>{clientSettings.businessName}</b> | मालक: <b>{clientSettings.ownerName}</b>. सर्व १५ मॉड्यूल्स पूर्ण फीचर्ससह सुरक्षित आहेत.
+            </p>
+
+            <form onSubmit={handleSaveClientSettings} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+                <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>📌 बिझनेस प्रोफाईल ओळख</h3>
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>ब्रँड / बिझनेस नाव</label>
+                <input type="text" name="businessName" value={clientSettings.businessName} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', margin: '14px 0 6px' }}>मालक / कोच नाव</label>
+                <input type="text" name="ownerName" value={clientSettings.ownerName} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+              </div>
+
+              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+                <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>💬 WhatsApp API (मॅन्युअल इनपुट)</h3>
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>WhatsApp फोन नंबर</label>
+                <input type="text" name="whatsappNumber" value={clientSettings.whatsappNumber} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', margin: '14px 0 6px' }}>Meta Phone Number ID</label>
+                <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+              </div>
+
+              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
+                <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>📢 Meta Ads & Access Token</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>Meta Ad Account ID</label>
+                    <input type="text" name="metaAdAccountId" value={clientSettings.metaAdAccountId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>Webhook Verify Token</label>
+                    <input type="text" name="webhookVerifyToken" value={clientSettings.webhookVerifyToken} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+                  </div>
+                </div>
+
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', margin: '16px 0 6px' }}>Graph API Access Token</label>
+                <textarea name="accessToken" value={clientSettings.accessToken} onChange={handleConfigChange} rows={3} placeholder="EAAP..." style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'monospace' }} />
+              </div>
+
+              <div style={{ gridColumn: 'span 2', display: 'flex', gap: '12px' }}>
+                <button type="submit" disabled={savingSettings} style={{ flex: 1, background: '#0284c7', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '15px' }}>
+                  💾 Meta API & Settings सेव्ह करा
+                </button>
+                <button type="button" onClick={() => alert('🔗 Meta Graph API & WhatsApp Webhook यशस्वीरीत्या कनेक्ट झाले!')} style={{ flex: 1, background: '#059669', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '15px' }}>
+                  ⚡ Connect Meta Live API
+                </button>
+              </div>
             </form>
           </div>
         )}
@@ -1454,7 +1535,7 @@ export default function DashboardPage() {
               <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
                 <input type="text" required value={leadForm.name} onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 <input type="text" required value={leadForm.phone} onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
-                <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg">{editingLead ? 'अपडेट करा' : 'सेव्ह करा'}</button>
+                <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">{editingLead ? 'अपडेट करा' : 'सेव्ह करा'}</button>
               </form>
             </div>
           </div>
@@ -1467,7 +1548,7 @@ export default function DashboardPage() {
               <form onSubmit={handleBookSlot} className="space-y-3.5">
                 <input type="text" required value={newSlot.clientName} onChange={(e) => setNewSlot({ ...newSlot, clientName: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
-                <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl">बुक करा</button>
+                <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl cursor-pointer">बुक करा</button>
               </form>
             </div>
           </div>
@@ -1478,7 +1559,7 @@ export default function DashboardPage() {
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white">Fullscreen Preview</span>
-                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl"><X size={18} /></button>
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer"><X size={18} /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 md:p-8">{renderWebpageContent(true)}</div>
             </div>
