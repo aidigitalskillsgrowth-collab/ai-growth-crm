@@ -8,43 +8,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Prompt is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ success: false, error: 'DeepSeek API key missing in environment' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Gemini API key missing in environment' }, { status: 500 });
     }
 
-    const apiResponse = await fetch('https://api.deepseek.com/chat/completions', {
+    // Google Gemini API Direct REST Endpoint (Gemini 1.5 Pro / Flash)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const apiResponse = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: 'You are an expert web developer. Given a user prompt, generate a professional landing page layout.'
-          },
-          {
-            role: 'user',
-            content: prompt
+            parts: [
+              {
+                text: `You are an expert web developer. Given the user business prompt: "${prompt}", generate a professional, high-converting single-file landing page layout using modern HTML and Tailwind CSS.`
+              }
+            ]
           }
-        ],
-        temperature: 0.7,
+        ]
       }),
     });
 
     const data = await apiResponse.json();
 
     if (!apiResponse.ok) {
+      console.error('Gemini API Error Response:', data);
       return NextResponse.json({ 
         success: false, 
-        error: data.error?.message || 'DeepSeek API failed to respond properly' 
+        error: data.error?.message || 'Gemini API failed to respond properly' 
       }, { status: 500 });
     }
 
-    const generatedHtml = data.choices?.[0]?.message?.content || '<p>Error generating website content</p>';
+    const generatedHtml = data.candidates?.[0]?.content?.parts?.[0]?.text || '<p>Error generating website content</p>';
 
     return NextResponse.json({
       success: true,
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (err: any) {
+    console.error('AI Website Generation Exception:', err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
