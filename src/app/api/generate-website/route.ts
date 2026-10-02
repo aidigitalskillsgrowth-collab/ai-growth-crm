@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert web developer. Given a user prompt, generate a single-file professional, modern landing page using HTML and Tailwind CSS. Output ONLY valid HTML code starting with <!DOCTYPE html> and containing all styles inline or via Tailwind CDN. Do not include markdown code blocks like ```html.'
+            content: 'You are an expert web developer. Given a user prompt, generate a professional landing page layout.'
           },
           {
             role: 'user',
@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
     const data = await apiResponse.json();
 
     if (!apiResponse.ok) {
-      console.error('DeepSeek API Error Response:', data);
       return NextResponse.json({ 
         success: false, 
         error: data.error?.message || 'DeepSeek API failed to respond properly' 
@@ -53,7 +52,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('AI Website Generation Exception:', err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
