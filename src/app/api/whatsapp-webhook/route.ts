@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
+// १. मेटा (Meta) कडून वेबहुक व्हेरिफाय करण्यासाठी GET मेथड
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
@@ -24,6 +21,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Bad Request', { status: 400 });
 }
 
+// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -41,21 +39,29 @@ export async function POST(request: NextRequest) {
 
       console.log(`New Message Received from ${senderPhone}: ${messageText}`);
 
-      // Supabase च्या 'messages' टेबलमध्ये मेसेज सेव्ह करणे
-      const { data, error } = await supabase
-        .from('messages') 
-        .insert([
-          { 
-            phone_number: senderPhone, 
-            message: messageText, 
-            direction: 'incoming'
-          }
-        ]);
+      // सुरक्षितपणे फंक्शनच्या आत Supabase इनिशिएलाइज करणे (बिल्ड एरर कधीच येणार नाही)
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-      if (error) {
-        console.error('Error saving message to Supabase:', error);
-      } else {
-        console.log('Message successfully saved to CRM inbox database:', data);
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // 'messages' टेबलमध्ये डेटा सेव्ह करणे
+        const { data, error } = await supabase
+          .from('messages')
+          .insert([
+            { 
+              phone_number: senderPhone, 
+              message: messageText, 
+              direction: 'incoming'
+            }
+          ] as any);
+
+        if (error) {
+          console.error('Error saving message to Supabase:', error);
+        } else {
+          console.log('Message successfully saved to CRM inbox database:', data);
+        }
       }
     }
 
