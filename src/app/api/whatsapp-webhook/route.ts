@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
+// १. मेटा (Meta) कडून वेबहुक व्हेरिफाय करण्यासाठी GET मेथड
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
@@ -24,6 +20,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Bad Request', { status: 400 });
 }
 
+// २. ग्राहकाने पाठवलेले मेसेज रिसिव्ह करण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -39,9 +36,7 @@ export async function POST(request: NextRequest) {
       const senderPhone = message.from; 
       const messageText = message.text?.body || 'Media/Non-text Message'; 
 
-      console.log(`New Message Received from ${senderPhone}: ${messageText}`);
-
-      // सुरक्षितपणे डेटाबेस लॉग्जमध्ये कॅप्चर करणे जेणेकरून बिल्ड एरर येणार नाही
+      console.log(`New WhatsApp Message Received from ${senderPhone}: ${messageText}`);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
