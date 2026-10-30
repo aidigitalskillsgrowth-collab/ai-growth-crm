@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-// १. मेटा (Meta) कडून वेबहुक व्हेरिफाय करण्यासाठी GET मेथड
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
@@ -20,7 +24,6 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Bad Request', { status: 400 });
 }
 
-// २. ग्राहकाने पाठवलेले मेसेज रिसिव्ह करण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -33,13 +36,27 @@ export async function POST(request: NextRequest) {
 
     if (messages && messages.length > 0) {
       const message = messages[0];
-      const senderPhone = message.from; // पाठवणाऱ्याचा मोबाईल नंबर
-      const messageText = message.text?.body || 'Media/Non-text Message'; // मेसेजचा मजकूर
+      const senderPhone = message.from; 
+      const messageText = message.text?.body || 'Media/Non-text Message'; 
 
-      console.log(`New WhatsApp Message Received from ${senderPhone}: ${messageText}`);
-      
-      // सध्या आपण हा मेसेज सुरक्षितपणे लॉग्जमध्ये कॅप्चर करत आहोत. 
-      // याचा डेटाबेस टेबल मॅपिंग एरर काढण्यासाठी हा सुरक्षित कोड ठेवला आहे.
+      console.log(`New Message Received from ${senderPhone}: ${messageText}`);
+
+      // थेट 'messages' टेबलमध्ये डेटा इन्सर्ट करणे
+      const { data, error } = await supabase
+        .from('messages') 
+        .insert([
+          { 
+            phone_number: senderPhone, 
+            message: messageText, 
+            direction: 'incoming'
+          }
+        ]);
+
+      if (error) {
+        console.error('Error saving message to Supabase:', error);
+      } else {
+        console.log('Message successfully saved to CRM inbox database:', data);
+      }
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
