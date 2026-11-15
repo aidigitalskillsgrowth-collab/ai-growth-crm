@@ -3,12 +3,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// सुरक्षितपणे Supabase क्लायंट तयार करणे (क्रॅश होणार नाही)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default function InboxPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +10,12 @@ export default function InboxPage() {
   useEffect(() => {
     async function fetchMessages() {
       try {
+        // रनटाइमला सुरक्षितपणे क्लायंट तयार करणे
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        );
+
         const { data, error } = await supabase
           .from('messages')
           .select('*')
