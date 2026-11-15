@@ -10,7 +10,6 @@ export default function InboxPage() {
   useEffect(() => {
     async function fetchMessages() {
       try {
-        // रनटाइमला सुरक्षितपणे क्लायंट तयार करणे
         const supabase = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -34,33 +33,42 @@ export default function InboxPage() {
   }, []);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h2>WhatsApp CRM Inbox</h2>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+      <h2 style={{ color: '#0A1026', borderBottom: '2px solid #1F6AFF', paddingBottom: '10px' }}>
+        📱 WhatsApp CRM Inbox
+      </h2>
+      
       {loading ? (
-        <p>लोड होत आहे...</p>
+        <p>मेसेजेस लोड होत आहेत...</p>
       ) : messages.length === 0 ? (
         <p>कोणतेही मेसेजेस उपलब्ध नाहीत.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
           {messages.map((msg) => (
-            <li
+            <div
               key={msg.id}
               style={{
-                background: '#f4f4f4',
-                margin: '10px 0',
-                padding: '12px',
+                background: '#ffffff',
+                padding: '15px',
                 borderRadius: '8px',
-                borderLeft: '4px solid #1F6AFF',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                borderLeft: '5px solid #1F6AFF',
               }}
             >
-              <strong>Sender:</strong> {msg.sender} <br />
-              <strong>Message:</strong> {msg.text} <br />
-              <small style={{ color: '#666' }}>
-                {new Date(msg.created_at).toLocaleString()}
-              </small>
-            </li>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <strong style={{ color: '#1F6AFF', fontSize: '16px' }}>
+                  📞 {msg.sender || 'Unknown Sender'}
+                </strong>
+                <small style={{ color: '#666' }}>
+                  {new Date(msg.created_at).toLocaleString()}
+                </small>
+              </div>
+              <p style={{ margin: '5px 0 0 0', fontSize: '15px', color: '#333' }}>
+                💬 {msg.text || msg.message_text || 'Media/Non-text Message'}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
