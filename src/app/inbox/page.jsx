@@ -60,7 +60,7 @@ export default function InboxPage() {
                   📞 {msg.sender || 'Unknown Sender'}
                 </strong>
                 <small style={{ color: '#666' }}>
-                  {new Date(msg.created_at).toLocaleString()}
+                  {msg.created_at ? new Date(msg.created_at).toLocaleString() : ''}
                 </small>
               </div>
               <p style={{ margin: '5px 0 0 0', fontSize: '15px', color: '#333' }}>
