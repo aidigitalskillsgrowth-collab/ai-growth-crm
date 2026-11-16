@@ -582,7 +582,7 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ Gemini Pro API ला थेट कनेक्ट करणारे हुशार फंक्शन
+  // ✅ Gemini Pro API ला थेट कनेक्ट करणारे सुधारात्मक फंक्शन
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
@@ -592,18 +592,18 @@ export default function DashboardPage() {
     const currentInput = txt;
     setInputMsg('');
 
-    const apiKey = clientSettings.geminiApiKey.trim();
+    const apiKey = clientSettings.geminiApiKey ? clientSettings.geminiApiKey.trim() : '';
 
     if (!apiKey) {
       setTimeout(() => {
         const fallbackReply = `⚠️ कृपया आधी 'Settings & Meta API' मध्ये जाऊन तुमची **Google Gemini Pro API Key** टाकून सेव्ह करा! तरच एआय बॉट रँडम उत्तरे देऊ शकेल.`;
         setChatMessages(prev => [...prev, { sender: 'bot', text: fallbackReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
-      }, 500);
+      }, 400);
       return;
     }
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -613,7 +613,7 @@ export default function DashboardPage() {
             {
               parts: [
                 { 
-                  text: `System Role & Instructions: ${botConfig.systemPrompt}\n\nCustomer/User Query: ${currentInput}\n\nReply naturally in Marathi or Hinglish like a professional human sales assistant:` 
+                  text: `System Role: ${botConfig.systemPrompt}\n\nUser Query: ${currentInput}\n\nReply naturally in Marathi or Hinglish:` 
                 }
               ]
             }
@@ -622,16 +622,18 @@ export default function DashboardPage() {
       });
 
       const data = await response.json();
-      let aiReply = "माफ करा, तांत्रिक अडचण आल्यामुळे उत्तर मिळू शकले नाही.";
+      let aiReply = "माफ करा, सध्या रिप्लाय घेण्यात अडचण आली.";
 
-      if (data && data.candidates && data.candidates[0].content.parts[0].text) {
+      if (data && data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
         aiReply = data.candidates[0].content.parts[0].text;
+      } else if (data.error && data.error.message) {
+        aiReply = `API Error: ${data.error.message}`;
       }
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: aiReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
     } catch (error) {
       console.error('Gemini API Error:', error);
-      setChatMessages(prev => [...prev, { sender: 'bot', text: 'सर्व्हर कनेक्ट करताना त्रुटी आली.', time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: 'नेटवर्क किंवा सर्व्हर त्रुटी आली.', time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
     }
   };
 
@@ -1589,7 +1591,6 @@ export default function DashboardPage() {
                 <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
               </div>
 
-              {/* ✅ जेमिनी प्रो एपीआय की बॉक्स आणि सेव्ह बटन्स */}
               <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
                 <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>🧠 Google Gemini Pro API Key (Universal AI Bot)</h3>
                 <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>Gemini API Key (Google AI Studio)</label>
@@ -1653,7 +1654,7 @@ export default function DashboardPage() {
         )}
 
         {isPreviewModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+          <div className="fixed isoli inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white">Fullscreen Preview</span>
