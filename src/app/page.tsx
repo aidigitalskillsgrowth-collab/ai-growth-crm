@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'sb_publishable_w0lqq3_YGhJm7twd-FJxrQ_ymV4w';
+const supabaseAnonKey = 'sb_publishable_wOlqq3_YGhJm7twd-FJxrQ_ymV4wZKd';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
