@@ -129,6 +129,7 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
+  // ✅ clientSettings मध्ये geminiApiKey जोडली आहे
   const [clientSettings, setClientSettings] = useState({
     businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
     upiId: 'ravindra@ibl',
@@ -138,11 +139,12 @@ export default function DashboardPage() {
     ownerName: 'Ravi Patil',
     metaAdAccountId: '778929936264833',
     accessToken: '',
-    webhookVerifyToken: 'growth_crm_verify_2026'
+    webhookVerifyToken: 'growth_crm_verify_2026',
+    geminiApiKey: '' // ✅ नवीन जेमिनी प्रो एपीआय की साठी फील्ड
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
-  // ✅ मल्टिपल पाईपलाईन स्टेट
+  // मल्टिपल पाईपलाईन स्टेट
   const [pipelines, setPipelines] = useState([
     { id: 'default_main', name: 'Main Business Pipeline' }
   ]);
@@ -164,7 +166,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // जेव्हा इनबॉक्स टॅब ओपन होईल तेव्हा लाईव्ह मेसेजेस फेच करणे
   useEffect(() => {
     if (activeTab === 'inbox') {
       fetchSupabaseMessages();
@@ -210,10 +211,10 @@ export default function DashboardPage() {
           updated_at: new Date()
         });
       }
-      alert('✅ तुमच्या क्लायंट सेटिंग्स, मेटा क्रेडेंशियल्स आणि सर्व १५ मॉड्यूल्स यशस्वीरीत्या सेव्ह & कनेक्ट झाले!');
+      alert('✅ तुमच्या क्लायंट सेटिंग्स, मेटा क्रेडेंशियल्स आणि Gemini API Key यशस्वीरीत्या सेव्ह झाली!');
     } catch (err) {
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
-      alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह & कनेक्ट झाल्या!');
+      alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्यात!');
     } finally {
       setSavingSettings(false);
     }
@@ -269,7 +270,8 @@ export default function DashboardPage() {
           ownerName: data.ownerName || prev.ownerName,
           metaAdAccountId: data.metaAdAccountId || prev.metaAdAccountId,
           webhookVerifyToken: data.webhookVerifyToken || prev.webhookVerifyToken,
-          accessToken: data.accessToken || prev.accessToken
+          accessToken: data.accessToken || prev.accessToken,
+          geminiApiKey: data.geminiApiKey || prev.geminiApiKey
         }));
       }
     } catch (e) {
@@ -581,30 +583,61 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ स्मार्ट एआय चॅट सिम्युलेटर रिप्लाय लॉजिक (ग्राहकाचा प्रश्न समजून उत्तर देणारे)
-  const handleSendChat = () => {
+  // ✅ वास्तविक जेमिनी प्रो एपीआय (Gemini Pro API) कडे रँडम मेसेज पाठवून हुशार उत्तर मिळवणारे फंक्शन
+  const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    // युजरचा मेसेज चॅटमध्ये ॲड करणे
     setChatMessages(prev => [...prev, { sender: 'user', text: txt, time: currentTime }]);
+    const currentInput = txt;
     setInputMsg('');
 
-    setTimeout(() => {
-      let botReply = '';
-      const lower = txt.toLowerCase();
+    // जर युजरने सेटिंग्समध्ये स्वतःची जेमिनी एपीआय की टाकली असेल तर थेट जेमिनी प्रो कडे कॉल जाईल
+    const apiKey = clientSettings.geminiApiKey.trim();
 
-      if (lower.includes('कोर्स') || lower.includes('course') || lower.includes('मास्टरक्लास') || lower.includes('digital skills')) {
-        botReply = `🎯 आपल्या डिजिटल ग्रोथसाठी आमचा 'AI Digital Skills Growth' मास्टरक्लास सर्वोत्तम आहे! यामध्ये ChatGPT, Gemini, आणि Meta Ads द्वारे लीड्स कशी गोळा करायची हे शिकवले जाते. यात तुम्हाला सहभागी व्हायचे आहे का?`;
-      } else if (lower.includes('किंमत') || lower.includes('फीस') || lower.includes('price') || lower.includes('fee')) {
-        botReply = `💰 आमच्या प्रीमियम ट्रेनिंगची किंमत अत्यंत सुलभ आहे. अधिक माहिती आणि स्पेशल डिस्काउंटसाठी तुम्ही आमच्या पेमेंट टॅबला भेट देऊ शकता!`;
-      } else if (lower.includes('नंबर') || lower.includes('संपर्क') || lower.includes('call') || lower.includes('phone')) {
-        botReply = `📞 तुम्ही आमच्याशी थेट ७२१९५६६७७७ या क्रमांकावर WhatsApp द्वारे संपर्क साधू शकता!`;
-      } else {
-        botReply = `नमस्कार! 🙏 तुमच्या '${txt}' या चौकशीबद्दल धन्यवाद. रवी पाटील यांची टीम आणि AI असिस्टंट तुम्हाला यात नक्कीच मदत करेल. सांगा, यात मी तुम्हाला अजून काय माहिती देऊ?`;
+    if (!apiKey) {
+      // जर की नसेल तर एक छान सविस्तर डाइनॅमिक उत्तर देईल जेणेकरून बॉट कधीच थांबणार नाही
+      setTimeout(() => {
+        const fallbackReply = `नमस्कार! 🙏 तुमच्या '${currentInput}' या चौकशीबद्दल धन्यवाद. रवी पाटील यांच्या AI Growth CRM द्वारे आमची टीम तुम्हाला यात नक्कीच साहाय्य करेल. सांगा, यात मी तुम्हाला अजून काय माहिती देऊ?`;
+        setChatMessages(prev => [...prev, { sender: 'bot', text: fallbackReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
+      }, 500);
+      return;
+    }
+
+    try {
+      // ✅ गुगल जेमिनी प्रो एपीआय (Gemini Pro API) ला थेट रियल-टाइम रिक्वेस्ट
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { 
+                  text: `System Role & Instructions: ${botConfig.systemPrompt}\n\nCustomer/User Query: ${currentInput}\n\nReply naturally in Marathi or Hinglish like a professional human sales assistant:` 
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      let aiReply = "माफ करा, तांत्रिक अडचण आल्यामुळे उत्तर मिळू शकले नाही.";
+
+      if (data && data.candidates && data.candidates[0].content.parts[0].text) {
+        aiReply = data.candidates[0].content.parts[0].text;
       }
 
-      setChatMessages(prev => [...prev, { sender: 'bot', text: botReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
-    }, 400);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: aiReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
+    } catch (error) {
+      console.error('Gemini API Error:', error);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: 'सर्व्हर कनेक्ट करताना त्रुटी आली.', time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
+    }
   };
 
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
@@ -1059,7 +1092,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ✅ पाईपलाईन टॅब */}
+        {/* পাইপলাইন ট্যাব */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -1559,6 +1592,14 @@ export default function DashboardPage() {
 
                 <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', margin: '14px 0 6px' }}>Meta Phone Number ID</label>
                 <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
+              </div>
+
+              {/* ✅ नवीन जेमिनी प्रो एपीआय की (Gemini Pro API Key) इनपुट बॉक्स */}
+              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
+                <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>🧠 Google Gemini Pro API Key (Universal AI Bot)</h3>
+                <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>Gemini API Key (Google AI Studio)</label>
+                <input type="password" name="geminiApiKey" value={clientSettings.geminiApiKey} onChange={handleConfigChange} placeholder="AIzaSy..." style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'monospace' }} />
+                <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>ही की टाकल्यास तुमचा चॅटबॉट कोणत्याही किवर्डशिवाय रँडम आणि हुशार उत्तरे देईल.</p>
               </div>
 
               <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
