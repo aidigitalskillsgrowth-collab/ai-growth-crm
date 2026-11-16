@@ -582,7 +582,7 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ Gemini Pro API (gemini-pro) ला अचूक कनेक्ट करणारे फंक्शन
+  // ✅ Gemini 1.5 Flash API ला अचूक कनेक्ट करणारे फंक्शन (नवीनतम आणि सपोर्टेड मॉडेल)
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
@@ -603,7 +603,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
