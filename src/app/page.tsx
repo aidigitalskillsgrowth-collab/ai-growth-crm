@@ -582,7 +582,7 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ Gemini Pro API ला थेट कनेक्ट करणारे सुधारात्मक फंक्शन
+  // ✅ Gemini Pro API (gemini-pro) ला अचूक कनेक्ट करणारे फंक्शन
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
@@ -603,7 +603,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1654,7 +1654,7 @@ export default function DashboardPage() {
         )}
 
         {isPreviewModalOpen && (
-          <div className="fixed isoli inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
             <div className="bg-[#07090e] border border-slate-700 rounded-3xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="p-4 bg-[#0d1424] border-b border-slate-800 flex justify-between items-center text-xs">
                 <span className="font-bold text-white">Fullscreen Preview</span>
