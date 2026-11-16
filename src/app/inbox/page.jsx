@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase कनेक्शन सेटअप
+// Supabase सुरक्षित कनेक्शन सेटअप
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
 const supabaseAnonKey = 'sb_publishable_w0lqq3_YGhJm7twd-FJxrQ_ymV4w';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -16,6 +16,7 @@ export default function InboxPage() {
   const fetchMessages = async () => {
     setLoading(true);
     try {
+      // Supabase च्या messages टेबलमधून सर्व डेटा ओढून आणणे
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -43,7 +44,7 @@ export default function InboxPage() {
           onClick={fetchMessages} 
           style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          🔄 रिफ्रेश करा
+          🔄 मेसेजेस रिफ्रेश करा
         </button>
       </div>
 
