@@ -66,7 +66,7 @@ interface Lead {
   sentiment: string;
   notes?: string;
   created_at?: string;
-  pipeline_id?: string; // ✅ पाईपलाईन फिल्टरिंगसाठी जोडले
+  pipeline_id?: string;
 }
 
 interface Transaction {
@@ -142,13 +142,11 @@ export default function DashboardPage() {
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
-  // ✅ मल्टिपल पाईपलाईन स्टेट
+  // ✅ पाईपलाईन लिस्ट पूर्णपणे कोरी (Default clean) ठेवली आहे जेणेकरून युजर स्वतः हवी तशी तयार करेल
   const [pipelines, setPipelines] = useState([
-    { id: 'ai_growth', name: 'AI Digital Skills Growth (कोर्स व मास्टरक्लास)' },
-    { id: 'mobile_shop', name: 'ईश्वरी मोबाईल शॉप (रिपेअर व सेल)' },
-    { id: 'hotel_biz', name: 'रवी पाटील हॉटेल & रेस्टॉरंट' }
+    { id: 'default_main', name: 'Main Business Pipeline' }
   ]);
-  const [selectedPipeline, setSelectedPipeline] = useState('ai_growth');
+  const [selectedPipeline, setSelectedPipeline] = useState('default_main');
 
   // Supabase लाईव्ह मेसेजेस स्टेट
   const [dbMessages, setDbMessages] = useState<ChatMessage[]>([]);
@@ -324,21 +322,10 @@ export default function DashboardPage() {
   };
 
   const initialLeads: Lead[] = [
-    { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM', pipeline_id: 'ai_growth' },
-    { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM', pipeline_id: 'ai_growth' },
-    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे.', created_at: 'काल, 04:20 PM', pipeline_id: 'ai_growth' },
-    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले.', created_at: 'काल, 06:10 PM', pipeline_id: 'ai_growth' },
-    { id: '5', name: 'विकास मोरे', phone: '9988776655', service: 'AI Tools Workshop', deal_value: 800, status: 'New Lead', source: 'Website', sentiment: 'Cold', notes: 'पहिला कॉल उचलला नाही.', created_at: '28 Aug', pipeline_id: 'ai_growth' },
-    { id: '6', name: 'स्नेहल पवार', phone: '9834123456', service: 'Branding Package', deal_value: 15000, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Highly Interested', notes: 'ऑक्टोबरसाठी बुकिंग हवी आहे.', created_at: '28 Aug', pipeline_id: 'ai_growth' },
-    { id: '7', name: 'राहुल सावंत', phone: '9422001122', service: 'Lead Generation System', deal_value: 2999, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'UPI QR स्कॅन करून भरत आहेत.', created_at: '27 Aug', pipeline_id: 'ai_growth' },
-    { id: '8', name: 'महेश जाधव', phone: '9552114477', service: 'Funnel Setup', deal_value: 1200, status: 'Won', source: 'Referral', sentiment: 'Positive', notes: 'प्रोजेक्ट पूर्ण झाला.', created_at: '27 Aug', pipeline_id: 'ai_growth' },
-    { id: '9', name: 'पूजा कुलकर्णी', phone: '9890665544', service: 'Digital Marketing Course', deal_value: 6000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'सिलॅबस व्हॉट्सॲपवर पाठवला.', created_at: '26 Aug', pipeline_id: 'ai_growth' },
-    { id: '10', name: 'किरण थोरात', phone: '9371889900', service: 'Business Automation', deal_value: 500, status: 'Contacted', source: 'WhatsApp Direct', sentiment: 'Follow-up', notes: 'कागदपत्रे बाकी.', created_at: '26 Aug', pipeline_id: 'ai_growth' },
-    { id: '11', name: 'दिनेश गायकवाड', phone: '9860127890', service: 'Coaching 3-Month Plan', deal_value: 1000, status: 'Won', source: 'Instagram Ad', sentiment: 'Positive', notes: 'पास कार्ड ॲक्टिव्हेट केले.', created_at: '25 Aug', pipeline_id: 'ai_growth' },
-    { id: '12', name: 'सुप्रिया भोसले', phone: '9158334455', service: 'Ad Campaign Setup', deal_value: 2500, status: 'Payment Sent', source: 'Website', sentiment: 'Interested', notes: 'उद्या दुपारची वेळ दिली आहे.', created_at: '25 Aug', pipeline_id: 'ai_growth' },
-    { id: '13', name: 'रोहन शिंदे', phone: '9730445566', service: 'Consultation Enquiry', deal_value: 4000, status: 'New Lead', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'रविवारच्या मिटिंगसाठी नोंद.', created_at: '24 Aug', pipeline_id: 'ai_growth' },
-    { id: '14', name: 'अनिल काळे', phone: '9823998877', service: 'VIP Mastermind', deal_value: 1500, status: 'Contacted', source: 'Facebook Ad', sentiment: 'Positive', notes: 'आरक्षण कन्फर्म.', created_at: '24 Aug', pipeline_id: 'ai_growth' },
-    { id: '15', name: 'ज्ञानेश्वर माने', phone: '9673112233', service: 'Enterprise Coaching', deal_value: 35000, status: 'Won', source: 'Website', sentiment: 'Positive', notes: 'पूर्ण ॲडव्हान्स पेमेंट मिळाले.', created_at: '23 Aug', pipeline_id: 'ai_growth' },
+    { id: '1', name: 'रविराज पाटील', phone: '9876543210', service: 'Digital Marketing Setup', deal_value: 1500, status: 'New Lead', source: 'Website', sentiment: 'Highly Interested', notes: 'आज संध्याकाळी ६ वाजता बोलणे ठरले आहे.', created_at: 'आज, 10:30 AM', pipeline_id: 'default_main' },
+    { id: '2', name: 'सचिन कांबळे', phone: '9123456780', service: 'Business Coaching', deal_value: 25000, status: 'Contacted', source: 'Meta Lead Ad', sentiment: 'Interested', notes: 'मास्टरक्लास संबंधी विचारले.', created_at: 'आज, 11:15 AM', pipeline_id: 'default_main' },
+    { id: '3', name: 'अमित देशमुख', phone: '9822334455', service: 'Consulting Session', deal_value: 4500, status: 'Payment Sent', source: 'Instagram Ad', sentiment: 'Follow-up', notes: 'पेमेंट लिंक पाठवली आहे.', created_at: 'काल, 04:20 PM', pipeline_id: 'default_main' },
+    { id: '4', name: 'प्रियांका शिंदे', phone: '9765432109', service: 'Agency Growth Plan', deal_value: 3200, status: 'Won', source: 'WhatsApp Direct', sentiment: 'Positive', notes: 'पेमेंट जमा झाले.', created_at: 'काल, 06:10 PM', pipeline_id: 'default_main' },
   ];
 
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -1070,7 +1057,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-400">वेगवेगळ्या व्यवसायांच्या लीड्स स्वतंत्र पाईपलाईनमध्ये मॅनेज करा.</p>
               </div>
 
-              {/* पाईपलाईन निवडण्यासाठी ड्रॉपडाऊन आणि नवीन ॲड करण्याचे बटण */}
+              {/* पाईपलाईन निवडण्यासाठी ड्रॉपडाऊन, नवीन ॲड आणि डिलीट करण्याचे बटण */}
               <div className="flex items-center gap-3">
                 <select 
                   value={selectedPipeline} 
@@ -1096,6 +1083,22 @@ export default function DashboardPage() {
                 >
                   + नवीन पाईपलाईन तयार करा
                 </button>
+
+                {pipelines.length > 1 && (
+                  <button 
+                    onClick={() => {
+                      if (confirm('तुम्हाला खरोखरच ही पाईपलाईन डिलीट करायची आहे का?')) {
+                        const updated = pipelines.filter(p => p.id !== selectedPipeline);
+                        setPipelines(updated);
+                        setSelectedPipeline(updated[0].id);
+                        alert('पाईपलाईन यशस्वीरीत्या डिलीट झाली!');
+                      }
+                    }}
+                    className="px-3 py-2.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600 hover:text-white rounded-xl text-xs font-bold cursor-pointer transition"
+                  >
+                    🗑️ डिलीट
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1105,11 +1108,11 @@ export default function DashboardPage() {
                   <div className="flex justify-between border-b border-slate-800 pb-2">
                     <span className="font-bold text-xs text-white uppercase">{stg}</span>
                     <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full">
-                      {leads.filter(l => l.status === stg && (l.pipeline_id === selectedPipeline || !l.pipeline_id)).length}
+                      {leads.filter(l => l.status === stg && (l.pipeline_id === selectedPipeline || (!l.pipeline_id && selectedPipeline === 'default_main'))).length}
                     </span>
                   </div>
                   <div className="space-y-2.5">
-                    {leads.filter(l => l.status === stg && (l.pipeline_id === selectedPipeline || !l.pipeline_id)).map((l) => (
+                    {leads.filter(l => l.status === stg && (l.pipeline_id === selectedPipeline || (!l.pipeline_id && selectedPipeline === 'default_main'))).map((l) => (
                       <div key={l.id} draggable onDragStart={(e) => handleDragStart(e, l.id)} className="p-3 bg-[#080b12] border border-slate-700 rounded-xl space-y-1 cursor-grab">
                         <div className="flex justify-between font-bold text-xs">
                           <span className="text-white">{l.name}</span>
@@ -1548,7 +1551,7 @@ export default function DashboardPage() {
                 <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
               </div>
 
-              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
+              <div style={{ background: '##1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
                 <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>📢 Meta Ads & Access Token</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
