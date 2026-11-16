@@ -129,7 +129,6 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
-  // ✅ clientSettings मध्ये geminiApiKey जोडली आहे
   const [clientSettings, setClientSettings] = useState({
     businessName: 'रवी पाटील - AI ग्रोथ बिझनेस',
     upiId: 'ravindra@ibl',
@@ -140,7 +139,7 @@ export default function DashboardPage() {
     metaAdAccountId: '778929936264833',
     accessToken: '',
     webhookVerifyToken: 'growth_crm_verify_2026',
-    geminiApiKey: '' // ✅ नवीन जेमिनी प्रो एपीआय की साठी फील्ड
+    geminiApiKey: ''
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
@@ -583,31 +582,27 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ वास्तविक जेमिनी प्रो एपीआय (Gemini Pro API) कडे रँडम मेसेज पाठवून हुशार उत्तर मिळवणारे फंक्शन
+  // ✅ Gemini Pro API ला थेट कनेक्ट करणारे हुशार फंक्शन
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
-    // युजरचा मेसेज चॅटमध्ये ॲड करणे
     setChatMessages(prev => [...prev, { sender: 'user', text: txt, time: currentTime }]);
     const currentInput = txt;
     setInputMsg('');
 
-    // जर युजरने सेटिंग्समध्ये स्वतःची जेमिनी एपीआय की टाकली असेल तर थेट जेमिनी प्रो कडे कॉल जाईल
     const apiKey = clientSettings.geminiApiKey.trim();
 
     if (!apiKey) {
-      // जर की नसेल तर एक छान सविस्तर डाइनॅमिक उत्तर देईल जेणेकरून बॉट कधीच थांबणार नाही
       setTimeout(() => {
-        const fallbackReply = `नमस्कार! 🙏 तुमच्या '${currentInput}' या चौकशीबद्दल धन्यवाद. रवी पाटील यांच्या AI Growth CRM द्वारे आमची टीम तुम्हाला यात नक्कीच साहाय्य करेल. सांगा, यात मी तुम्हाला अजून काय माहिती देऊ?`;
+        const fallbackReply = `⚠️ कृपया आधी 'Settings & Meta API' मध्ये जाऊन तुमची **Google Gemini Pro API Key** टाकून सेव्ह करा! तरच एआय बॉट रँडम उत्तरे देऊ शकेल.`;
         setChatMessages(prev => [...prev, { sender: 'bot', text: fallbackReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
       }, 500);
       return;
     }
 
     try {
-      // ✅ गुगल जेमिनी प्रो एपीआय (Gemini Pro API) ला थेट रियल-टाइम रिक्वेस्ट
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
@@ -1092,7 +1087,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* পাইপলাইন ট্যাব */}
+        {/* पाईपलाईन टॅब */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -1594,7 +1589,7 @@ export default function DashboardPage() {
                 <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
               </div>
 
-              {/* ✅ नवीन जेमिनी प्रो एपीआय की (Gemini Pro API Key) इनपुट बॉक्स */}
+              {/* ✅ जेमिनी प्रो एपीआय की बॉक्स आणि सेव्ह बटन्स */}
               <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
                 <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>🧠 Google Gemini Pro API Key (Universal AI Bot)</h3>
                 <label style={{ display: 'block', fontSize: '12px', color: '#cbd5e1', marginBottom: '6px' }}>Gemini API Key (Google AI Studio)</label>
@@ -1621,7 +1616,7 @@ export default function DashboardPage() {
 
               <div style={{ gridColumn: 'span 2', display: 'flex', gap: '12px' }}>
                 <button type="submit" disabled={savingSettings} style={{ flex: 1, background: '#0284c7', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '15px' }}>
-                  💾 Meta API & Settings सेव्ह करा
+                  💾 Gemini API Key & Meta Settings सेव्ह करा
                 </button>
                 <button type="button" onClick={() => alert('🔗 Meta Graph API & WhatsApp Webhook यशस्वीरीत्या कनेक्ट झाले!')} style={{ flex: 1, background: '#059669', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '15px' }}>
                   ⚡ Connect Meta Live API
