@@ -582,7 +582,7 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ Gemini 1.5 Flash API ला अचूक कनेक्ट करणारे फंक्शन (नवीनतम आणि सपोर्टेड मॉडेल)
+  // ✅ Google AI Studio v1beta API Endpoints compatible fallback function (gemini-pro)
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
@@ -603,7 +603,8 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      // ✅ v1beta वर्शनसाठी gemini-pro मॉडेल वापरणे जेणेकरून 404 एरर पूर्णपणे निघून जाईल
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
