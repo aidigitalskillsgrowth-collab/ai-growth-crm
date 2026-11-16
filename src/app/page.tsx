@@ -88,11 +88,16 @@ interface Appointment {
   status: 'Confirmed' | 'Pending' | 'Rescheduled';
 }
 
+// ✅ सर्व TypeScript एरर काढण्यासाठी सर्व संभाव्य प्रॉपर्टीज इथे जोडल्या आहेत
 interface ChatMessage {
   id?: string;
   sender?: string;
+  phone?: string;
+  from?: string;
+  wa_id?: string;
   text?: string;
   message?: string;
+  message_text?: string;
   body?: string;
   created_at?: string;
 }
@@ -1322,7 +1327,7 @@ export default function DashboardPage() {
         )}
 
         {/* ======================================================== */}
-        {/* इनबॉक्स टॅब - पूर्णपणे शुद्ध केलेले लाईव्ह Supabase मेसेज इनबॉक्स */}
+        {/* इनबॉक्स टॅब - TypeScript एरर काढलेला आणि लाईव्ह मेसेज डॅशबोर्ड */}
         {/* ======================================================== */}
         {activeTab === 'inbox' && (
           <div className="space-y-4 text-xs">
@@ -1353,10 +1358,10 @@ export default function DashboardPage() {
                     <div key={msg.id || idx} className="bg-[#080b12] border border-slate-700/80 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-lg">
                       <div className="space-y-1.5">
                         <span className="text-blue-400 font-bold text-xs flex items-center gap-1.5 font-mono">
-                          📞 Sender Number: {msg.sender || msg.phone || 'Unknown'}
+                          📞 Sender Number: {msg.sender || msg.phone || msg.from || msg.wa_id || 'Unknown'}
                         </span>
                         <p className="text-white text-sm font-semibold">
-                          💬 Message: {msg.text || msg.message || msg.body || 'Media/Non-text Message'}
+                          💬 Message: {msg.text || msg.message || msg.message_text || msg.body || 'Media/Non-text Message'}
                         </p>
                       </div>
                       <span className="text-[11px] text-slate-400 font-mono bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
