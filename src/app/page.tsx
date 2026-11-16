@@ -142,7 +142,7 @@ export default function DashboardPage() {
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
-  // ✅ पाईपलाईन लिस्ट पूर्णपणे कोरी (Default clean) ठेवली आहे जेणेकरून युजर स्वतः हवी तशी तयार करेल
+  // ✅ मल्टिपल पाईपलाईन स्टेट
   const [pipelines, setPipelines] = useState([
     { id: 'default_main', name: 'Main Business Pipeline' }
   ]);
@@ -581,17 +581,28 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
+  // ✅ स्मार्ट एआय चॅट सिम्युलेटर रिप्लाय लॉजिक (ग्राहकाचा प्रश्न समजून उत्तर देणारे)
   const handleSendChat = () => {
     if (!inputMsg.trim()) return;
     const txt = inputMsg;
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     setChatMessages(prev => [...prev, { sender: 'user', text: txt, time: currentTime }]);
     setInputMsg('');
+
     setTimeout(() => {
-      let botReply = `आपल्या '${txt}' या चौकशीबद्दल धन्यवाद! `;
+      let botReply = '';
       const lower = txt.toLowerCase();
-      if (lower.includes('price') || lower.includes('किंमत') || lower.includes('कोर्स')) { botReply += `आज आमच्या डिजिटल मार्केटिंग कोर्सवर स्पेशल डिस्काउंट उपलब्ध आहे!`; }
-      else { botReply += `रवी पाटील यांची टीम तुम्हाला लवकरच संपर्क करेल!`; }
+
+      if (lower.includes('कोर्स') || lower.includes('course') || lower.includes('मास्टरक्लास') || lower.includes('digital skills')) {
+        botReply = `🎯 आपल्या डिजिटल ग्रोथसाठी आमचा 'AI Digital Skills Growth' मास्टरक्लास सर्वोत्तम आहे! यामध्ये ChatGPT, Gemini, आणि Meta Ads द्वारे लीड्स कशी गोळा करायची हे शिकवले जाते. यात तुम्हाला सहभागी व्हायचे आहे का?`;
+      } else if (lower.includes('किंमत') || lower.includes('फीस') || lower.includes('price') || lower.includes('fee')) {
+        botReply = `💰 आमच्या प्रीमियम ट्रेनिंगची किंमत अत्यंत सुलभ आहे. अधिक माहिती आणि स्पेशल डिस्काउंटसाठी तुम्ही आमच्या पेमेंट टॅबला भेट देऊ शकता!`;
+      } else if (lower.includes('नंबर') || lower.includes('संपर्क') || lower.includes('call') || lower.includes('phone')) {
+        botReply = `📞 तुम्ही आमच्याशी थेट ७२१९५६६७७७ या क्रमांकावर WhatsApp द्वारे संपर्क साधू शकता!`;
+      } else {
+        botReply = `नमस्कार! 🙏 तुमच्या '${txt}' या चौकशीबद्दल धन्यवाद. रवी पाटील यांची टीम आणि AI असिस्टंट तुम्हाला यात नक्कीच मदत करेल. सांगा, यात मी तुम्हाला अजून काय माहिती देऊ?`;
+      }
+
       setChatMessages(prev => [...prev, { sender: 'bot', text: botReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
     }, 400);
   };
@@ -1048,7 +1059,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ✅ पूर्णपणे एरर-फ्री आणि पाईपलाईन फिल्टरिंगसह जोडलेला कॅनबन बोर्ड */}
+        {/* ✅ पाईपलाईन टॅब */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -1057,7 +1068,6 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-400">वेगवेगळ्या व्यवसायांच्या लीड्स स्वतंत्र पाईपलाईनमध्ये मॅनेज करा.</p>
               </div>
 
-              {/* पाईपलाईन निवडण्यासाठी ड्रॉपडाऊन, नवीन ॲड आणि डिलीट करण्याचे बटण */}
               <div className="flex items-center gap-3">
                 <select 
                   value={selectedPipeline} 
@@ -1551,7 +1561,7 @@ export default function DashboardPage() {
                 <input type="text" name="metaPhoneId" value={clientSettings.metaPhoneId} onChange={handleConfigChange} style={{ width: '100%', padding: '10px 14px', background: '#0f172a', border: '1px solid #475569', borderRadius: '6px', color: 'white', boxSizing: 'border-box', fontSize: '14px' }} />
               </div>
 
-              <div style={{ background: '##1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
+              <div style={{ background: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155', gridColumn: 'span 2' }}>
                 <h3 style={{ fontSize: '15px', color: '#f1f5f9', margin: '0 0 16px' }}>📢 Meta Ads & Access Token</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
