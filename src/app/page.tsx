@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const supabaseUrl = 'https://yvaqrcdqehybzlnpwaeb.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2YXFyY2RxZWh5YnpsbnB3YWViIiwicm9sZSI6InVua25vd24iLCJpYXQiOjE3ODcyOTU1MTAsImV4cCI6MjEwMjg3MTUxMH0.fLqHfgvK4n12NfM_xa-_5uhO7Z6eLaWLzWxwVABCuZI';
+const supabaseAnonKey = 'sb_publishable_w0lqq3_YGhJm7twd-FJxrQ_ymV4w';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Testimonial {
@@ -88,6 +88,15 @@ interface Appointment {
   status: 'Confirmed' | 'Pending' | 'Rescheduled';
 }
 
+interface ChatMessage {
+  id?: string;
+  sender?: string;
+  text?: string;
+  message?: string;
+  body?: string;
+  created_at?: string;
+}
+
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (typeof window === 'undefined') return resolve(false);
@@ -128,6 +137,10 @@ export default function DashboardPage() {
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
+  // Supabase लाईव्ह मेसेजेस स्टेट
+  const [dbMessages, setDbMessages] = useState<ChatMessage[]>([]);
+  const [inboxLoading, setInboxLoading] = useState<boolean>(false);
+
   useEffect(() => {
     const saved = localStorage.getItem('unified_meta_permanent_config_v_full');
     if (saved) {
@@ -139,6 +152,30 @@ export default function DashboardPage() {
       }
     }
   }, []);
+
+  // जेव्हा इनबॉक्स टॅब ओपन होईल तेव्हा लाईव्ह मेसेजेस फेच करणे
+  useEffect(() => {
+    if (activeTab === 'inbox') {
+      fetchSupabaseMessages();
+    }
+  }, [activeTab]);
+
+  const fetchSupabaseMessages = async () => {
+    setInboxLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setDbMessages(data || []);
+    } catch (err) {
+      console.error('Error fetching Supabase messages:', err);
+    } finally {
+      setInboxLoading(false);
+    }
+  };
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -561,17 +598,10 @@ export default function DashboardPage() {
 
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
   const [inboxText, setInboxText] = useState<string>('');
-  const [inboxChats, setInboxChats] = useState<Record<string, { from: 'me' | 'them'; text: string; time: string }[]>>({
-    '1': [
-      { from: 'them', text: 'नमस्कार सर, मला डिजिटल मार्केटिंग सेटअपची माहिती हवी होती.', time: '10:25 AM' },
-      { from: 'me', text: 'नमस्कार रविराज जी, रवी पाटील CRM मध्ये आपले स्वागत आहे.', time: '10:30 AM' }
-    ]
-  });
-
+  
   const handleSendInbox = () => {
     if (!inboxText.trim()) return;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    setInboxChats(prev => ({ ...prev, [selectedLead.id]: [...(prev[selectedLead.id] || []), { from: 'me', text: inboxText, time: currentTime }] }));
+    window.open(`https://wa.me/91${selectedLead.phone}?text=${encodeURIComponent(inboxText)}`, '_blank');
     setInboxText('');
   };
 
@@ -1291,84 +1321,51 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* ======================================================== */}
+        {/* इनबॉक्स टॅब - पूर्णपणे शुद्ध केलेले लाईव्ह Supabase मेसेज इनबॉक्स */}
+        {/* ======================================================== */}
         {activeTab === 'inbox' && (
           <div className="space-y-4 text-xs">
             <div className="flex flex-wrap items-center justify-between bg-[#0d1424] border border-slate-800 p-4 rounded-2xl gap-3">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="font-bold text-white">Unified Omnichannel & WhatsApp Business Inbox ({clientSettings.ownerName})</span>
+                <span className="font-bold text-white">WhatsApp Live Inbox (Supabase DB Connected - {clientSettings.ownerName})</span>
               </div>
-              <div className="flex items-center gap-2 text-[11px]">
+              <div className="flex items-center gap-2">
+                <button onClick={fetchSupabaseMessages} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 shadow cursor-pointer">
+                  <RefreshCw size={14} /> 🔄 मेसेजेस रिफ्रेश करा
+                </button>
                 <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 rounded-xl border border-emerald-500/30 font-bold">Meta Cloud API Connected</span>
-                <span className="px-2.5 py-1 bg-blue-950 text-blue-400 rounded-xl border border-blue-500/30 font-bold">AI Auto-Reply: Active</span>
               </div>
             </div>
-            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[580px] shadow-xl">
-              <div className="md:col-span-4 border-r border-slate-800 p-3 overflow-y-auto space-y-1.5 bg-[#080c16]">
-                <div className="px-2 py-1 flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold">
-                  <span>Conversations</span>
-                  <span>Unread: 3</span>
-                </div>
-                {leads.map((l) => (
-                  <div key={l.id} onClick={() => setSelectedLead(l)} className={`p-3 rounded-2xl cursor-pointer transition ${selectedLead.id === l.id ? 'bg-blue-600 text-white font-bold shadow-lg' : 'text-slate-300 hover:bg-slate-800/50'}`}>
-                    <div className="flex justify-between items-center mb-0.5">
-                      <p className="text-xs font-bold truncate">{l.name}</p>
-                      <span className="text-[9px] opacity-75 font-mono">10:30 AM</span>
-                    </div>
-                    <p className="text-[10px] opacity-80 truncate">{l.service} • +91 {l.phone}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="md:col-span-8 p-4 flex flex-col justify-between bg-[#080b12]">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-600/30 text-blue-400 font-black flex items-center justify-center">{selectedLead.name.slice(0,1)}</div>
-                    <div>
-                      <h4 className="font-bold text-white text-sm">{selectedLead.name}</h4>
-                      <span className="text-[10px] text-emerald-400 font-mono">● Online | +91 {selectedLead.phone}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => alert(`🤖 ${selectedLead.name} साठी AI समरी तयार केली जात आहे...`)} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-[10px] font-bold flex items-center gap-1 cursor-pointer">
-                      <Sparkles size={11} /> AI Chat Summary
-                    </button>
-                    <a href={`https://wa.me/91${selectedLead.phone}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] flex items-center gap-1 shadow">
-                      <MessageSquare size={11} /> WA Web
-                    </a>
-                  </div>
-                </div>
 
-                <div className="space-y-3 py-4 overflow-y-auto h-80 px-2">
-                  {(inboxChats[selectedLead.id] || [
-                    { from: 'them', text: `नमस्कार सर, मला ${selectedLead.service} बद्दल माहिती हवी होती.`, time: '10:15 AM' },
-                    { from: 'me', text: `नमस्कार ${selectedLead.name} जी, स्वागत आहे! आपण आजच आमचे पॅकर्स/कोर्स तपासू शकता.`, time: '10:18 AM' }
-                  ]).map((m, i) => (
-                    <div key={i} className={`flex flex-col ${m.from === 'me' ? 'items-end' : 'items-start'}`}>
-                      <div className={`p-3 rounded-2xl max-w-[75%] text-xs shadow-md ${m.from === 'me' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 border border-slate-700/60 rounded-bl-none'}`}>
-                        {m.text}
+            <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-3 min-h-[500px] shadow-2xl">
+              {inboxLoading ? (
+                <p className="text-slate-400 text-center py-20 font-bold text-sm">मेसेजेस लोड होत आहेत...</p>
+              ) : dbMessages.length === 0 ? (
+                <div className="text-center py-24 space-y-2">
+                  <p className="text-slate-300 font-bold text-sm">कोणतेही मेसेजेस आढळले नाहीत.</p>
+                  <p className="text-slate-500 text-xs">दुसऱ्या नंबरवरून तुमच्या WhatsApp नंबरवर मेसेज पाठवून तपासा.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {dbMessages.map((msg, idx) => (
+                    <div key={msg.id || idx} className="bg-[#080b12] border border-slate-700/80 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-lg">
+                      <div className="space-y-1.5">
+                        <span className="text-blue-400 font-bold text-xs flex items-center gap-1.5 font-mono">
+                          📞 Sender Number: {msg.sender || msg.phone || 'Unknown'}
+                        </span>
+                        <p className="text-white text-sm font-semibold">
+                          💬 Message: {msg.text || msg.message || msg.body || 'Media/Non-text Message'}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-500">
-                        <span>{m.time}</span>
-                        {m.from === 'me' && <CheckCheck size={12} className="text-blue-400" />}
-                      </div>
+                      <span className="text-[11px] text-slate-400 font-mono bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
+                        {msg.created_at ? new Date(msg.created_at).toLocaleString() : ''}
+                      </span>
                     </div>
                   ))}
                 </div>
-
-                <div className="space-y-2 pt-2 border-t border-slate-800">
-                  <div className="flex gap-1.5 overflow-x-auto pb-1 text-[10px]">
-                    <button onClick={() => setInboxText('नमस्कार, आजचे विशेष ऑफर पॅकेज माहितीसाठी हा मेसेज आहे.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: Offer Text</button>
-                    <button onClick={() => setInboxText(`https://ai-growth-crm-nine.vercel.app/pay?pa=${clientSettings.upiId}&amount=2500`)} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: UPI Payment Link</button>
-                    <button onClick={() => setInboxText('कृपया आपली भेटण्याची वेळ (Appointment Slot) सांगा.')} className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg whitespace-nowrap hover:bg-slate-700 cursor-pointer">Quick: Appointment Ask</button>
-                  </div>
-                  <div className="flex gap-2">
-                    <input type="text" value={inboxText} onChange={(e) => setInboxText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendInbox()} placeholder="Type WhatsApp reply here..." className="flex-1 bg-[#0d1424] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-blue-500" />
-                    <button onClick={handleSendInbox} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center gap-1 shadow-lg cursor-pointer">
-                      <Send size={14} /> Send
-                    </button>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -1544,7 +1541,7 @@ export default function DashboardPage() {
         {isSlotModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl text-xs">
-              <h3 className="font-black text-white text-base">Book Appointment</h3>
+              <h3 className="font-black text-base text-white">Book Appointment</h3>
               <form onSubmit={handleBookSlot} className="space-y-3.5">
                 <input type="text" required value={newSlot.clientName} onChange={(e) => setNewSlot({ ...newSlot, clientName: e.target.value })} placeholder="नाव" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
                 <input type="text" required value={newSlot.phone} onChange={(e) => setNewSlot({ ...newSlot, phone: e.target.value })} placeholder="मोबाईल" className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none font-mono" />
@@ -1569,4 +1566,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
