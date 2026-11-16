@@ -88,7 +88,6 @@ interface Appointment {
   status: 'Confirmed' | 'Pending' | 'Rescheduled';
 }
 
-// ✅ सर्व TypeScript एरर काढण्यासाठी सर्व संभाव्य प्रॉपर्टीज इथे जोडल्या आहेत
 interface ChatMessage {
   id?: string;
   sender?: string;
@@ -141,6 +140,14 @@ export default function DashboardPage() {
     webhookVerifyToken: 'growth_crm_verify_2026'
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
+
+  // ✅ पाईपलाईन ड्रॉपडाऊन आणि मल्टिपल पाईपलाईन स्टेट
+  const [pipelines, setPipelines] = useState([
+    { id: 'ai_growth', name: 'AI Digital Skills Growth (कोर्स व मास्टरक्लास)' },
+    { id: 'mobile_shop', name: 'ईश्वरी मोबाईल शॉप (रिपेअर व सेल)' },
+    { id: 'hotel_biz', name: 'रवी पाटील हॉटेल & रेस्टॉरंट' }
+  ]);
+  const [selectedPipeline, setSelectedPipeline] = useState('ai_growth');
 
   // Supabase लाईव्ह मेसेजेस स्टेट
   const [dbMessages, setDbMessages] = useState<ChatMessage[]>([]);
@@ -1052,14 +1059,44 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* ✅ आता या पाईपलाईन टॅबमध्ये बरोबर वर ड्रॉपडाऊन दिसेल */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
-              <div><h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline ({clientSettings.ownerName})</h2></div>
-              <div className="flex gap-2">
-                <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer">+ Add Deal</button>
+              <div>
+                <h2 className="text-lg font-black text-white">Growth CRM & Kanban Pipeline ({clientSettings.ownerName})</h2>
+                <p className="text-xs text-slate-400">वेगवेगळ्या व्यवसायांच्या लीड्स स्वतंत्र पाईपलाईनमध्ये मॅनेज करा.</p>
+              </div>
+
+              {/* पाईपलाईन निवडण्यासाठी ड्रॉपडाऊन आणि नवीन ॲड करण्याचे बटण */}
+              <div className="flex items-center gap-3">
+                <select 
+                  value={selectedPipeline} 
+                  onChange={(e) => setSelectedPipeline(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold outline-none cursor-pointer"
+                >
+                  {pipelines.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+
+                <button 
+                  onClick={() => {
+                    const newName = prompt('नवीन पाईपलाईनचे नाव टाका (उदा. Real Estate Agency):');
+                    if (newName && newName.trim()) {
+                      const newId = newName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                      setPipelines(prev => [...prev, { id: newId, name: newName }]);
+                      setSelectedPipeline(newId);
+                      alert('नवीन पाईपलाईन यशस्वीरीत्या तयार झाली!');
+                    }
+                  }}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer shadow-lg"
+                >
+                  + नवीन पाईपलाईन तयार करा
+                </button>
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {['New Lead', 'Contacted', 'Payment Sent', 'Won'].map((stg) => (
                 <div key={stg} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, stg)} className="bg-[#0d1424] border border-slate-800 rounded-2xl p-4 space-y-3 min-h-[450px]">
@@ -1327,7 +1364,7 @@ export default function DashboardPage() {
         )}
 
         {/* ======================================================== */}
-        {/* इनबॉक्स टॅब - TypeScript एरर काढलेला आणि लाईव्ह मेसेज डॅशबोर्ड */}
+        {/* इनबॉक्स टॅब - पूर्णपणे शुद्ध केलेले लाईव्ह Supabase मेसेज इनबॉक्स */}
         {/* ======================================================== */}
         {activeTab === 'inbox' && (
           <div className="space-y-4 text-xs">
