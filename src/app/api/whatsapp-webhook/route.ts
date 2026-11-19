@@ -45,9 +45,11 @@ async function generateGeminiReply(
         if (reply && typeof reply === 'string') {
           return reply.trim();
         }
+      } else {
+        console.error(`Gemini Model (${model}) Error:`, JSON.stringify(data));
       }
-    } catch {
-      // पुढच्या मॉडेलवर प्रयत्न सुरू राहील
+    } catch (err: any) {
+      console.error(`Gemini Fetch Error (${model}):`, err?.message || err);
     }
   }
   return null;
@@ -73,7 +75,13 @@ async function sendWhatsAppReply(
       text: { body: replyText },
     }),
   });
-  return res.ok;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    console.error('Meta Send Message Error:', JSON.stringify(data));
+    return false;
+  }
+  console.log('Meta Send Message Success:', JSON.stringify(data));
+  return true;
 }
 
 // १. मेटा (Meta) कडून वेबहुक व्हेरिफाय करण्यासाठी GET मेथड
@@ -143,13 +151,28 @@ export async function POST(request: NextRequest) {
           console.log('Message successfully saved to Supabase messages table!', data);
         }
 
-        // क्लायंट सेटिंग्सवरून Gemini AI ऑटो-रिप्लाय पाठवणे
         if (phoneNumberId && message.text?.body) {
-          const { data: client } = await supabase
+          console.log('Incoming phoneNumberId:', phoneNumberId);
+
+          const { data: client, error: clientErr } = await supabase
             .from('client_settings')
             .select('*')
             .eq('metaPhoneId', phoneNumberId)
             .maybeSingle();
+
+          console.log(
+            'Matched client in client_settings:',
+            client
+              ? {
+                  id: client.user_id,
+                  hasKey: !!client.geminiApiKey,
+                  hasToken: !!client.accessToken,
+                  autoReply: client.aiAutoReply,
+                  allowedModules: client.allowed_modules,
+                }
+              : null,
+            clientErr
+          );
 
           const allowedList = Array.isArray(client?.allowed_modules)
             ? client.allowed_modules
@@ -174,10 +197,18 @@ export async function POST(request: NextRequest) {
                 aiReply
               );
               console.log('WhatsApp AI Auto-Reply sent:', sent);
+            } else {
+              console.error('Gemini returned empty reply.');
             }
           } else {
             console.log(
-              'Skipping AI Auto-Reply: missing client config, module access, apiKey, or accessToken.'
+              'Skipping AI Auto-Reply:',
+              JSON.stringify({
+                autoReplyEnabled,
+                hasModuleAccess,
+                hasApiKey: !!apiKey,
+                hasAccessToken: !!accessToken,
+              })
             );
           }
         }
