@@ -138,14 +138,14 @@ export default function DashboardPage() {
     ownerName: 'Ravi Patil',
     metaAdAccountId: '778929936264833',
     accessToken: '',
-    webhookVerifyToken: 'growth_crm_verify_2026',
+    webhookVerifyToken: 'ravi_crm_verified_2026',
     geminiApiKey: ''
   });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
 
-  // क्लायंटच्या प्लॅननुसार सुरू असलेले मॉड्यूल्स (स्टेप-२ लॉक सिस्टम)
+  // Settings नेहमी अनलॉक राहील + WhatsApp Inbox, Agents व Workflow सुरू
   const [allowedModules, setAllowedModules] = useState<string[]>([
-    'dashboard', 'inbox', 'workflow'
+    'dashboard', 'inbox', 'workflow', 'agents', 'settings'
   ]);
 
   const [pipelines, setPipelines] = useState([
@@ -165,6 +165,10 @@ export default function DashboardPage() {
       } catch (e) {
         console.error(e);
       }
+    }
+    const savedPrompt = localStorage.getItem('saved_ai_system_prompt');
+    if (savedPrompt) {
+      setBotConfig(prev => ({ ...prev, systemPrompt: savedPrompt }));
     }
   }, []);
 
@@ -200,25 +204,87 @@ export default function DashboardPage() {
     });
   };
 
+  const syncSettingsToSupabase = async (overridePrompt?: string) => {
+    const phoneId = String(clientSettings.metaPhoneId || '').trim();
+    const promptToSave = overridePrompt !== undefined ? overridePrompt : botConfig.systemPrompt;
+
+    const payload: any = {
+      businessName: clientSettings.businessName,
+      upiId: clientSettings.upiId,
+      whatsappNumber: clientSettings.whatsappNumber,
+      metaPhoneId: phoneId,
+      razorpayKey: clientSettings.razorpayKey,
+      ownerName: clientSettings.ownerName,
+      metaAdAccountId: clientSettings.metaAdAccountId,
+      accessToken: clientSettings.accessToken.trim(),
+      webhookVerifyToken: clientSettings.webhookVerifyToken,
+      geminiApiKey: clientSettings.geminiApiKey.trim(),
+      systemPrompt: promptToSave,
+      aiAutoReply: true,
+      allowed_modules: allowedModules,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('client_settings').upsert({
+        user_id: user.id,
+        ...payload
+      });
+      return;
+    }
+
+    if (phoneId) {
+      const { data: existing } = await supabase
+        .from('client_settings')
+        .select('user_id')
+        .eq('metaPhoneId', phoneId)
+        .maybeSingle();
+
+      if (existing?.user_id) {
+        await supabase
+          .from('client_settings')
+          .update(payload)
+          .eq('user_id', existing.user_id);
+      } else {
+        const { data: firstRow } = await supabase
+          .from('client_settings')
+          .select('user_id')
+          .limit(1)
+          .maybeSingle();
+
+        if (firstRow?.user_id) {
+          await supabase
+            .from('client_settings')
+            .update(payload)
+            .eq('user_id', firstRow.user_id);
+        }
+      }
+    }
+  };
+
   const handleSaveClientSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSettings(true);
     try {
       localStorage.setItem('unified_meta_permanent_config_v_full', JSON.stringify(clientSettings));
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('client_settings').upsert({
-          user_id: user.id,
-          ...clientSettings,
-          updated_at: new Date()
-        });
-      }
-      alert('✅ तुमच्या क्लायंट सेटिंग्स, मेटा क्रेडेंशियल्स आणि Gemini API Key यशस्वीरीत्या सेव्ह झाली!');
+      await syncSettingsToSupabase();
+      alert('✅ तुमच्या क्लायंट सेटिंग्स, Meta Access Token आणि Gemini API Key Supabase मध्ये यशस्वीरीत्या सेव्ह झाली!');
     } catch (err) {
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
       alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्यात!');
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  const handleSaveAiAgent = async () => {
+    localStorage.setItem('saved_ai_system_prompt', botConfig.systemPrompt);
+    try {
+      await syncSettingsToSupabase(botConfig.systemPrompt);
+      alert('✅ AI Agent व System Prompt सेव्ह झाले! आता WhatsApp वर सुद्धा याच माहितीप्रमाणे उत्तर दिले जाईल.');
+    } catch {
+      alert('✅ AI Agent सेटिंग सेव्ह झाली!');
     }
   };
 
@@ -247,6 +313,8 @@ export default function DashboardPage() {
       if (session) {
         setIsLoggedIn(true);
         loadClientSettings(session.user.id);
+      } else {
+        loadClientSettingsByPhoneId();
       }
     });
 
@@ -258,27 +326,45 @@ export default function DashboardPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const applyLoadedRow = (data: any) => {
+    if (!data) return;
+    setClientSettings(prev => ({
+      ...prev,
+      businessName: data.businessName || prev.businessName,
+      upiId: data.upiId || prev.upiId,
+      whatsappNumber: data.whatsappNumber || prev.whatsappNumber,
+      metaPhoneId: data.metaPhoneId || prev.metaPhoneId,
+      razorpayKey: data.razorpayKey || prev.razorpayKey,
+      ownerName: data.ownerName || prev.ownerName,
+      metaAdAccountId: data.metaAdAccountId || prev.metaAdAccountId,
+      webhookVerifyToken: data.webhookVerifyToken || prev.webhookVerifyToken,
+      accessToken: data.accessToken || prev.accessToken,
+      geminiApiKey: data.geminiApiKey || prev.geminiApiKey
+    }));
+    if (data.systemPrompt) {
+      setBotConfig(prev => ({ ...prev, systemPrompt: data.systemPrompt }));
+    }
+    if (Array.isArray(data.allowed_modules) && data.allowed_modules.length > 0) {
+      const unlocked = Array.from(new Set([...data.allowed_modules, 'settings']));
+      setAllowedModules(unlocked);
+    }
+  };
+
+  const loadClientSettingsByPhoneId = async () => {
+    try {
+      const { data } = await supabase
+        .from('client_settings')
+        .select('*')
+        .eq('metaPhoneId', '1387961227727412')
+        .maybeSingle();
+      if (data) applyLoadedRow(data);
+    } catch {}
+  };
+
   const loadClientSettings = async (userId: string) => {
     try {
       const { data } = await supabase.from('client_settings').select('*').eq('user_id', userId).single();
-      if (data) {
-        setClientSettings(prev => ({
-          ...prev,
-          businessName: data.businessName || prev.businessName,
-          upiId: data.upiId || prev.upiId,
-          whatsappNumber: data.whatsappNumber || prev.whatsappNumber,
-          metaPhoneId: data.metaPhoneId || prev.metaPhoneId,
-          razorpayKey: data.razorpayKey || prev.razorpayKey,
-          ownerName: data.ownerName || prev.ownerName,
-          metaAdAccountId: data.metaAdAccountId || prev.metaAdAccountId,
-          webhookVerifyToken: data.webhookVerifyToken || prev.webhookVerifyToken,
-          accessToken: data.accessToken || prev.accessToken,
-          geminiApiKey: data.geminiApiKey || prev.geminiApiKey
-        }));
-        if (Array.isArray(data.allowed_modules) && data.allowed_modules.length > 0) {
-          setAllowedModules(data.allowed_modules);
-        }
-      }
+      if (data) applyLoadedRow(data);
     } catch (e) {
       const local = localStorage.getItem('client_custom_settings');
       if (local) {
@@ -965,7 +1051,7 @@ export default function DashboardPage() {
             {menuItems.map((item) => {
               const IconComp = item.icon;
               const isActive = activeTab === item.id;
-              const isLocked = !allowedModules.includes(item.id);
+              const isLocked = item.id !== 'settings' && !allowedModules.includes(item.id);
               return (
                 <button
                   key={item.id}
@@ -1033,7 +1119,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {!allowedModules.includes(activeTab) ? (
+        {activeTab !== 'settings' && !allowedModules.includes(activeTab) ? (
           <div className="bg-[#0d1424] border border-amber-500/30 rounded-3xl p-10 text-center space-y-4 max-w-xl mx-auto my-10 shadow-2xl">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
               <Lock size={26} />
@@ -1310,7 +1396,7 @@ export default function DashboardPage() {
                   <h3 className="font-bold text-white text-sm">AI Agent Studio ({clientSettings.ownerName})</h3>
                   <div><label className="text-slate-300 block mb-1 font-bold">Agent Name</label><input type="text" value={botConfig.name} onChange={(e) => setBotConfig({ ...botConfig, name: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
                   <div><label className="text-slate-300 block mb-1 font-bold">System Prompt</label><textarea rows={4} value={botConfig.systemPrompt} onChange={(e) => setBotConfig({ ...botConfig, systemPrompt: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-3 text-white outline-none resize-none" /></div>
-                  <button onClick={() => alert('सेव्ह झाले!')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save AI Agent</button>
+                  <button onClick={handleSaveAiAgent} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer">Save AI Agent</button>
                 </div>
                 <div className="lg:col-span-7 bg-[#0d1424] border border-slate-800 rounded-3xl p-5 space-y-4 text-xs shadow-xl flex flex-col justify-between h-[520px]">
                   <h4 className="font-bold text-white text-xs">{botConfig.name} - Simulator</h4>
