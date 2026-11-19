@@ -3,12 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 const GEMINI_MODELS = [
   'gemini-2.5-flash',
+  'gemini-2.5-pro',
   'gemini-2.0-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-1.5-pro-latest',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-pro',
+  'gemini-2.0-flash-lite',
 ];
 
 async function generateGeminiReply(
@@ -25,33 +22,57 @@ async function generateGeminiReply(
     'Reply naturally and concisely matching the user language.',
   ].join('\n\n');
 
+  const payload = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+  });
+
   for (const model of GEMINI_MODELS) {
+    const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      model
+    )}:generateContent`;
+
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-          model
-        )}:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-          }),
-        }
-      );
+      const res = await fetch(`${baseUrl}?key=${encodeURIComponent(apiKey)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply && typeof reply === 'string') {
+        if (reply && typeof reply === 'string' && reply.trim()) {
           return reply.trim();
         }
       } else {
-        console.error(`Gemini Model (${model}) Error:`, JSON.stringify(data));
+        console.error(`Gemini Model (${model}) [key] Error:`, JSON.stringify(data));
       }
     } catch (err: any) {
-      console.error(`Gemini Fetch Error (${model}):`, err?.message || err);
+      console.error(`Gemini Fetch Error (${model}) [key]:`, err?.message || err);
+    }
+
+    try {
+      const resBearer = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: payload,
+      });
+      const dataBearer = await resBearer.json().catch(() => ({}));
+      if (resBearer.ok) {
+        const reply = dataBearer?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply && typeof reply === 'string' && reply.trim()) {
+          return reply.trim();
+        }
+      } else {
+        console.error(`Gemini Model (${model}) [Bearer] Error:`, JSON.stringify(dataBearer));
+      }
+    } catch (err: any) {
+      console.error(`Gemini Fetch Error (${model}) [Bearer]:`, err?.message || err);
     }
   }
+
   return null;
 }
 
@@ -106,7 +127,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Bad Request', { status: 400 });
 }
 
-// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी आणि Gemini AI ऑटो-रिप्लाय पाठवण्यासाठी POST मेथड
+// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी आणि ऑटो-रिप्लाय पाठवण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
   console.log('========================================');
   console.log('--- POST WEBHOOK HIT RECEIVED FROM META ---');
@@ -187,19 +208,24 @@ export async function POST(request: NextRequest) {
           const systemPrompt = String(client?.systemPrompt || '').trim();
           const autoReplyEnabled = client?.aiAutoReply !== false;
 
-          if (autoReplyEnabled && hasModuleAccess && apiKey && accessToken) {
-            const aiReply = await generateGeminiReply(apiKey, systemPrompt, messageText);
-            if (aiReply) {
-              const sent = await sendWhatsAppReply(
-                phoneNumberId,
-                accessToken,
-                senderPhone,
-                aiReply
-              );
-              console.log('WhatsApp AI Auto-Reply sent:', sent);
-            } else {
-              console.error('Gemini returned empty reply.');
-            }
+          if (autoReplyEnabled && hasModuleAccess && accessToken) {
+            const aiReply = apiKey
+              ? await generateGeminiReply(apiKey, systemPrompt, messageText)
+              : null;
+
+            const finalReply =
+              aiReply ||
+              `नमस्कार! 🙏 ${
+                client?.businessName || 'AI Growth CRM'
+              } कडून आपला मेसेज प्राप्त झाला आहे. आम्ही लवकरच आपल्याशी संपर्क साधतो.`;
+
+            const sent = await sendWhatsAppReply(
+              phoneNumberId,
+              accessToken,
+              senderPhone,
+              finalReply
+            );
+            console.log('WhatsApp AI Auto-Reply sent:', sent);
           } else {
             console.log(
               'Skipping AI Auto-Reply:',
