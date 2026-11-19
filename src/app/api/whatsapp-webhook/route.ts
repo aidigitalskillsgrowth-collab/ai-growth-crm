@@ -1,81 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const GEMINI_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-];
-
-async function generateGeminiReply(
-  apiKey: string,
-  systemPrompt: string,
-  customerMessage: string
-): Promise<string | null> {
-  const prompt = [
-    `System Instructions:\n${
-      systemPrompt ||
-      'तुम्ही एक हुशार, नम्र आणि मदतीला तत्पर असलेले AI असिस्टंट आहात. ग्राहकाच्या प्रश्नाला नैसर्गिक आणि स्पष्ट भाषेत उत्तर द्या.'
-    }`,
-    `Customer WhatsApp Message:\n${customerMessage}`,
-    'Reply naturally and concisely matching the user language.',
-  ].join('\n\n');
-
-  const payload = JSON.stringify({
-    contents: [{ parts: [{ text: prompt }] }],
-  });
-
-  for (const model of GEMINI_MODELS) {
-    const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-      model
-    )}:generateContent`;
-
-    try {
-      const res = await fetch(`${baseUrl}?key=${encodeURIComponent(apiKey)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: payload,
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply && typeof reply === 'string' && reply.trim()) {
-          return reply.trim();
-        }
-      } else {
-        console.error(`Gemini Model (${model}) [key] Error:`, JSON.stringify(data));
-      }
-    } catch (err: any) {
-      console.error(`Gemini Fetch Error (${model}) [key]:`, err?.message || err);
-    }
-
-    try {
-      const resBearer = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: payload,
-      });
-      const dataBearer = await resBearer.json().catch(() => ({}));
-      if (resBearer.ok) {
-        const reply = dataBearer?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply && typeof reply === 'string' && reply.trim()) {
-          return reply.trim();
-        }
-      } else {
-        console.error(`Gemini Model (${model}) [Bearer] Error:`, JSON.stringify(dataBearer));
-      }
-    } catch (err: any) {
-      console.error(`Gemini Fetch Error (${model}) [Bearer]:`, err?.message || err);
-    }
-  }
-
-  return null;
-}
-
 async function sendWhatsAppReply(
   phoneNumberId: string,
   accessToken: string,
@@ -127,7 +52,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Bad Request', { status: 400 });
 }
 
-// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी आणि ऑटो-रिप्लाय पाठवण्यासाठी POST मेथड
+// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी आणि AI ऑटो-रिप्लाय पाठवण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
   console.log('========================================');
   console.log('--- POST WEBHOOK HIT RECEIVED FROM META ---');
@@ -135,8 +60,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    console.log('Full Incoming Payload:', JSON.stringify(body, null, 2));
-
     const entry = body?.entry?.[0];
     const changes = entry?.changes?.[0];
     const value = changes?.value;
@@ -157,43 +80,22 @@ export async function POST(request: NextRequest) {
       if (supabaseUrl && supabaseKey) {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        const { data, error } = await supabase
+        // १. इनबॉक्ससाठी मेसेज सेव्ह करणे
+        const { error } = await supabase
           .from('messages')
-          .insert([
-            {
-              sender: senderPhone,
-              text: messageText,
-            },
-          ] as any);
+          .insert([{ sender: senderPhone, text: messageText }] as any);
 
         if (error) {
           console.error('Supabase Insert Error:', error);
-        } else {
-          console.log('Message successfully saved to Supabase messages table!', data);
         }
 
+        // २. क्लायंट सेटिंग्स वाचून AI उत्तर तयार करणे
         if (phoneNumberId && message.text?.body) {
-          console.log('Incoming phoneNumberId:', phoneNumberId);
-
-          const { data: client, error: clientErr } = await supabase
+          const { data: client } = await supabase
             .from('client_settings')
             .select('*')
             .eq('metaPhoneId', phoneNumberId)
             .maybeSingle();
-
-          console.log(
-            'Matched client in client_settings:',
-            client
-              ? {
-                  id: client.user_id,
-                  hasKey: !!client.geminiApiKey,
-                  hasToken: !!client.accessToken,
-                  autoReply: client.aiAutoReply,
-                  allowedModules: client.allowed_modules,
-                }
-              : null,
-            clientErr
-          );
 
           const allowedList = Array.isArray(client?.allowed_modules)
             ? client.allowed_modules
@@ -209,9 +111,31 @@ export async function POST(request: NextRequest) {
           const autoReplyEnabled = client?.aiAutoReply !== false;
 
           if (autoReplyEnabled && hasModuleAccess && accessToken) {
-            const aiReply = apiKey
-              ? await generateGeminiReply(apiKey, systemPrompt, messageText)
-              : null;
+            let aiReply: string | null = null;
+
+            // सिम्युलेटरप्रमाणेच आपल्याच /api/gemini-chat एंडपॉइंटवरून उत्तर मिळवणे
+            if (apiKey) {
+              try {
+                const origin = request.nextUrl.origin;
+                const chatRes = await fetch(`${origin}/api/gemini-chat`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    apiKey,
+                    message: messageText,
+                    systemPrompt,
+                  }),
+                });
+                const chatData = await chatRes.json().catch(() => ({}));
+                if (chatRes.ok && chatData?.reply) {
+                  aiReply = String(chatData.reply).trim();
+                } else {
+                  console.error('Internal /api/gemini-chat error:', JSON.stringify(chatData));
+                }
+              } catch (chatErr: any) {
+                console.error('Internal /api/gemini-chat fetch failed:', chatErr?.message || chatErr);
+              }
+            }
 
             const finalReply =
               aiReply ||
@@ -226,25 +150,9 @@ export async function POST(request: NextRequest) {
               finalReply
             );
             console.log('WhatsApp AI Auto-Reply sent:', sent);
-          } else {
-            console.log(
-              'Skipping AI Auto-Reply:',
-              JSON.stringify({
-                autoReplyEnabled,
-                hasModuleAccess,
-                hasApiKey: !!apiKey,
-                hasAccessToken: !!accessToken,
-              })
-            );
           }
         }
-      } else {
-        console.error('Supabase environment variables missing in API route!');
       }
-    } else {
-      console.log(
-        'Webhook received, but no messages array found in payload (could be status update like delivered/read).'
-      );
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
