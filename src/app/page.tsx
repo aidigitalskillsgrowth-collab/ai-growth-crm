@@ -2,10 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { 
-  Search, RefreshCw, Layers, Users, PhoneCall, MessageSquare, Send, 
-  Sparkles, Monitor, Smartphone, Volume2, Upload, Download, Plus, 
-  ExternalLink, QrCode, Check, Copy, Bot, Megaphone, FileText, 
+import {
+  Search, RefreshCw, Layers, Users, PhoneCall, MessageSquare, Send,
+  Sparkles, Monitor, Smartphone, Volume2, Upload, Download, Plus,
+  ExternalLink, QrCode, Check, Copy, Bot, Megaphone, FileText,
   GitBranch, Calendar, Wallet, Share2, Settings, Play, ArrowRight,
   Clock, MapPin, Phone, Edit3, Trash2, Filter, X, CheckSquare, Tag,
   TrendingUp, Zap, Target, Activity, CheckCircle2, ArrowUpRight,
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           updated_at: new Date()
         });
       }
-      alert('✅ सेटिंग्स आणि API Key यशस्वीरीत्या सेव्ह झाली!');
+      alert('✅ तुमच्या क्लायंट सेटिंग्स, मेटा क्रेडेंशियल्स आणि Gemini API Key यशस्वीरीत्या सेव्ह झाली!');
     } catch (err) {
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
       alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्यात!');
@@ -274,7 +274,7 @@ export default function DashboardPage() {
     } catch (e) {
       const local = localStorage.getItem('client_custom_settings');
       if (local) {
-        try { setClientSettings(prev => ({ ...prev, ...JSON.parse(local) })); } catch(err){}
+        try { setClientSettings(prev => ({ ...prev, ...JSON.parse(local) })); } catch (err) {}
       }
     }
   };
@@ -309,9 +309,9 @@ export default function DashboardPage() {
       const { error } = await supabase.auth.resetPasswordForEmail(authEmail.trim(), {
         redirectTo: window.location.origin,
       });
-      if (error) { setAuthError(error.message); } 
+      if (error) { setAuthError(error.message); }
       else { alert('पासवर्ड रिसेट करण्याची लिंक तुमच्या ईमेलवर पाठवली आहे!'); setAuthMode('login'); }
-    } catch (err) { setAuthError('रिसेट लिंक पाठवण्यात अडचण आली.'); } 
+    } catch (err) { setAuthError('रिसेट लिंक पाठवण्यात अडचण आली.'); }
     finally { setAuthLoading(false); }
   };
 
@@ -410,18 +410,18 @@ export default function DashboardPage() {
     if (!promptInput.trim()) { alert('कृपया आधी व्यवसायाचा प्रॉम्प्ट टाईप करा किंवा माईकवर बोला!'); return; }
     setIsGenerating(true);
     setTimeout(() => {
-      let bizName = promptInput;
-      let headlineText = 'Transforming Industry Standards with Premium Excellence';
-      let subText = 'We deliver cutting-edge solutions, high-performance execution, and unmatched customer support tailored specifically for your brand.';
-      let badgeText = '★ Verified 5-Star Enterprise Solution';
-      let heroImageLink = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80';
-      let ownerAvatar = avatars.ownerDefault;
-      let dynamicServices = [
+      const bizName = promptInput;
+      const headlineText = 'Transforming Industry Standards with Premium Excellence';
+      const subText = 'We deliver cutting-edge solutions, high-performance execution, and unmatched customer support tailored specifically for your brand.';
+      const badgeText = '★ Verified 5-Star Enterprise Solution';
+      const heroImageLink = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&auto=format&fit=crop&q=80';
+      const ownerAvatar = avatars.ownerDefault;
+      const dynamicServices = [
         { title: 'Core Premium Service', desc: 'Designed to deliver maximum efficiency, superior quality and exceptional value.', price: '₹1,999 onwards' },
         { title: 'Advanced Consultation', desc: 'Expert guidance and 24/7 dedicated support to scale your operations smoothly.', price: '₹4,999' },
         { title: 'Complete Execution Package', desc: 'All-in-one comprehensive framework built for high performance and results.', price: '₹9,999' }
       ];
-      let dynamicTestimonials = [
+      const dynamicTestimonials = [
         { name: 'राहुल शहा', avatar: avatars.client1, location: 'मुंबई', review: 'अप्रतिम सर्विस! क्वालिटी आणि प्रोफेशनलिझम खरोखर वाखाणण्याजोगा आहे.', rating: 5 },
         { name: 'अमित देसाई', avatar: avatars.client2, location: 'पुणे', review: 'सर्व काही मनासारखे आणि वेळेवर मिळाले. मी नक्की पुन्हा भेट देईन!', rating: 5 }
       ];
@@ -575,61 +575,80 @@ export default function DashboardPage() {
   ]);
   const [inputMsg, setInputMsg] = useState<string>('');
 
-  // ✅ 100% झिरो एरर स्मार्ट डाइनॅमिक चॅटबॉट सिस्टीम (API Key असो किंवा नसो, कधीही एरर येणार नाही)
   const handleSendChat = async () => {
     if (!inputMsg.trim()) return;
-    const txt = inputMsg;
-    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
-    setChatMessages(prev => [...prev, { sender: 'user', text: txt, time: currentTime }]);
-    const currentInput = txt;
+
+    const currentInput = inputMsg.trim();
+    const userTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    setChatMessages((prev) => [...prev, { sender: 'user', text: currentInput, time: userTime }]);
     setInputMsg('');
 
-    const apiKey = clientSettings.geminiApiKey ? clientSettings.geminiApiKey.trim() : '';
+    const apiKey = clientSettings?.geminiApiKey ? clientSettings.geminiApiKey.trim() : '';
 
-    // जर एपीआय की टाकली असेल तर थेट प्रयत्न करू, एरर आल्यास ऑटोमॅटिक स्मार्ट फॉलबॅक चालेल
-    if (apiKey) {
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `System: ${botConfig.systemPrompt}\nUser: ${currentInput}\nReply in Marathi/Hinglish:` }] }]
-          })
-        });
-        const data = await response.json();
-        if (data && data.candidates && data.candidates[0].content?.parts[0]?.text) {
-          const aiReply = data.candidates[0].content.parts[0].text;
-          setChatMessages(prev => [...prev, { sender: 'bot', text: aiReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
-          return;
-        }
-      } catch (err) {
-        console.warn('API fallback engaged due to network/model issue:', err);
-      }
+    if (!apiKey) {
+      const botTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          sender: 'bot',
+          text: '⚠️ Gemini API कनेक्ट झालेले नाही. कृपया Settings & Meta API मध्ये जाऊन तुमची Gemini API Key पेस्ट करा आणि सेव्ह करा.',
+          time: botTime,
+        },
+      ]);
+      return;
     }
 
-    // 🌟 अत्यंत हुशार आणि नॅचरल स्मार्ट फॉलबॅक लॉजिक (कधीही क्रॅश होणार नाही)
-    setTimeout(() => {
-      let botReply = '';
-      const lower = currentInput.toLowerCase();
+    try {
+      const response = await fetch('/api/gemini-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey,
+          message: currentInput,
+          systemPrompt: botConfig?.systemPrompt || '',
+        }),
+      });
 
-      if (lower.includes('कोर्स') || lower.includes('course') || lower.includes('courses') || lower.includes('shikhvla') || lower.includes('शिकवले') || lower.includes('मास्टरक्लास')) {
-        botReply = `🎯 आमच्या 'AI Digital Skills Growth' अंतर्गत अत्यंत प्रगत कोर्सेस उपलब्ध आहेत:\n1. ChatGPT & Gemini AI Tools Mastery\n2. Meta Ads & Lead Generation\n3. WhatsApp Automation & Business CRM\nयापैकी कशाची माहिती हवी आहे?`;
-      } else if (lower.includes('किंमत') || lower.includes('फीस') || lower.includes('price') || lower.includes('fee') || lower.includes('feez')) {
-        botReply = `💰 आमच्या ट्रेनिंगची फी अत्यंत सुलभ आणि परवडणारी आहे. विशेष डिस्काउंटसाठी तुम्ही डॅशबोर्डवरील पेमेंट टॅब पाहू शकता!`;
-      } else if (lower.includes('नंबर') || lower.includes('संपर्क') || lower.includes('call') || lower.includes('phone') || lower.includes('whatsapp')) {
-        botReply = `📞 तुम्ही आमच्याशी थेट ७२१९५६६७७७ या क्रमांकावर WhatsApp द्वारे किंवा कॉल करून संपर्क साधू शकता!`;
-      } else {
-        botReply = `नमस्कार! 🙏 '${currentInput}' या चौकशीबद्दल धन्यवाद. रवी पाटील यांची टीम आणि AI असिस्टंट तुम्हाला यात पूर्ण मदत करेल. सांगा, यात मी तुम्हाला अजून काय माहिती देऊ?`;
+      const data = await response.json();
+      const botTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      if (!response.ok || !data?.reply) {
+        setChatMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: `❌ Gemini API त्रुटी: ${data?.error || 'उत्तर मिळू शकले नाही.'}`,
+            time: botTime,
+          },
+        ]);
+        return;
       }
 
-      setChatMessages(prev => [...prev, { sender: 'bot', text: botReply, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }]);
-    }, 400);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          sender: 'bot',
+          text: data.reply,
+          time: botTime,
+        },
+      ]);
+    } catch (error) {
+      const botTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          sender: 'bot',
+          text: '❌ सर्व्हरशी संपर्क साधताना नेटवर्क एरर आला. कृपया पुन्हा प्रयत्न करा.',
+          time: botTime,
+        },
+      ]);
+    }
   };
 
   const [selectedLead, setSelectedLead] = useState<Lead>(initialLeads[0]);
   const [inboxText, setInboxText] = useState<string>('');
-  
+
   const handleSendInbox = () => {
     if (!inboxText.trim()) return;
     window.open(`https://wa.me/91${selectedLead.phone}?text=${encodeURIComponent(inboxText)}`, '_blank');
@@ -717,17 +736,17 @@ export default function DashboardPage() {
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(',').map(p => p.replace(/"/g, '').trim());
         if (parts.length >= 2) {
-          imported.push({ 
-            id: Date.now().toString() + i, 
-            name: String(parts || 'Lead'), 
-            phone: String(parts || '9876543210'), 
-            service: String(parts || 'Service'), 
-            deal_value: Number(parts) || 2000, 
-            status: String(parts || 'New Lead'), 
-            source: String(parts[6] || 'CSV'), 
-            sentiment: 'Interested', 
+          imported.push({
+            id: Date.now().toString() + i,
+            name: String(parts[0] || 'Lead'),
+            phone: String(parts[1] || '9876543210'),
+            service: String(parts[2] || 'Service'),
+            deal_value: Number(parts[3]) || 2000,
+            status: String(parts[4] || 'New Lead'),
+            source: String(parts[5] || 'CSV'),
+            sentiment: 'Interested',
             pipeline_id: selectedPipeline,
-            created_at: 'Imported' 
+            created_at: 'Imported'
           });
         }
       }
@@ -772,8 +791,8 @@ export default function DashboardPage() {
 
         <header className="bg-[#0b101d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex justify-between items-center sticky top-0 z-20">
           <div>
-            <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} className="font-black text-white text-base bg-transparent outline-none border-b border-dashed border-blue-500 w-60" />
-            <input type="text" value={currentSite.tagline} onChange={(e) => setCurrentSite({...currentSite, tagline: e.target.value})} className={`text-[11px] ${accentText} font-semibold bg-transparent outline-none border-b border-dashed border-blue-500/50 w-full mt-0.5`} />
+            <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="font-black text-white text-base bg-transparent outline-none border-b border-dashed border-blue-500 w-60" />
+            <input type="text" value={currentSite.tagline} onChange={(e) => setCurrentSite({ ...currentSite, tagline: e.target.value })} className={`text-[11px] ${accentText} font-semibold bg-transparent outline-none border-b border-dashed border-blue-500/50 w-full mt-0.5`} />
           </div>
           <div className="flex items-center gap-2">
             <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-lg"><MessageSquare size={14} /> WhatsApp</a>
@@ -785,8 +804,8 @@ export default function DashboardPage() {
           <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-600/20 border border-blue-500/40 ${accentText} text-xs font-bold`}><Sparkles size={14} /> {currentSite.badge}</div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-4">
-              <textarea rows={2} value={currentSite.headline} onChange={(e) => setCurrentSite({...currentSite, headline: e.target.value})} className="text-2xl md:text-4xl font-black text-white bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-tight" />
-              <textarea rows={3} value={currentSite.subheadline} onChange={(e) => setCurrentSite({...currentSite, subheadline: e.target.value})} className="text-sm md:text-base text-slate-300 bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-relaxed" />
+              <textarea rows={2} value={currentSite.headline} onChange={(e) => setCurrentSite({ ...currentSite, headline: e.target.value })} className="text-2xl md:text-4xl font-black text-white bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-tight" />
+              <textarea rows={3} value={currentSite.subheadline} onChange={(e) => setCurrentSite({ ...currentSite, subheadline: e.target.value })} className="text-sm md:text-base text-slate-300 bg-transparent outline-none border border-dashed border-blue-500/40 rounded-2xl p-3 w-full resize-none leading-relaxed" />
               <div className="flex items-center gap-4 pt-2">
                 <a href={`https://wa.me/91${currentSite.phone}`} target="_blank" rel="noreferrer" className={`px-6 py-3 ${accentBtn} text-white rounded-2xl font-bold text-xs shadow-xl flex items-center gap-2`}><Zap size={15} /> {currentSite.primaryCta}</a>
                 <span className="text-xs text-slate-400 font-medium">⚡ Instant Response Guaranteed</span>
@@ -797,7 +816,7 @@ export default function DashboardPage() {
                 <img src={currentSite.ownerImage} alt="Owner" className="w-full h-full object-cover" />
               </div>
               <div className="text-center space-y-1 w-full">
-                <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} className="font-bold text-white text-xs bg-transparent outline-none text-center w-full border-b border-dashed border-slate-700" />
+                <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="font-bold text-white text-xs bg-transparent outline-none text-center w-full border-b border-dashed border-slate-700" />
                 <span className="text-[10px] text-emerald-400 font-bold block">Founder & Lead Expert</span>
               </div>
               <button onClick={() => ownerInputRef.current?.click()} className="mt-3 px-3.5 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition cursor-pointer">
@@ -817,8 +836,8 @@ export default function DashboardPage() {
         <section className="grid grid-cols-3 gap-2 px-8 py-6 bg-[#0b101e] border-y border-slate-800 text-center">
           {currentSite.stats.map((st, i) => (
             <div key={i} className="p-2">
-              <input type="text" value={st.value} onChange={(e) => { const s = [...currentSite.stats]; s[i].value = e.target.value; setCurrentSite({...currentSite, stats: s}); }} className={`text-xl md:text-2xl font-black ${accentText} bg-transparent outline-none text-center w-full border-b border-dashed border-blue-500/40`} />
-              <input type="text" value={st.label} onChange={(e) => { const s = [...currentSite.stats]; s[i].label = e.target.value; setCurrentSite({...currentSite, stats: s}); }} className="text-xs text-slate-400 bg-transparent outline-none text-center w-full mt-1" />
+              <input type="text" value={st.value} onChange={(e) => { const s = [...currentSite.stats]; s[i].value = e.target.value; setCurrentSite({ ...currentSite, stats: s }); }} className={`text-xl md:text-2xl font-black ${accentText} bg-transparent outline-none text-center w-full border-b border-dashed border-blue-500/40`} />
+              <input type="text" value={st.label} onChange={(e) => { const s = [...currentSite.stats]; s[i].label = e.target.value; setCurrentSite({ ...currentSite, stats: s }); }} className="text-xs text-slate-400 bg-transparent outline-none text-center w-full mt-1" />
             </div>
           ))}
         </section>
@@ -829,11 +848,11 @@ export default function DashboardPage() {
             {currentSite.services.map((srv, idx) => (
               <div key={idx} className="p-6 rounded-3xl bg-[#0d1424] border border-slate-800 space-y-3 flex flex-col justify-between shadow-xl">
                 <div className="space-y-2">
-                  <input type="text" value={srv.title} onChange={(e) => { const s = [...currentSite.services]; s[idx].title = e.target.value; setCurrentSite({...currentSite, services: s}); }} className="font-bold text-white text-sm bg-transparent outline-none w-full border-b border-dashed border-slate-700 pb-1" />
-                  <textarea rows={3} value={srv.desc} onChange={(e) => { const s = [...currentSite.services]; s[idx].desc = e.target.value; setCurrentSite({...currentSite, services: s}); }} className="text-xs text-slate-400 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded-xl p-2 mt-1" />
+                  <input type="text" value={srv.title} onChange={(e) => { const s = [...currentSite.services]; s[idx].title = e.target.value; setCurrentSite({ ...currentSite, services: s }); }} className="font-bold text-white text-sm bg-transparent outline-none w-full border-b border-dashed border-slate-700 pb-1" />
+                  <textarea rows={3} value={srv.desc} onChange={(e) => { const s = [...currentSite.services]; s[idx].desc = e.target.value; setCurrentSite({ ...currentSite, services: s }); }} className="text-xs text-slate-400 bg-transparent outline-none w-full resize-none border border-dashed border-slate-800 rounded-xl p-2 mt-1" />
                 </div>
                 <div className="pt-3 border-t border-slate-800">
-                  <input type="text" value={srv.price} onChange={(e) => { const s = [...currentSite.services]; s[idx].price = e.target.value; setCurrentSite({...currentSite, services: s}); }} className="font-black text-emerald-400 text-sm bg-transparent outline-none w-full border-b border-dashed border-emerald-500/40" />
+                  <input type="text" value={srv.price} onChange={(e) => { const s = [...currentSite.services]; s[idx].price = e.target.value; setCurrentSite({ ...currentSite, services: s }); }} className="font-black text-emerald-400 text-sm bg-transparent outline-none w-full border-b border-dashed border-emerald-500/40" />
                 </div>
               </div>
             ))}
@@ -893,8 +912,8 @@ export default function DashboardPage() {
         <footer className="bg-[#05070c] border-t border-slate-800 p-8 text-left text-xs space-y-3">
           <div className="flex flex-wrap justify-between items-center gap-4">
             <div>
-              <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({...currentSite, businessName: e.target.value})} className="font-bold text-white text-sm bg-transparent outline-none w-60 border-b border-dashed border-slate-700" />
-              <input type="text" value={currentSite.address} onChange={(e) => setCurrentSite({...currentSite, address: e.target.value})} className="text-xs text-slate-400 bg-transparent outline-none w-full mt-1" />
+              <input type="text" value={currentSite.businessName} onChange={(e) => setCurrentSite({ ...currentSite, businessName: e.target.value })} className="font-bold text-white text-sm bg-transparent outline-none w-60 border-b border-dashed border-slate-700" />
+              <input type="text" value={currentSite.address} onChange={(e) => setCurrentSite({ ...currentSite, address: e.target.value })} className="text-xs text-slate-400 bg-transparent outline-none w-full mt-1" />
             </div>
             <div className="text-right text-[11px] text-slate-500">
               Powered by <b className="text-blue-400">AI Growth CRM Pro</b>
@@ -1079,7 +1098,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* पाईपलाईन टॅब */}
         {activeTab === 'pipeline' && (
           <div className="space-y-4">
             <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
@@ -1089,8 +1107,8 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <select 
-                  value={selectedPipeline} 
+                <select
+                  value={selectedPipeline}
                   onChange={(e) => setSelectedPipeline(e.target.value)}
                   className="bg-slate-900 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold outline-none cursor-pointer"
                 >
@@ -1099,7 +1117,7 @@ export default function DashboardPage() {
                   ))}
                 </select>
 
-                <button 
+                <button
                   onClick={() => {
                     const newName = prompt('नवीन पाईपलाईनचे नाव टाका (उदा. Real Estate Agency):');
                     if (newName && newName.trim()) {
@@ -1115,7 +1133,7 @@ export default function DashboardPage() {
                 </button>
 
                 {pipelines.length > 1 && (
-                  <button 
+                  <button
                     onClick={() => {
                       if (confirm('तुम्हाला खरोखरच ही पाईपलाईन डिलीट करायची आहे का?')) {
                         const updated = pipelines.filter(p => p.id !== selectedPipeline);
@@ -1224,8 +1242,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div><label className="text-slate-300 block mb-1 font-bold">Your Working UPI ID *</label><input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({...clientSettings, upiId: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
-                  <div><label className="text-slate-300 block mb-1 font-bold">Business Name on UPI</label><input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({...clientSettings, businessName: e.target.value})} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
+                  <div><label className="text-slate-300 block mb-1 font-bold">Your Working UPI ID *</label><input type="text" value={clientSettings.upiId} onChange={(e) => setClientSettings({ ...clientSettings, upiId: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none" /></div>
+                  <div><label className="text-slate-300 block mb-1 font-bold">Business Name on UPI</label><input type="text" value={clientSettings.businessName} onChange={(e) => setClientSettings({ ...clientSettings, businessName: e.target.value })} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div><label className="text-slate-300 block mb-1 font-bold">Customer Full Name</label><input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none" /></div>
@@ -1313,7 +1331,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => { if(!isMetaConnected) { alert('प्रथम Meta AI अकाउंट कनेक्ट करा!'); return; } alert('🚀 Meta AI Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2">
+                <button onClick={() => { if (!isMetaConnected) { alert('प्रथम Meta AI अकाउंट कनेक्ट करा!'); return; } alert('🚀 Meta AI Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2">
                   <Sparkles size={16} /> Launch Meta AI Ad Campaign
                 </button>
                 <button onClick={() => alert('Webhook Sync स्टेटस: सर्व लीड्स लाईव्ह अपडेट होत आहेत.')} className="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer">Sync Webhooks</button>
@@ -1406,9 +1424,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ======================================================== */}
-        {/* इनबॉक्स टॅब - पूर्णपणे शुद्ध केलेले लाईव्ह Supabase मेसेज इनबॉक्स */}
-        {/* ======================================================== */}
         {activeTab === 'inbox' && (
           <div className="space-y-4 text-xs">
             <div className="flex flex-wrap items-center justify-between bg-[#0d1424] border border-slate-800 p-4 rounded-2xl gap-3">
