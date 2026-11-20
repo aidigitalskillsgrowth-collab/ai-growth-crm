@@ -30,9 +30,7 @@ async function sendWhatsAppReply(
   return true;
 }
 
-// १. मेटा (Meta) कडून वेबहुक व्हेरिफाय करण्यासाठी GET मेथड
 export async function GET(request: NextRequest) {
-  console.log('--- GET WEBHOOK HIT RECEIVED ---');
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('hub.mode');
   const token = searchParams.get('hub.verify_token');
@@ -42,22 +40,14 @@ export async function GET(request: NextRequest) {
 
   if (mode && token) {
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('WHATSAPP_WEBHOOK_VERIFIED SUCCESSFULLY');
       return new NextResponse(challenge, { status: 200 });
-    } else {
-      console.error('Webhook Verification Failed: Token mismatch');
-      return new NextResponse('Forbidden', { status: 403 });
     }
+    return new NextResponse('Forbidden', { status: 403 });
   }
   return new NextResponse('Bad Request', { status: 400 });
 }
 
-// २. मेसेज रिसिव्ह करून डेटाबेसमध्ये सेव्ह करण्यासाठी आणि AI ऑटो-रिप्लाय पाठवण्यासाठी POST मेथड
 export async function POST(request: NextRequest) {
-  console.log('========================================');
-  console.log('--- POST WEBHOOK HIT RECEIVED FROM META ---');
-  console.log('========================================');
-
   try {
     const body = await request.json();
     const entry = body?.entry?.[0];
@@ -71,8 +61,6 @@ export async function POST(request: NextRequest) {
       const senderPhone = String(message.from || '').trim();
       const messageText = String(message.text?.body || 'Media/Non-text Message').trim();
 
-      console.log(`New Message Extracted -> Sender: ${senderPhone}, Text: ${messageText}`);
-
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
       const supabaseKey =
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -80,16 +68,22 @@ export async function POST(request: NextRequest) {
       if (supabaseUrl && supabaseKey) {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // १. इनबॉक्ससाठी मेसेज सेव्ह करणे
+        // १. त्या क्लायंटच्या meta_phone_id सोबत मेसेज सेव्ह करणे (Data Isolation)
         const { error } = await supabase
           .from('messages')
-          .insert([{ sender: senderPhone, text: messageText }] as any);
+          .insert([
+            {
+              sender: senderPhone,
+              text: messageText,
+              meta_phone_id: phoneNumberId || null,
+            },
+          ] as any);
 
         if (error) {
           console.error('Supabase Insert Error:', error);
         }
 
-        // २. क्लायंट सेटिंग्स वाचून AI उत्तर तयार करणे
+        // २. संबंधित क्लायंटच्या सेटिंग्सनुसार AI रिप्लाय पाठवणे
         if (phoneNumberId && message.text?.body) {
           const { data: client } = await supabase
             .from('client_settings')
@@ -103,7 +97,17 @@ export async function POST(request: NextRequest) {
           const hasModuleAccess =
             allowedList.includes('inbox') || allowedList.includes('agents');
 
-          const apiKey = String(client?.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
+          // क्लायंटची स्वतःची की नसेल तर Admin ची डिफॉल्ट Gemini Key वापरणे
+          let apiKey = String(client?.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
+          if (!apiKey) {
+            const { data: adminRow } = await supabase
+              .from('client_settings')
+              .select('geminiApiKey')
+              .ilike('client_email', 'aidigitalskillsgrowth@gmail.com')
+              .maybeSingle();
+            apiKey = String(adminRow?.geminiApiKey || '').trim();
+          }
+
           const accessToken = String(
             client?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN || ''
           ).trim();
@@ -113,7 +117,6 @@ export async function POST(request: NextRequest) {
           if (autoReplyEnabled && hasModuleAccess && accessToken) {
             let aiReply: string | null = null;
 
-            // सिम्युलेटरप्रमाणेच आपल्याच /api/gemini-chat एंडपॉइंटवरून उत्तर मिळवणे
             if (apiKey) {
               try {
                 const origin = request.nextUrl.origin;
@@ -129,8 +132,6 @@ export async function POST(request: NextRequest) {
                 const chatData = await chatRes.json().catch(() => ({}));
                 if (chatRes.ok && chatData?.reply) {
                   aiReply = String(chatData.reply).trim();
-                } else {
-                  console.error('Internal /api/gemini-chat error:', JSON.stringify(chatData));
                 }
               } catch (chatErr: any) {
                 console.error('Internal /api/gemini-chat fetch failed:', chatErr?.message || chatErr);
@@ -143,13 +144,7 @@ export async function POST(request: NextRequest) {
                 client?.businessName || 'AI Growth CRM'
               } कडून आपला मेसेज प्राप्त झाला आहे. आम्ही लवकरच आपल्याशी संपर्क साधतो.`;
 
-            const sent = await sendWhatsAppReply(
-              phoneNumberId,
-              accessToken,
-              senderPhone,
-              finalReply
-            );
-            console.log('WhatsApp AI Auto-Reply sent:', sent);
+            await sendWhatsAppReply(phoneNumberId, accessToken, senderPhone, finalReply);
           }
         }
       }
