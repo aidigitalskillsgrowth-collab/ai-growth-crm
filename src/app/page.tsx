@@ -20,6 +20,8 @@ const supabaseAnonKey = 'sb_publishable_wOlqq3_YGhJm7twd-FJxrQ_ymV4wZKd';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const ADMIN_EMAIL = 'aidigitalskillsgrowth@gmail.com';
+const ADMIN_UPI_ID = 'ravindra@ibl';
+const ADMIN_WHATSAPP = '7219566777';
 
 const BLANK_SETTINGS = {
   businessName: '',
@@ -33,7 +35,9 @@ const BLANK_SETTINGS = {
   webhookVerifyToken: 'ravi_crm_verified_2026',
   geminiApiKey: '',
   client_email: '',
-  plan_type: 'whatsapp_starter'
+  plan_type: 'whatsapp_starter',
+  billing_cycle: 'monthly',
+  plan_expires_at: ''
 };
 
 const ALL_MODULES = [
@@ -70,6 +74,12 @@ const PLAN_PRESETS: Record<string, { label: string; modules: string[] }> = {
     label: 'Pro / Full CRM Plan (All 15 Modules)',
     modules: ALL_MODULES.map((m) => m.id),
   },
+};
+
+const BILLING_CYCLES: Record<string, { label: string; shortLabel: string; price: string }> = {
+  monthly: { label: 'Monthly (1 Month / 30 Days)', shortLabel: '1 Month', price: '₹999' },
+  six_months: { label: '6 Months (Half-Yearly)', shortLabel: '6 Months', price: '₹4,999' },
+  yearly: { label: 'Yearly (1 Year / 365 Days)', shortLabel: '1 Year', price: '₹8,999' },
 };
 
 interface Testimonial {
@@ -184,9 +194,9 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
-  // प्रत्येक क्लायंटसाठी स्वतंत्र व सुरुवातीला पूर्णपणे रिकामी (Blank) सेटिंग्स
   const [clientSettings, setClientSettings] = useState({ ...BLANK_SETTINGS });
   const [savingSettings, setSavingSettings] = useState<boolean>(false);
+  const [isSubscriptionExpired, setIsSubscriptionExpired] = useState<boolean>(false);
 
   const [allowedModules, setAllowedModules] = useState<string[]>(
     PLAN_PRESETS.whatsapp_starter.modules
@@ -201,8 +211,10 @@ export default function DashboardPage() {
   const [managedClientName, setManagedClientName] = useState<string>('');
   const [managedClientBiz, setManagedClientBiz] = useState<string>('');
   const [managedPlanType, setManagedPlanType] = useState<string>('whatsapp_starter');
+  const [managedBillingCycle, setManagedBillingCycle] = useState<string>('monthly');
   const [managedModules, setManagedModules] = useState<string[]>(PLAN_PRESETS.whatsapp_starter.modules);
   const [savingClientPlan, setSavingClientPlan] = useState<boolean>(false);
+  const [quickUpdatingClient, setQuickUpdatingClient] = useState<string>('');
 
   const [pipelines, setPipelines] = useState([
     { id: 'default_main', name: 'Main Business Pipeline' }
@@ -215,13 +227,13 @@ export default function DashboardPage() {
   const isAdminUser = loggedInEmail.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   useEffect(() => {
-    if (activeTab === 'inbox' && isLoggedIn) {
+    if (activeTab === 'inbox' && isLoggedIn && !isSubscriptionExpired) {
       fetchSupabaseMessages();
     }
     if (activeTab === 'settings' && isLoggedIn && isAdminUser) {
       fetchAllRegisteredClients();
     }
-  }, [activeTab, isLoggedIn, clientSettings.metaPhoneId]);
+  }, [activeTab, isLoggedIn, isSubscriptionExpired, clientSettings.metaPhoneId]);
 
   const fetchAllRegisteredClients = async () => {
     try {
@@ -237,7 +249,6 @@ export default function DashboardPage() {
     }
   };
 
-  // प्रत्येक क्लायंटला फक्त त्याच्याच metaPhoneId चे मेसेजेस दिसतील (Zero Data Leak)
   const fetchSupabaseMessages = async () => {
     setInboxLoading(true);
     try {
@@ -348,6 +359,9 @@ export default function DashboardPage() {
     setManagedClientName(row.ownerName || '');
     setManagedClientBiz(row.businessName || '');
     setManagedPlanType(row.plan_type || 'whatsapp_starter');
+    setManagedBillingCycle(
+      row.billing_cycle && row.billing_cycle !== 'expired' ? row.billing_cycle : 'monthly'
+    );
     const mods = Array.isArray(row.allowed_modules) && row.allowed_modules.length > 0
       ? Array.from(new Set([...row.allowed_modules, 'settings']))
       : PLAN_PRESETS.whatsapp_starter.modules;
@@ -372,6 +386,41 @@ export default function DashboardPage() {
     });
   };
 
+  // Client List मधूनच एका क्लिकवर 1 Month / 6 Months / 1 Year / Lock Now सेट करणे
+  const handleQuickSetClientCycle = async (cl: any, cycle: string) => {
+    const cleanEmail = String(cl.client_email || '').trim().toLowerCase();
+    if (!cleanEmail) return;
+    setQuickUpdatingClient(cleanEmail);
+    try {
+      const res = await fetch('/api/admin/create-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          ownerName: cl.ownerName || '',
+          businessName: cl.businessName || '',
+          planType: cl.plan_type || 'whatsapp_starter',
+          billingCycle: cycle,
+          allowedModules: Array.isArray(cl.allowed_modules)
+            ? cl.allowed_modules
+            : PLAN_PRESETS.whatsapp_starter.modules,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'अपडेट करताना त्रुटी आली.');
+      await fetchAllRegisteredClients();
+      alert(
+        cycle === 'expired'
+          ? `🔒 '${cleanEmail}' चे खाते लॉक केले गेले आहे. लॉगिन केल्यावर त्यांना पेमेंट स्क्रीन दिसेल.`
+          : `✅ '${cleanEmail}' साठी ${BILLING_CYCLES[cycle]?.shortLabel || cycle} प्लॅन सुरू केला गेला!`
+      );
+    } catch (err: any) {
+      alert(`❌ त्रुटी: ${err?.message}`);
+    } finally {
+      setQuickUpdatingClient('');
+    }
+  };
+
   const handleSaveManagedClientAccess = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = managedClientEmail.trim().toLowerCase();
@@ -393,6 +442,7 @@ export default function DashboardPage() {
           ownerName: managedClientName.trim() || '',
           businessName: managedClientBiz.trim() || '',
           planType: managedPlanType,
+          billingCycle: managedBillingCycle,
           allowedModules: finalModules,
         }),
       });
@@ -404,12 +454,20 @@ export default function DashboardPage() {
 
       if (cleanEmail === loggedInEmail.toLowerCase()) {
         setAllowedModules(finalModules);
-        setClientSettings((prev) => ({ ...prev, plan_type: managedPlanType }));
+        setClientSettings((prev) => ({
+          ...prev,
+          plan_type: managedPlanType,
+          billing_cycle: managedBillingCycle,
+          plan_expires_at: data.planExpiresAt || prev.plan_expires_at,
+        }));
+        setIsSubscriptionExpired(false);
       }
 
       setManagedClientPassword('');
       await fetchAllRegisteredClients();
-      alert(`✅ '${cleanEmail}' साठी Email + Password आणि मॉड्यूल Lock/Unlock सेटिंग्स सेव्ह झाल्या! त्या क्लायंटला पूर्णपणे स्वतंत्र आणि रिकामे डॅशबोर्ड मिळेल.`);
+      alert(
+        `✅ '${cleanEmail}' साठी ${BILLING_CYCLES[managedBillingCycle]?.shortLabel || managedBillingCycle} प्लॅन, Password आणि मॉड्यूल्स सेव्ह झाले!`
+      );
     } catch (err: any) {
       alert(`❌ त्रुटी: ${err?.message || 'कृपया पुन्हा प्रयत्न करा.'}`);
     } finally {
@@ -437,7 +495,23 @@ export default function DashboardPage() {
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const ownerInputRef = useRef<HTMLInputElement>(null);
 
+  const checkIsExpired = (data: any, email: string): boolean => {
+    if (email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) return false;
+    if (!data) return false;
+    if (data.billing_cycle === 'expired') return true;
+    if (data.plan_expires_at) {
+      const expTime = new Date(data.plan_expires_at).getTime();
+      if (!isNaN(expTime) && expTime < Date.now()) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const applyLoadedRow = (data: any, email: string) => {
+    const expired = checkIsExpired(data, email);
+    setIsSubscriptionExpired(expired);
+
     setClientSettings({
       businessName: data?.businessName || '',
       upiId: data?.upiId || '',
@@ -450,7 +524,9 @@ export default function DashboardPage() {
       accessToken: data?.accessToken || '',
       geminiApiKey: data?.geminiApiKey || '',
       client_email: email,
-      plan_type: data?.plan_type || 'whatsapp_starter'
+      plan_type: data?.plan_type || 'whatsapp_starter',
+      billing_cycle: data?.billing_cycle || 'monthly',
+      plan_expires_at: data?.plan_expires_at || ''
     });
 
     setBotConfig(prev => ({
@@ -487,7 +563,10 @@ export default function DashboardPage() {
     }
 
     if (cleanEmail === ADMIN_EMAIL.toLowerCase()) {
-      applyLoadedRow({ plan_type: 'full_crm', allowed_modules: ALL_MODULES.map(m => m.id) }, cleanEmail);
+      applyLoadedRow(
+        { plan_type: 'full_crm', billing_cycle: 'yearly', allowed_modules: ALL_MODULES.map(m => m.id) },
+        cleanEmail
+      );
       setLoggedInEmail(cleanEmail);
       setIsLoggedIn(true);
       return true;
@@ -538,6 +617,7 @@ export default function DashboardPage() {
       } else {
         setIsLoggedIn(false);
         setLoggedInEmail('');
+        setIsSubscriptionExpired(false);
         setClientSettings({ ...BLANK_SETTINGS });
         setDbMessages([]);
       }
@@ -603,6 +683,7 @@ export default function DashboardPage() {
     setIsLoggedIn(false);
     setLoggedInEmail('');
     setAuthPassword('');
+    setIsSubscriptionExpired(false);
     setClientSettings({ ...BLANK_SETTINGS });
     setDbMessages([]);
   };
@@ -617,16 +698,17 @@ export default function DashboardPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const stages = ['New Lead', 'Contacted', 'Payment Sent', 'Won', 'Lost'];
 
-  // फक्त अ‍ॅडमिन लॉगिन असल्यास डेमो लीड्स दाखवणे, नवीन क्लायंटला पूर्णपणे रिकामे लीड्स
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !isSubscriptionExpired) {
       if (isAdminUser) {
         setLeads(initialLeads);
       } else {
         setLeads([]);
       }
+    } else {
+      setLeads([]);
     }
-  }, [isLoggedIn, isAdminUser]);
+  }, [isLoggedIn, isAdminUser, isSubscriptionExpired]);
 
   const avatars = {
     ownerDefault: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
@@ -876,7 +958,6 @@ export default function DashboardPage() {
     setChatMessages((prev) => [...prev, { sender: 'user', text: currentInput, time: userTime }]);
     setInputMsg('');
 
-    // क्लायंटने स्वतःची की टाकली नसेल तर अ‍ॅडमिनची बॅकएंड की सुरक्षितपणे वापरणे
     let apiKey = clientSettings?.geminiApiKey ? clientSettings.geminiApiKey.trim() : '';
     if (!apiKey) {
       const { data: adminRow } = await supabase
@@ -1305,6 +1386,71 @@ export default function DashboardPage() {
     );
   }
 
+  // मुदत संपल्यावर (Subscription Expired) क्लायंटला कोणताही डेटा न दिसता थेट पेमेंट स्क्रीन दाखवणे
+  if (isSubscriptionExpired && !isAdminUser) {
+    const renewalUpi = `upi://pay?pa=${ADMIN_UPI_ID}&pn=${encodeURIComponent('AI Growth CRM Renewal')}&am=999.00&cu=INR&tn=${encodeURIComponent(`Plan Renewal - ${loggedInEmail}`)}`;
+    const renewalQr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(renewalUpi)}`;
+    const renewalWaMsg = `नमस्कार रवी सर! 🙏 माझा AI Growth CRM चा प्लॅन संपला आहे.\n\n📧 Email: ${loggedInEmail}\n📦 Plan: ${clientSettings.plan_type}\n\nमी पेमेंट करून स्क्रीनशॉट पाठवत आहे, कृपया माझे खाते पुन्हा सुरू करा.`;
+
+    return (
+      <div className="min-h-screen bg-[#07090e] text-slate-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-[#0d1424] border border-rose-500/40 rounded-3xl p-7 space-y-6 shadow-2xl text-center">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+            <Lock size={30} />
+          </div>
+
+          <div className="space-y-2">
+            <span className="px-3 py-1 bg-rose-950 text-rose-300 border border-rose-500/30 rounded-full text-[11px] font-bold uppercase">
+              Subscription Expired / Account Locked
+            </span>
+            <h1 className="text-2xl font-black text-white pt-1">तुमचा प्लॅन संपला आहे — कृपया पेमेंट करा</h1>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              खाते: <b className="text-white">{loggedInEmail}</b> • तुमच्या सबस्क्रिप्शनची मुदत पूर्ण झाल्यामुळे CRM मधील सर्व डेटा व मॉड्यूल्स तात्पुरते लॉक केले गेले आहेत. सेवा पुन्हा सुरू करण्यासाठी खालील QR वर पेमेंट करा.
+            </p>
+          </div>
+
+          <div className="bg-[#080b12] border border-slate-800 rounded-2xl p-5 space-y-3">
+            <p className="text-xs font-bold text-slate-300">UPI द्वारे रिन्यूअल पेमेंट करा ({ADMIN_UPI_ID})</p>
+            <div className="p-3 bg-white rounded-2xl inline-block">
+              <img src={renewalQr} alt="Renewal QR" className="w-44 h-44 block" />
+            </div>
+            <div className="grid grid-cols-3 gap-2 pt-2 text-[11px]">
+              <div className="p-2 bg-[#0d1424] border border-slate-800 rounded-xl">
+                <span className="text-slate-400 block">1 Month</span>
+                <b className="text-emerald-400">₹999</b>
+              </div>
+              <div className="p-2 bg-[#0d1424] border border-slate-800 rounded-xl">
+                <span className="text-slate-400 block">6 Months</span>
+                <b className="text-emerald-400">₹4,999</b>
+              </div>
+              <div className="p-2 bg-[#0d1424] border border-slate-800 rounded-xl">
+                <span className="text-slate-400 block">1 Year</span>
+                <b className="text-emerald-400">₹8,999</b>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 text-xs">
+            <a
+              href={`https://wa.me/91${ADMIN_WHATSAPP}?text=${encodeURIComponent(renewalWaMsg)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg"
+            >
+              <MessageSquare size={15} /> पेमेंट स्क्रीनशॉट WhatsApp वर पाठवा
+            </a>
+            <button
+              onClick={handleSupabaseLogout}
+              className="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl cursor-pointer"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-[#07090e] text-slate-100 font-sans antialiased overflow-hidden">
       <aside className="w-64 bg-[#07090e] border-r border-slate-800/80 flex flex-col justify-between shrink-0 select-none">
@@ -1355,7 +1501,11 @@ export default function DashboardPage() {
               </div>
               <div className="min-w-0">
                 <p className="font-black text-white text-xs truncate">{clientSettings.ownerName || loggedInEmail}</p>
-                <span className="text-[10px] text-emerald-400 font-bold block truncate">{loggedInEmail}</span>
+                <span className="text-[10px] text-emerald-400 font-bold block truncate">
+                  {clientSettings.plan_expires_at && !isAdminUser
+                    ? `Valid till: ${new Date(clientSettings.plan_expires_at).toLocaleDateString()}`
+                    : loggedInEmail}
+                </span>
               </div>
             </div>
           </div>
@@ -1386,7 +1536,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold uppercase">
-              {clientSettings.plan_type || 'Starter'}
+              {clientSettings.plan_type || 'Starter'} ({BILLING_CYCLES[clientSettings.billing_cycle]?.shortLabel || 'Active'})
             </span>
             <button onClick={handleOpenAddModal} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition cursor-pointer">+ Add Lead</button>
             <button onClick={() => window.location.reload()} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold cursor-pointer"><RefreshCw size={13} /> Refresh</button>
@@ -1993,16 +2143,16 @@ export default function DashboardPage() {
 
             {activeTab === 'settings' && (
               <div className="space-y-8" style={{ maxWidth: '960px' }}>
-                {/* १. फक्त अ‍ॅडमिनला दिसणारा Client Onboarding & Module Lock/Unlock Manager + Client List Popup बटण */}
+                {/* १. फक्त अ‍ॅडमिनला दिसणारा Client Onboarding & Subscription Validity Manager */}
                 {isAdminUser && (
                   <div className="bg-[#0d1424] border border-blue-500/40 rounded-3xl p-6 space-y-5 shadow-2xl">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                       <div>
                         <h2 className="text-lg font-black text-white flex items-center gap-2">
-                          <Lock size={18} className="text-amber-400" /> Client Onboarding & Module Lock/Unlock
+                          <Lock size={18} className="text-amber-400" /> Client Onboarding, Validity & Module Lock/Unlock
                         </h2>
                         <p className="text-xs text-slate-400 mt-1">
-                          नवीन क्लायंटचा ईमेल व पासवर्ड तयार करा — प्रत्येक क्लायंटला पूर्णपणे स्वतंत्र व रिकामे (Blank) डॅशबोर्ड मिळेल.
+                          क्लायंटचा ईमेल, पासवर्ड, प्लॅन आणि मुदत (Monthly / 6 Months / Yearly) सेट करा — मुदत संपल्यावर खाते आपोआप लॉक होऊन पेमेंट स्क्रीन दिसेल.
                         </p>
                       </div>
 
@@ -2062,6 +2212,30 @@ export default function DashboardPage() {
                             placeholder="उदा. कांबळे एंटरप्रायझेस"
                             className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
                           />
+                        </div>
+                      </div>
+
+                      {/* कालावधी निवडा: Monthly / 6 Months / Yearly */}
+                      <div className="space-y-2">
+                        <label className="block text-slate-300 font-bold">
+                          सबस्क्रिप्शन कालावधी निवडा (Billing Validity - संपल्यानंतर ऑटो-लॉक):
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          {Object.entries(BILLING_CYCLES).map(([cycleKey, info]) => (
+                            <button
+                              key={cycleKey}
+                              type="button"
+                              onClick={() => setManagedBillingCycle(cycleKey)}
+                              className={`p-3 rounded-2xl border text-left font-bold transition cursor-pointer flex items-center justify-between ${
+                                managedBillingCycle === cycleKey
+                                  ? 'bg-emerald-600/25 border-emerald-500 text-white'
+                                  : 'bg-[#080b12] border-slate-800 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              <span>{info.label}</span>
+                              <span className="text-emerald-400 text-[11px]">{info.price}</span>
+                            </button>
+                          ))}
                         </div>
                       </div>
 
@@ -2141,13 +2315,13 @@ export default function DashboardPage() {
                       >
                         {savingClientPlan
                           ? 'सेव्ह होत आहे...'
-                          : '💾 क्लायंट Email + Password व मॉड्यूल Lock/Unlock सेव्ह करा'}
+                          : '💾 क्लायंट Email + Password, कालावधी व मॉड्यूल्स सेव्ह करा'}
                       </button>
                     </form>
                   </div>
                 )}
 
-                {/* २. प्रत्येक युजरच्या स्वतःच्या Meta API आणि बिझनेस सेटिंग्स (इतरांचा कोणताही डेटा न दिसता) */}
+                {/* २. प्रत्येक युजरच्या स्वतःच्या Meta API आणि बिझनेस सेटिंग्स */}
                 <div>
                   <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#38bdf8', marginBottom: '8px' }}>⚙️ My Business & Meta API Settings</h1>
                   <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '20px' }}>
@@ -2211,14 +2385,16 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* सुटसुटीत Client List Popup विंडो */}
+        {/* सुटसुटीत Client List Popup — प्रत्येक क्लायंटच्या नावासमोरच 1 Month / 6 Months / 1 Year / Lock Now बटणे */}
         {isClientListModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-2xl space-y-4 shadow-2xl text-xs">
+            <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-3xl space-y-4 shadow-2xl text-xs">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div>
-                  <h3 className="font-black text-white text-base">📋 Registered Clients Directory ({allClientsList.length})</h3>
-                  <p className="text-slate-400 text-[11px]">कोणत्याही क्लायंटवर क्लिक करून त्याचा प्लॅन आणि मॉड्यूल लॉक/अनलॉक एडिट करा.</p>
+                  <h3 className="font-black text-white text-base">📋 Registered Clients & Plan Validity ({allClientsList.length})</h3>
+                  <p className="text-slate-400 text-[11px]">
+                    क्लायंटच्या नावासमोरच <b>1 Month</b>, <b>6 Months</b>, <b>1 Year</b> किंवा <b>Lock Now</b> दाबून थेट मुदत सेट करा.
+                  </p>
                 </div>
                 <button onClick={() => setIsClientListModalOpen(false)} className="p-1.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">
                   <X size={18} />
@@ -2236,33 +2412,105 @@ export default function DashboardPage() {
                 />
               </div>
 
-              <div className="max-h-96 overflow-y-auto space-y-2 pr-1">
+              <div className="max-h-[420px] overflow-y-auto space-y-2.5 pr-1">
                 {filteredClients.length === 0 ? (
                   <p className="text-center text-slate-500 py-8">कोणताही क्लायंट सापडला नाही.</p>
                 ) : (
-                  filteredClients.map((cl, idx) => (
-                    <button
-                      key={cl.user_id || idx}
-                      type="button"
-                      onClick={() => handleSelectManagedClient(cl)}
-                      className="w-full flex items-center justify-between p-3.5 bg-[#080b12] hover:bg-blue-600/15 border border-slate-800 hover:border-blue-500/50 rounded-2xl text-left transition cursor-pointer"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-bold text-white text-sm truncate">
-                          {cl.ownerName || 'Unnamed Client'} {cl.businessName ? `• ${cl.businessName}` : ''}
-                        </p>
-                        <p className="text-blue-400 font-mono text-xs truncate mt-0.5">{cl.client_email}</p>
+                  filteredClients.map((cl, idx) => {
+                    const emailKey = String(cl.client_email || '').toLowerCase();
+                    const isExpired =
+                      cl.billing_cycle === 'expired' ||
+                      (cl.plan_expires_at && new Date(cl.plan_expires_at).getTime() < Date.now());
+                    const isBusy = quickUpdatingClient === emailKey;
+
+                    return (
+                      <div
+                        key={cl.user_id || idx}
+                        className="p-4 bg-[#080b12] border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-white text-sm truncate">
+                              {cl.ownerName || 'Unnamed Client'} {cl.businessName ? `• ${cl.businessName}` : ''}
+                            </p>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isExpired
+                                  ? 'bg-rose-950 text-rose-400 border border-rose-500/30'
+                                  : 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
+                              }`}
+                            >
+                              {isExpired ? '🔒 Expired / Locked' : `✅ ${cl.billing_cycle || 'active'}`}
+                            </span>
+                          </div>
+                          <p className="text-blue-400 font-mono text-xs truncate mt-0.5">{cl.client_email}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            Plan: <b>{cl.plan_type || 'starter'}</b>
+                            {cl.plan_expires_at
+                              ? ` • Expiry: ${new Date(cl.plan_expires_at).toLocaleDateString()}`
+                              : ''}
+                          </p>
+                        </div>
+
+                        {/* प्रत्येक क्लायंटच्या नावापुढे थेट 1 Month / 6 Months / 1 Year / Lock / Edit बटणे */}
+                        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => handleQuickSetClientCycle(cl, 'monthly')}
+                            className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] border cursor-pointer ${
+                              cl.billing_cycle === 'monthly' && !isExpired
+                                ? 'bg-emerald-600 text-white border-emerald-500'
+                                : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-emerald-500'
+                            }`}
+                          >
+                            1 Month
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => handleQuickSetClientCycle(cl, 'six_months')}
+                            className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] border cursor-pointer ${
+                              cl.billing_cycle === 'six_months' && !isExpired
+                                ? 'bg-emerald-600 text-white border-emerald-500'
+                                : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-emerald-500'
+                            }`}
+                          >
+                            6 Months
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => handleQuickSetClientCycle(cl, 'yearly')}
+                            className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] border cursor-pointer ${
+                              cl.billing_cycle === 'yearly' && !isExpired
+                                ? 'bg-emerald-600 text-white border-emerald-500'
+                                : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-emerald-500'
+                            }`}
+                          >
+                            1 Year
+                          </button>
+                          {emailKey !== ADMIN_EMAIL.toLowerCase() && (
+                            <button
+                              type="button"
+                              disabled={isBusy}
+                              onClick={() => handleQuickSetClientCycle(cl, 'expired')}
+                              className="px-2.5 py-1.5 rounded-lg font-bold text-[11px] bg-rose-600/20 text-rose-400 border border-rose-500/30 hover:bg-rose-600 hover:text-white cursor-pointer"
+                            >
+                              🔒 Lock
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleSelectManagedClient(cl)}
+                            className="px-2.5 py-1.5 rounded-lg font-bold text-[11px] bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className="px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold text-[10px] uppercase block">
-                          {cl.plan_type || 'custom'}
-                        </span>
-                        <span className="text-[10px] text-slate-400 mt-1 block">
-                          {Array.isArray(cl.allowed_modules) ? `${cl.allowed_modules.length}/15 Modules` : '5/15 Modules'}
-                        </span>
-                      </div>
-                    </button>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

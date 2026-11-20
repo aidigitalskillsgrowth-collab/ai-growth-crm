@@ -26,7 +26,6 @@ async function sendWhatsAppReply(
     console.error('Meta Send Message Error:', JSON.stringify(data));
     return false;
   }
-  console.log('Meta Send Message Success:', JSON.stringify(data));
   return true;
 }
 
@@ -68,22 +67,14 @@ export async function POST(request: NextRequest) {
       if (supabaseUrl && supabaseKey) {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // १. त्या क्लायंटच्या meta_phone_id सोबत मेसेज सेव्ह करणे (Data Isolation)
-        const { error } = await supabase
-          .from('messages')
-          .insert([
-            {
-              sender: senderPhone,
-              text: messageText,
-              meta_phone_id: phoneNumberId || null,
-            },
-          ] as any);
+        await supabase.from('messages').insert([
+          {
+            sender: senderPhone,
+            text: messageText,
+            meta_phone_id: phoneNumberId || null,
+          },
+        ] as any);
 
-        if (error) {
-          console.error('Supabase Insert Error:', error);
-        }
-
-        // २. संबंधित क्लायंटच्या सेटिंग्सनुसार AI रिप्लाय पाठवणे
         if (phoneNumberId && message.text?.body) {
           const { data: client } = await supabase
             .from('client_settings')
@@ -91,13 +82,22 @@ export async function POST(request: NextRequest) {
             .eq('metaPhoneId', phoneNumberId)
             .maybeSingle();
 
+          // प्लॅनची मुदत संपली आहे का ते तपासणे
+          const isPlanExpired =
+            client?.billing_cycle === 'expired' ||
+            (client?.plan_expires_at && new Date(client.plan_expires_at).getTime() < Date.now());
+
+          if (isPlanExpired) {
+            console.log('Skipping Auto-Reply: Client subscription expired for', phoneNumberId);
+            return NextResponse.json({ success: true, expired: true }, { status: 200 });
+          }
+
           const allowedList = Array.isArray(client?.allowed_modules)
             ? client.allowed_modules
             : ['inbox', 'agents'];
           const hasModuleAccess =
             allowedList.includes('inbox') || allowedList.includes('agents');
 
-          // क्लायंटची स्वतःची की नसेल तर Admin ची डिफॉल्ट Gemini Key वापरणे
           let apiKey = String(client?.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
           if (!apiKey) {
             const { data: adminRow } = await supabase
