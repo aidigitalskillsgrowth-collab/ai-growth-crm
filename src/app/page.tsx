@@ -348,12 +348,21 @@ export default function DashboardPage() {
   const fetchClientLeadsFromSupabase = async () => {
     try {
       const phoneId = String(clientSettings.metaPhoneId || '').trim();
-      if (!phoneId) return;
-      const { data, error } = await supabase
+      const email = String(loggedInEmail || '').trim().toLowerCase();
+      if (!phoneId && !email) return;
+
+      let query = supabase
         .from('leads')
         .select('*')
-        .eq('meta_phone_id', phoneId)
         .order('created_at', { ascending: false });
+
+      if (phoneId) {
+        query = query.eq('meta_phone_id', phoneId);
+      } else {
+        query = query.ilike('client_email', email);
+      }
+
+      const { data, error } = await query;
 
       if (!error && data && data.length > 0) {
         setLeads(
@@ -1119,10 +1128,90 @@ export default function DashboardPage() {
     alert('नवीन मेसेज टेम्पलेट यशस्वीरीत्या तयार झाले!');
   };
 
+  // Ad Launcher (Meta) व Live Lead Webhook Simulator स्टेट
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount] = useState('act_982347892347');
   const [adBudget, setAdBudget] = useState(500);
   const [targetLocation, setTargetLocation] = useState('महाराष्ट्र, भारत');
+  const [testLeadForm, setTestLeadForm] = useState({
+    name: 'राहुल देशमुख',
+    phone: '9876543210',
+    email: 'rahul.test@example.com',
+    source: 'Facebook Lead Ad',
+    service: 'AI Digital Skills Masterclass',
+    deal_value: '2000',
+  });
+  const [sendingTestLead, setSendingTestLead] = useState<boolean>(false);
+  const [webhookTestResult, setWebhookTestResult] = useState<string>('');
+  const [copiedWebhookUrl, setCopiedWebhookUrl] = useState<boolean>(false);
+
+  const getActiveLeadWebhookUrl = () => {
+    const baseUrl =
+      typeof window !== 'undefined' && window.location.origin
+        ? window.location.origin
+        : 'https://crm.aidigitalskillsgrowth.com';
+    const cleanEmail = String(loggedInEmail || '').trim().toLowerCase();
+    return cleanEmail && cleanEmail !== ADMIN_EMAIL.toLowerCase()
+      ? `${baseUrl}/api/lead-webhook?client_email=${encodeURIComponent(cleanEmail)}`
+      : `${baseUrl}/api/lead-webhook`;
+  };
+
+  const handleCopyLeadWebhookUrl = () => {
+    const url = getActiveLeadWebhookUrl();
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedWebhookUrl(true);
+      setTimeout(() => setCopiedWebhookUrl(false), 2000);
+    }
+  };
+
+  const handleSendLiveTestLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testLeadForm.phone.trim()) {
+      alert('कृपया टेस्ट लीडसाठी मोबाईल नंबर टाका!');
+      return;
+    }
+
+    setSendingTestLead(true);
+    setWebhookTestResult('');
+    try {
+      const targetEmail = String(loggedInEmail || ADMIN_EMAIL).trim().toLowerCase();
+      const res = await fetch('/api/lead-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: testLeadForm.name.trim() || 'Test Meta Lead',
+          phone: testLeadForm.phone.trim(),
+          email: testLeadForm.email.trim(),
+          source: testLeadForm.source,
+          service: testLeadForm.service.trim() || testLeadForm.source,
+          deal_value: Number(testLeadForm.deal_value) || 2000,
+          client_email: targetEmail,
+          meta_phone_id: String(clientSettings.metaPhoneId || '').trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.error || 'Webhook प्रतिसाद अयशस्वी ठरला.');
+      }
+
+      await fetchClientLeadsFromSupabase();
+      const waStatus = data?.whatsappResponse?.skipped
+        ? 'WhatsApp skipped (Token/Phone ID सेट नाही)'
+        : data?.whatsappResponse?.error
+        ? `WhatsApp error: ${data.whatsappResponse.error.message || 'Check Token'}`
+        : 'WhatsApp dispatch processed';
+
+      setWebhookTestResult(
+        `✅ टेस्ट लीड '${testLeadForm.name}' (${testLeadForm.phone}) Supabase मध्ये सेव्ह झाली! (${waStatus})`
+      );
+    } catch (err: any) {
+      setWebhookTestResult(`❌ एरर: ${err?.message || 'टेस्ट लीड पाठवताना त्रुटी आली.'}`);
+    } finally {
+      setSendingTestLead(false);
+    }
+  };
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
@@ -1852,7 +1941,7 @@ export default function DashboardPage() {
                       <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]"><tr><th className="p-4">Name & Phone</th><th className="p-4">Service</th><th className="p-4">Deal Value</th><th className="p-4">Status</th><th className="p-4 text-center">Actions</th></tr></thead>
                       <tbody className="divide-y divide-slate-800/60 text-slate-300">
                         {filteredLeads.length === 0 ? (
-                          <tr><td colSpan={5} className="p-8 text-center text-slate-500">तुमच्या खात्यात अजून कोणतीही लीड जोडलेली नाही. "+ Add Lead" वर क्लिक करा किंवा Workflow मधून ऑटो-लीड कॅप्चर करा.</td></tr>
+                          <tr><td colSpan={5} className="p-8 text-center text-slate-500">तुमच्या खात्यात अजून कोणतीही लीड जोडलेली नाही. "+ Add Lead" वर क्लिक करा किंवा Meta/Workflow मधून ऑटो-लीड कॅप्चर करा.</td></tr>
                         ) : filteredLeads.map((l) => (
                           <tr key={l.id} className="hover:bg-slate-800/30">
                             <td className="p-4"><p className="font-bold text-white">{l.name}</p><span className="text-[11px] text-slate-400">+91 {l.phone}</span></td>
@@ -2072,6 +2161,7 @@ export default function DashboardPage() {
               </div>
             )}
 
+            {/* Ad Launcher (Meta) + Live Webhook URL + 1-Click Test Lead Sender */}
             {activeTab === 'meta_ads' && (
               <div className="space-y-6 text-xs">
                 <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-5 shadow-xl">
@@ -2080,10 +2170,12 @@ export default function DashboardPage() {
                       <div className="w-10 h-10 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black"><Megaphone size={20} /></div>
                       <div>
                         <h3 className="font-bold text-white text-sm">Meta AI & 1-Click Lead Ads Campaign Launcher</h3>
-                        <p className="text-[11px] text-slate-400">Meta AI Graph API द्वारे थेट लीड्स जनरेट करा ({clientSettings.ownerName || loggedInEmail}).</p>
+                        <p className="text-[11px] text-slate-400">
+                          Meta AI Graph API द्वारे लीड्स जनरेट व सिंक करा ({clientSettings.ownerName || loggedInEmail}) • Ad Account: <b className="text-blue-400 font-mono">{clientSettings.metaAdAccountId || 'Not Set'}</b>
+                        </p>
                       </div>
                     </div>
-                    {isMetaConnected ? (
+                    {isMetaConnected || clientSettings.accessToken ? (
                       <span className="px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full font-bold text-[10px] flex items-center gap-1">
                         <CheckCircle size={12} /> Connected ({clientSettings.metaAdAccountId || metaAdAccount})
                       </span>
@@ -2108,11 +2200,112 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <button onClick={() => { if (!isMetaConnected) { alert('प्रथम Meta AI अकाउंट कनेक्ट करा!'); return; } alert('🚀 Meta AI Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2">
+                    <button onClick={() => { if (!isMetaConnected && !clientSettings.accessToken) { alert('प्रथम Meta AI अकाउंट कनेक्ट करा किंवा Settings मध्ये Token टाका!'); return; } alert('🚀 Meta AI Lead Ads मोहीम यशस्वीरीत्या लॉन्च झाली!'); }} className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center justify-center gap-2">
                       <Sparkles size={16} /> Launch Meta AI Ad Campaign
                     </button>
-                    <button onClick={() => alert('Webhook Sync स्टेटस: सर्व लीड्स लाईव्ह अपडेट होत आहेत.')} className="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer">Sync Webhooks</button>
+                    <button onClick={() => { fetchClientLeadsFromSupabase(); alert('Webhook Sync स्टेटस: सर्व लीड्स लाईव्ह अपडेट केल्या आहेत.'); }} className="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer">Sync Webhooks</button>
                   </div>
+                </div>
+
+                {/* Facebook & Instagram Lead Ads Live Webhook URL */}
+                <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="font-black text-white text-sm">🔗 Facebook & Instagram Lead Ads Webhook Endpoint</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Meta Developer Portal &gt; Webhooks मध्ये हा URL आणि Verify Token (<b className="text-emerald-400 font-mono">{clientSettings.webhookVerifyToken || 'ravi_crm_verified_2026'}</b>) वापरून <b className="text-blue-400">leadgen</b> सब्सक्राइब करा.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyLeadWebhookUrl}
+                      className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedWebhookUrl ? <Check size={14} /> : <Copy size={14} />}
+                      <span>{copiedWebhookUrl ? 'Copied!' : 'Copy Webhook URL'}</span>
+                    </button>
+                  </div>
+                  <div className="bg-[#080b12] border border-slate-700 rounded-xl p-3 font-mono text-emerald-300 text-xs break-all">
+                    {getActiveLeadWebhookUrl()}
+                  </div>
+                </div>
+
+                {/* 1-Click Live Test Lead Simulator */}
+                <div className="bg-[#0d1424] border border-emerald-500/30 rounded-3xl p-6 space-y-4 shadow-xl">
+                  <div>
+                    <h4 className="font-black text-white text-sm">🧪 1-Click Live Test Lead Sender (Leads Directory & Pipeline मध्ये तपासा)</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      इथून टेस्ट लीड पाठवल्यावर ती थेट Supabase मध्ये सेव्ह होऊन <b>Growth Leads Directory</b> मध्ये दिसेल.
+                    </p>
+                  </div>
+
+                  {webhookTestResult && (
+                    <div className="p-3 bg-[#080b12] border border-blue-500/40 rounded-xl text-xs font-semibold text-emerald-300">
+                      {webhookTestResult}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSendLiveTestLead} className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">लीडचे नाव</label>
+                      <input
+                        type="text"
+                        required
+                        value={testLeadForm.name}
+                        onChange={(e) => setTestLeadForm({ ...testLeadForm, name: e.target.value })}
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">मोबाईल नंबर *</label>
+                      <input
+                        type="text"
+                        required
+                        value={testLeadForm.phone}
+                        onChange={(e) => setTestLeadForm({ ...testLeadForm, phone: e.target.value })}
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">Lead Source</label>
+                      <select
+                        value={testLeadForm.source}
+                        onChange={(e) => setTestLeadForm({ ...testLeadForm, source: e.target.value })}
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                      >
+                        <option value="Facebook Lead Ad">Facebook Lead Ad</option>
+                        <option value="Instagram Ad">Instagram Ad</option>
+                        <option value="Landing Page">Landing Page</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">ईमेल (ऐच्छिक)</label>
+                      <input
+                        type="email"
+                        value={testLeadForm.email}
+                        onChange={(e) => setTestLeadForm({ ...testLeadForm, email: e.target.value })}
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">Service / Course</label>
+                      <input
+                        type="text"
+                        value={testLeadForm.service}
+                        onChange={(e) => setTestLeadForm({ ...testLeadForm, service: e.target.value })}
+                        className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        type="submit"
+                        disabled={sendingTestLead}
+                        className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
+                      >
+                        {sendingTestLead ? 'पाठवत आहे...' : '🚀 Send Live Test Lead'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
@@ -2148,7 +2341,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* खरा AI Workflow Builder (WhatsApp Trigger -> Auto-Save Lead + Custom/AI Auto-Reply) */}
+            {/* खरा AI Workflow Builder */}
             {activeTab === 'workflow' && (
               <div className="space-y-6 text-xs">
                 <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-6 shadow-2xl">
