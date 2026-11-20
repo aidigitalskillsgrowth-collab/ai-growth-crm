@@ -66,7 +66,6 @@ async function sendClientWhatsAppWelcome(
     formattedPhone = `91${formattedPhone}`;
   }
 
-  // प्रथम टेक्स्ट मेसेज पाठवण्याचा प्रयत्न, नसल्यास hello_world टेम्पलेट
   const textRes = await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
     method: 'POST',
     headers: {
@@ -140,6 +139,27 @@ async function fetchMetaLeadDetails(leadgenId: string, accessToken: string) {
   };
 }
 
+// Safe Supabase Insert helper (अतिरिक्त कॉलम नसल्यास मूलभूत कॉलम्सवर fallback)
+async function insertLeadSafely(supabase: any, fullPayload: Record<string, any>) {
+  const firstAttempt = await supabase.from('leads').insert([fullPayload]).select();
+  if (!firstAttempt.error) {
+    return { data: firstAttempt.data, error: null };
+  }
+
+  const fallbackPayload = {
+    name: fullPayload.name || 'Unknown Lead',
+    phone: fullPayload.phone || '',
+    email: fullPayload.email || '',
+    source: fullPayload.source || 'Landing Page',
+  };
+
+  const secondAttempt = await supabase.from('leads').insert([fallbackPayload]).select();
+  return {
+    data: secondAttempt.data,
+    error: secondAttempt.error ? secondAttempt.error.message : null,
+  };
+}
+
 // २. Facebook/Instagram Lead Ads आणि Landing Page Leads स्वीकारणे (POST)
 export async function POST(request: NextRequest) {
   try {
@@ -163,7 +183,6 @@ export async function POST(request: NextRequest) {
           const leadgenId = String(change?.value?.leadgen_id || '').trim();
           if (!leadgenId) continue;
 
-          // संबंधित क्लायंट शोधणे (metaPageId, queryClientEmail किंवा Admin डिफॉल्ट)
           let client: any = null;
           if (pageId) {
             const { data } = await supabase
@@ -190,7 +209,6 @@ export async function POST(request: NextRequest) {
             client = data;
           }
 
-          // प्लॅन एक्सपायर असल्यास थांबवणे
           const isExpired =
             client?.billing_cycle === 'expired' ||
             (client?.plan_expires_at && new Date(client.plan_expires_at).getTime() < Date.now());
@@ -216,25 +234,20 @@ export async function POST(request: NextRequest) {
 
           const cleanPhone = leadDetails.phone.replace(/\D/g, '').replace(/^91/, '');
 
-          const { data: inserted, error: insertErr } = await supabase
-            .from('leads')
-            .insert([
-              {
-                client_email: client?.client_email || '',
-                meta_phone_id: phoneNumberId || null,
-                name: leadDetails.name,
-                phone: cleanPhone,
-                email: leadDetails.email,
-                service: leadDetails.platform,
-                deal_value: 2000,
-                status: 'New Lead',
-                source: leadDetails.platform,
-                sentiment: 'Highly Interested',
-                notes: `Meta Leadgen ID: ${leadgenId}`,
-                pipeline_id: 'default_main',
-              },
-            ])
-            .select();
+          const { data: inserted, error: dbErrorMsg } = await insertLeadSafely(supabase, {
+            client_email: client?.client_email || '',
+            meta_phone_id: phoneNumberId || null,
+            name: leadDetails.name,
+            phone: cleanPhone,
+            email: leadDetails.email,
+            service: leadDetails.platform,
+            deal_value: 2000,
+            status: 'New Lead',
+            source: leadDetails.platform,
+            sentiment: 'Highly Interested',
+            notes: `Meta Leadgen ID: ${leadgenId}`,
+            pipeline_id: 'default_main',
+          });
 
           const waRes = await sendClientWhatsAppWelcome(
             phoneNumberId,
@@ -247,7 +260,7 @@ export async function POST(request: NextRequest) {
           results.push({
             leadgenId,
             client: client?.client_email,
-            dbError: insertErr?.message || null,
+            dbError: dbErrorMsg,
             lead: inserted?.[0] || null,
             whatsappResponse: waRes,
           });
@@ -260,7 +273,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // B) जर पेलोड Website / Landing Page / Custom Webhook कडून आला असेल तर:
+    // B) जर पेलोड Website / Landing Page / Test Lead कडून आला असेल तर:
     const { name, phone, email, source, service, deal_value, client_email, meta_phone_id } = body;
 
     const targetEmail = String(client_email || queryClientEmail || 'aidigitalskillsgrowth@gmail.com')
@@ -278,34 +291,26 @@ export async function POST(request: NextRequest) {
     ).trim();
 
     let dbData = null;
-    let dbErrorMsg = null;
+    let dbErrorMsg: string | null = null;
 
     if (phone) {
       const cleanPhone = String(phone).replace(/\D/g, '').replace(/^91/, '');
-      const { data, error } = await supabase
-        .from('leads')
-        .insert([
-          {
-            client_email: client?.client_email || targetEmail,
-            meta_phone_id: targetPhoneId || null,
-            name: name || 'Unknown Lead',
-            phone: cleanPhone,
-            email: email || '',
-            service: service || 'Website Inquiry',
-            deal_value: Number(deal_value) || 2000,
-            status: 'New Lead',
-            source: source || 'Landing Page',
-            sentiment: 'Interested',
-            pipeline_id: 'default_main',
-          },
-        ])
-        .select();
+      const insertedRes = await insertLeadSafely(supabase, {
+        client_email: client?.client_email || targetEmail,
+        meta_phone_id: targetPhoneId || null,
+        name: name || 'Unknown Lead',
+        phone: cleanPhone,
+        email: email || '',
+        service: service || 'Website Inquiry',
+        deal_value: Number(deal_value) || 2000,
+        status: 'New Lead',
+        source: source || 'Landing Page',
+        sentiment: 'Interested',
+        pipeline_id: 'default_main',
+      });
 
-      if (error) {
-        dbErrorMsg = error.message;
-      } else {
-        dbData = data;
-      }
+      dbData = insertedRes.data;
+      dbErrorMsg = insertedRes.error;
     }
 
     let waResult = null;
@@ -324,13 +329,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        success: true,
+        success: !dbErrorMsg,
         db: dbData,
         dbError: dbErrorMsg,
         whatsappResponse: waResult,
         timestamp: new Date().toISOString(),
       },
-      { status: 200, headers: corsHeaders }
+      { status: dbErrorMsg ? 500 : 200, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error('Webhook execution fatal error:', err);
