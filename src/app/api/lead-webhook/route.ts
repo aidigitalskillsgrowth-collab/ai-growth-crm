@@ -3,7 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 
 const getSupabaseClient = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const key =
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    '';
   return createClient(url, key);
 };
 
@@ -20,30 +24,72 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET() {
-  return NextResponse.json({
-    status: 'online',
-    message: 'Lead webhook GET endpoint is active and working fine for CRM integration.'
-  }, { 
-    status: 200, 
-    headers: corsHeaders 
-  });
-}
+// १. Meta Webhook Verification (GET) + Health Check
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const mode = searchParams.get('hub.mode');
+  const token = searchParams.get('hub.verify_token');
+  const challenge = searchParams.get('hub.challenge');
 
-async function sendWhatsAppTemplateMessage(phone: string) {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  
-  if (!phoneNumberId || !accessToken) {
-    throw new Error('WhatsApp credentials missing in environment variables');
+  const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN || 'ravi_crm_verified_2026';
+
+  if (mode && token) {
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      return new NextResponse(challenge, { status: 200 });
+    }
+    return new NextResponse('Forbidden', { status: 403 });
   }
 
-  const formattedPhone = phone.replace(/\D/g, '');
+  return NextResponse.json(
+    {
+      status: 'online',
+      message: 'Multi-tenant Meta & Landing Page Lead webhook GET endpoint is active.',
+    },
+    { status: 200, headers: corsHeaders }
+  );
+}
 
-  const response = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
+// क्लायंटच्या स्वतःच्या WhatsApp वरून लीडला वेलकम मेसेज पाठवणे
+async function sendClientWhatsAppWelcome(
+  phoneNumberId: string,
+  accessToken: string,
+  toPhone: string,
+  leadName: string,
+  businessName: string
+) {
+  if (!phoneNumberId || !accessToken || !toPhone) {
+    return { skipped: true, reason: 'Missing client WhatsApp credentials' };
+  }
+
+  let formattedPhone = toPhone.replace(/\D/g, '');
+  if (formattedPhone.length === 10) {
+    formattedPhone = `91${formattedPhone}`;
+  }
+
+  // प्रथम टेक्स्ट मेसेज पाठवण्याचा प्रयत्न, नसल्यास hello_world टेम्पलेट
+  const textRes = await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      to: formattedPhone,
+      type: 'text',
+      text: {
+        body: `नमस्कार ${leadName || 'मित्र'} जी! 🙏 *${businessName || 'AI Growth CRM'}* मध्ये आपली चौकशी प्राप्त झाली आहे. आमची टीम लवकरच आपल्याशी संपर्क साधेल.`,
+      },
+    }),
+  });
+
+  const textData = await textRes.json().catch(() => ({}));
+  if (textRes.ok) return textData;
+
+  const tplRes = await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -52,37 +98,210 @@ async function sendWhatsAppTemplateMessage(phone: string) {
       type: 'template',
       template: {
         name: 'hello_world',
-        language: { code: 'en_US' }
-      }
+        language: { code: 'en_US' },
+      },
     }),
   });
 
-  return await response.json();
+  return await tplRes.json().catch(() => ({}));
 }
 
+// Meta Graph API वरून leadgen_id चे तपशील (नाव, फोन, ईमेल) आणणे
+async function fetchMetaLeadDetails(leadgenId: string, accessToken: string) {
+  const url = `https://graph.facebook.com/v21.0/${encodeURIComponent(leadgenId)}?access_token=${encodeURIComponent(accessToken)}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok || !Array.isArray(data?.field_data)) {
+    console.error('Meta Graph API lead fetch failed:', JSON.stringify(data));
+    return null;
+  }
+
+  let name = '';
+  let phone = '';
+  let email = '';
+
+  for (const field of data.field_data) {
+    const fieldName = String(field.name || '').toLowerCase();
+    const val = Array.isArray(field.values) ? String(field.values[0] || '').trim() : '';
+
+    if (fieldName.includes('name')) name = name ? `${name} ${val}` : val;
+    if (fieldName.includes('phone') || fieldName.includes('mobile') || fieldName.includes('whatsapp')) {
+      phone = val;
+    }
+    if (fieldName.includes('email')) email = val;
+  }
+
+  return {
+    name: name || 'Meta Lead',
+    phone,
+    email,
+    platform: data?.platform === 'ig' ? 'Instagram Lead Ad' : 'Facebook Lead Ad',
+  };
+}
+
+// २. Facebook/Instagram Lead Ads आणि Landing Page Leads स्वीकारणे (POST)
 export async function POST(request: NextRequest) {
   try {
     const supabase = getSupabaseClient();
+    const searchParams = request.nextUrl.searchParams;
+    const queryClientEmail = String(searchParams.get('client_email') || '').trim().toLowerCase();
+    const queryPhoneId = String(searchParams.get('meta_phone_id') || '').trim();
+
     const body = await request.json();
-    const { name, phone, email, source } = body;
+
+    // A) जर पेलोड Facebook / Instagram Lead Ads (Meta Webhook) कडून आला असेल तर:
+    if (body?.object === 'page' && Array.isArray(body?.entry)) {
+      const results: any[] = [];
+
+      for (const entry of body.entry) {
+        const pageId = String(entry?.id || '').trim();
+        const changes = Array.isArray(entry?.changes) ? entry.changes : [];
+
+        for (const change of changes) {
+          if (change?.field !== 'leadgen') continue;
+          const leadgenId = String(change?.value?.leadgen_id || '').trim();
+          if (!leadgenId) continue;
+
+          // संबंधित क्लायंट शोधणे (metaPageId, queryClientEmail किंवा Admin डिफॉल्ट)
+          let client: any = null;
+          if (pageId) {
+            const { data } = await supabase
+              .from('client_settings')
+              .select('*')
+              .eq('metaPageId', pageId)
+              .maybeSingle();
+            client = data;
+          }
+          if (!client && queryClientEmail) {
+            const { data } = await supabase
+              .from('client_settings')
+              .select('*')
+              .ilike('client_email', queryClientEmail)
+              .maybeSingle();
+            client = data;
+          }
+          if (!client) {
+            const { data } = await supabase
+              .from('client_settings')
+              .select('*')
+              .ilike('client_email', 'aidigitalskillsgrowth@gmail.com')
+              .maybeSingle();
+            client = data;
+          }
+
+          // प्लॅन एक्सपायर असल्यास थांबवणे
+          const isExpired =
+            client?.billing_cycle === 'expired' ||
+            (client?.plan_expires_at && new Date(client.plan_expires_at).getTime() < Date.now());
+          if (isExpired) continue;
+
+          const accessToken = String(
+            client?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN || ''
+          ).trim();
+          const phoneNumberId = String(
+            client?.metaPhoneId || process.env.WHATSAPP_PHONE_NUMBER_ID || ''
+          ).trim();
+
+          if (!accessToken) {
+            results.push({ leadgenId, error: 'Client Graph API Access Token missing' });
+            continue;
+          }
+
+          const leadDetails = await fetchMetaLeadDetails(leadgenId, accessToken);
+          if (!leadDetails || !leadDetails.phone) {
+            results.push({ leadgenId, error: 'Could not extract phone from Meta leadgen_id' });
+            continue;
+          }
+
+          const cleanPhone = leadDetails.phone.replace(/\D/g, '').replace(/^91/, '');
+
+          const { data: inserted, error: insertErr } = await supabase
+            .from('leads')
+            .insert([
+              {
+                client_email: client?.client_email || '',
+                meta_phone_id: phoneNumberId || null,
+                name: leadDetails.name,
+                phone: cleanPhone,
+                email: leadDetails.email,
+                service: leadDetails.platform,
+                deal_value: 2000,
+                status: 'New Lead',
+                source: leadDetails.platform,
+                sentiment: 'Highly Interested',
+                notes: `Meta Leadgen ID: ${leadgenId}`,
+                pipeline_id: 'default_main',
+              },
+            ])
+            .select();
+
+          const waRes = await sendClientWhatsAppWelcome(
+            phoneNumberId,
+            accessToken,
+            cleanPhone,
+            leadDetails.name,
+            client?.businessName || ''
+          );
+
+          results.push({
+            leadgenId,
+            client: client?.client_email,
+            dbError: insertErr?.message || null,
+            lead: inserted?.[0] || null,
+            whatsappResponse: waRes,
+          });
+        }
+      }
+
+      return NextResponse.json(
+        { success: true, source: 'meta_lead_ads', results },
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    // B) जर पेलोड Website / Landing Page / Custom Webhook कडून आला असेल तर:
+    const { name, phone, email, source, service, deal_value, client_email, meta_phone_id } = body;
+
+    const targetEmail = String(client_email || queryClientEmail || 'aidigitalskillsgrowth@gmail.com')
+      .trim()
+      .toLowerCase();
+
+    const { data: client } = await supabase
+      .from('client_settings')
+      .select('*')
+      .ilike('client_email', targetEmail)
+      .maybeSingle();
+
+    const targetPhoneId = String(
+      meta_phone_id || queryPhoneId || client?.metaPhoneId || ''
+    ).trim();
 
     let dbData = null;
     let dbErrorMsg = null;
+
     if (phone) {
+      const cleanPhone = String(phone).replace(/\D/g, '').replace(/^91/, '');
       const { data, error } = await supabase
         .from('leads')
         .insert([
-          { 
-            name: name || 'Unknown Lead', 
-            phone: phone, 
-            email: email || '', 
-            source: source || 'Lovable Landing Page' 
-          }
+          {
+            client_email: client?.client_email || targetEmail,
+            meta_phone_id: targetPhoneId || null,
+            name: name || 'Unknown Lead',
+            phone: cleanPhone,
+            email: email || '',
+            service: service || 'Website Inquiry',
+            deal_value: Number(deal_value) || 2000,
+            status: 'New Lead',
+            source: source || 'Landing Page',
+            sentiment: 'Interested',
+            pipeline_id: 'default_main',
+          },
         ])
         .select();
-      
+
       if (error) {
-        console.error('Supabase insert error:', error.message);
         dbErrorMsg = error.message;
       } else {
         dbData = data;
@@ -90,35 +309,37 @@ export async function POST(request: NextRequest) {
     }
 
     let waResult = null;
-    let waErrorMsg = null;
     if (phone) {
-      try {
-        waResult = await sendWhatsAppTemplateMessage(phone);
-      } catch (waErr: any) {
-        console.error('WhatsApp send error:', waErr.message);
-        waErrorMsg = waErr.message;
-      }
+      const accessToken = String(
+        client?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN || ''
+      ).trim();
+      waResult = await sendClientWhatsAppWelcome(
+        targetPhoneId,
+        accessToken,
+        String(phone),
+        name || 'मित्र',
+        client?.businessName || ''
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      db: dbData,
-      dbError: dbErrorMsg,
-      whatsappResponse: waResult,
-      whatsappError: waErrorMsg,
-      timestamp: new Date().toISOString()
-    }, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        db: dbData,
+        dbError: dbErrorMsg,
+        whatsappResponse: waResult,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 200, headers: corsHeaders }
+    );
   } catch (err: any) {
     console.error('Webhook execution fatal error:', err);
-    return NextResponse.json({ 
-      success: false, 
-      error: err.message || 'Internal server error during webhook processing' 
-    }, { 
-      status: 500, 
-      headers: corsHeaders 
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: err.message || 'Internal server error during webhook processing',
+      },
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
