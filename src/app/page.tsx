@@ -157,15 +157,10 @@ export default function DashboardPage() {
   const [authChecking, setAuthChecking] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loggedInEmail, setLoggedInEmail] = useState<string>('');
-  const [loginMethod, setLoginMethod] = useState<'otp' | 'password'>('otp');
-  const [otpSent, setOtpSent] = useState<boolean>(false);
-  const [otpCode, setOtpCode] = useState<string>('');
-  const [authMode, setAuthMode] = useState<'login' | 'forgot'>('login');
   const [authEmail, setAuthEmail] = useState<string>('');
   const [authPassword, setAuthPassword] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>('');
-  const [authSuccess, setAuthSuccess] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [deviceView, setDeviceView] = useState<'Desktop' | 'Mobile'>('Desktop');
@@ -193,13 +188,14 @@ export default function DashboardPage() {
     ALL_MODULES.map((m) => m.id)
   );
 
-  // Admin साठी सर्व क्लायंट्स आणि त्यांचे प्लॅन/मॉड्यूल्स मॅनेज करण्याची स्टेट
+  // Admin साठी नवीन/विद्यमान क्लायंटचा Email, Password आणि Lock/Unlock Modules मॅनेज करणे
   const [allClientsList, setAllClientsList] = useState<any[]>([]);
-  const [managedClientEmail, setManagedClientEmail] = useState<string>(ADMIN_EMAIL);
-  const [managedClientName, setManagedClientName] = useState<string>('Ravi Patil');
-  const [managedClientBiz, setManagedClientBiz] = useState<string>('रवी पाटील - AI ग्रोथ बिझनेस');
-  const [managedPlanType, setManagedPlanType] = useState<string>('full_crm');
-  const [managedModules, setManagedModules] = useState<string[]>(ALL_MODULES.map((m) => m.id));
+  const [managedClientEmail, setManagedClientEmail] = useState<string>('');
+  const [managedClientPassword, setManagedClientPassword] = useState<string>('');
+  const [managedClientName, setManagedClientName] = useState<string>('');
+  const [managedClientBiz, setManagedClientBiz] = useState<string>('');
+  const [managedPlanType, setManagedPlanType] = useState<string>('whatsapp_starter');
+  const [managedModules, setManagedModules] = useState<string[]>(PLAN_PRESETS.whatsapp_starter.modules);
   const [savingClientPlan, setSavingClientPlan] = useState<boolean>(false);
 
   const [pipelines, setPipelines] = useState([
@@ -349,7 +345,7 @@ export default function DashboardPage() {
       localStorage.setItem('unified_meta_permanent_config_v_full', JSON.stringify(clientSettings));
       await syncSettingsToSupabase();
       alert('✅ तुमच्या क्लायंट सेटिंग्स, Meta Access Token आणि Gemini API Key Supabase मध्ये यशस्वीरीत्या सेव्ह झाली!');
-    } catch (err) {
+    } catch {
       localStorage.setItem('client_custom_settings', JSON.stringify(clientSettings));
       alert('✅ लोकल स्टोरेजमध्ये सेटिंग्स सेव्ह झाल्यात!');
     } finally {
@@ -367,9 +363,9 @@ export default function DashboardPage() {
     }
   };
 
-  // Admin द्वारे नवीन किंवा विद्यमान क्लायंटचे Plan आणि Lock/Unlock Modules सेव्ह करणे
   const handleSelectManagedClient = (row: any) => {
     setManagedClientEmail(row.client_email || '');
+    setManagedClientPassword('');
     setManagedClientName(row.ownerName || '');
     setManagedClientBiz(row.businessName || '');
     setManagedPlanType(row.plan_type || 'whatsapp_starter');
@@ -396,6 +392,7 @@ export default function DashboardPage() {
     });
   };
 
+  // नवीन किंवा विद्यमान क्लायंटसाठी Email + Password + Modules सेव्ह करणे
   const handleSaveManagedClientAccess = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = managedClientEmail.trim().toLowerCase();
@@ -408,44 +405,22 @@ export default function DashboardPage() {
     try {
       const finalModules = Array.from(new Set([...managedModules, 'settings']));
 
-      const { data: existing } = await supabase
-        .from('client_settings')
-        .select('user_id')
-        .ilike('client_email', cleanEmail)
-        .maybeSingle();
+      const res = await fetch('/api/admin/create-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password: managedClientPassword.trim(),
+          ownerName: managedClientName.trim() || 'Client',
+          businessName: managedClientBiz.trim() || 'Client Business',
+          planType: managedPlanType,
+          allowedModules: finalModules,
+        }),
+      });
 
-      if (existing?.user_id) {
-        const { error } = await supabase
-          .from('client_settings')
-          .update({
-            client_email: cleanEmail,
-            ownerName: managedClientName.trim() || 'Client',
-            businessName: managedClientBiz.trim() || 'Client Business',
-            plan_type: managedPlanType,
-            allowed_modules: finalModules,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', existing.user_id);
-        if (error) throw error;
-      } else {
-        const generatedId =
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `client_${Date.now()}`;
-
-        const { error } = await supabase.from('client_settings').insert([
-          {
-            user_id: generatedId,
-            client_email: cleanEmail,
-            ownerName: managedClientName.trim() || 'Client',
-            businessName: managedClientBiz.trim() || 'Client Business',
-            plan_type: managedPlanType,
-            allowed_modules: finalModules,
-            aiAutoReply: true,
-            updated_at: new Date().toISOString(),
-          },
-        ]);
-        if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || 'क्लायंट सेव्ह करताना त्रुटी आली.');
       }
 
       if (cleanEmail === loggedInEmail.toLowerCase()) {
@@ -453,11 +428,11 @@ export default function DashboardPage() {
         setClientSettings((prev) => ({ ...prev, plan_type: managedPlanType }));
       }
 
+      setManagedClientPassword('');
       await fetchAllRegisteredClients();
-      alert(`✅ '${cleanEmail}' साठी प्लॅन (${managedPlanType}) आणि मॉड्यूल लॉक/अनलॉक सेटिंग्स सेव्ह झाल्या! आता हा क्लायंट त्याच्या ईमेलने लॉगिन करू शकतो.`);
+      alert(`✅ '${cleanEmail}' साठी Email + Password आणि मॉड्यूल Lock/Unlock सेटिंग्स सेव्ह झाल्या! आता हा क्लायंट OTP शिवाय थेट त्याच्या Email व Password ने लॉगिन करू शकतो.`);
     } catch (err: any) {
-      console.error('Save client plan error:', err);
-      alert(`❌ सेव्ह करताना त्रुटी आली: ${err?.message || 'कृपया Supabase मध्ये client_email व plan_type कॉलम असल्याची खात्री करा.'}`);
+      alert(`❌ त्रुटी: ${err?.message || 'कृपया पुन्हा प्रयत्न करा.'}`);
     } finally {
       setSavingClientPlan(false);
     }
@@ -511,7 +486,6 @@ export default function DashboardPage() {
     }
   };
 
-  // ईमेल अधिकृत (Allowlisted) आहे का ते तपासणे व प्रोफाईल लोड करणे
   const verifyAndLoadAuthorizedClient = async (email: string, userId?: string) => {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) return false;
@@ -562,7 +536,7 @@ export default function DashboardPage() {
         if (!ok) {
           await supabase.auth.signOut();
           setIsLoggedIn(false);
-          setAuthError('हा ईमेल आमच्या CRM सिस्टममध्ये नोंदणीकृत नाही. कृपया तुमच्या अ‍ॅडमिनशी संपर्क साधा.');
+          setAuthError('हा ईमेल आमच्या CRM सिस्टममध्ये नोंदणीकृत नाही.');
         }
       } else {
         setIsLoggedIn(false);
@@ -590,7 +564,6 @@ export default function DashboardPage() {
     };
   }, []);
 
-  // ईमेल आपल्या सिस्टममध्ये नोंदलेला आहे का ते OTP/Login पाठवण्याआधीच तपासणे
   const checkEmailRegisteredInSystem = async (email: string): Promise<boolean> => {
     const clean = email.trim().toLowerCase();
     if (!clean) return false;
@@ -605,94 +578,12 @@ export default function DashboardPage() {
     return !!data;
   };
 
-  // १. ईमेल OTP पाठवणे (फक्त रजिस्टर ईमेललाच जाईल)
-  const handleSendEmailOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = authEmail.trim().toLowerCase();
-    if (!cleanEmail) {
-      setAuthError('कृपया तुमचा ईमेल आयडी टाका!');
-      return;
-    }
-
-    setAuthLoading(true);
-    setAuthError('');
-    setAuthSuccess('');
-
-    try {
-      const isAllowed = await checkEmailRegisteredInSystem(cleanEmail);
-      if (!isAllowed) {
-        setAuthError('⛔ हा ईमेल आयडी आमच्या सिस्टममध्ये नोंदलेला नाही! दुसऱ्या ईमेलने लॉगिन करता येणार नाही.');
-        setAuthLoading(false);
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email: cleanEmail,
-        options: {
-          shouldCreateUser: true,
-        },
-      });
-
-      if (error) {
-        setAuthError(error.message);
-      } else {
-        setOtpSent(true);
-        setAuthSuccess(`✅ तुमच्या ${cleanEmail} या ईमेलवर OTP कोड पाठवला आहे. कृपया इनबॉक्स/स्पॅम तपासा.`);
-      }
-    } catch {
-      setAuthError('OTP पाठवताना तांत्रिक अडचण आली.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // २. ईमेल OTP व्हेरिफाय करून लॉगिन करणे
-  const handleVerifyEmailOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = authEmail.trim().toLowerCase();
-    const cleanToken = otpCode.trim();
-    if (!cleanToken) {
-      setAuthError('कृपया ईमेलवर आलेला OTP कोड टाका!');
-      return;
-    }
-
-    setAuthLoading(true);
-    setAuthError('');
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: cleanEmail,
-        token: cleanToken,
-        type: 'email',
-      });
-
-      if (error) {
-        setAuthError('चुकीचा किंवा कालबाह्य झालेला OTP कोड! कृपया पुन्हा प्रयत्न करा.');
-      } else if (data.session?.user?.email) {
-        const ok = await verifyAndLoadAuthorizedClient(data.session.user.email, data.session.user.id);
-        if (ok) {
-          setOtpSent(false);
-          setOtpCode('');
-          setAuthSuccess('');
-        } else {
-          await supabase.auth.signOut();
-          setAuthError('⛔ हा ईमेल अधिकृत नाही.');
-        }
-      }
-    } catch {
-      setAuthError('OTP पडताळणी करताना अडचण आली.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // ३. पासवर्डने लॉगिन (फक्त रजिस्टर ईमेललाच परवानगी)
+  // थेट Email + Password ने लॉगिन (कोणत्याही OTP ची गरज नाही)
   const handleSupabaseLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = authEmail.trim().toLowerCase();
     setAuthLoading(true);
     setAuthError('');
-    setAuthSuccess('');
 
     try {
       const isAllowed = await checkEmailRegisteredInSystem(cleanEmail);
@@ -708,7 +599,11 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setAuthError(error.message === 'Invalid login credentials' ? 'चुकीचा ईमेल किंवा पासवर्ड!' : error.message);
+        setAuthError(
+          error.message === 'Invalid login credentials'
+            ? 'चुकीचा ईमेल किंवा पासवर्ड! कृपया अ‍ॅडमिनने दिलेला पासवर्ड टाका.'
+            : error.message
+        );
       } else if (data.session?.user?.email) {
         await verifyAndLoadAuthorizedClient(data.session.user.email, data.session.user.id);
       }
@@ -719,37 +614,10 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSupabaseForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = authEmail.trim().toLowerCase();
-    if (!cleanEmail) { setAuthError('कृपया तुमचा नोंदणीकृत ईमेल टाका!'); return; }
-    setAuthLoading(true);
-    setAuthError('');
-    try {
-      const isAllowed = await checkEmailRegisteredInSystem(cleanEmail);
-      if (!isAllowed) {
-        setAuthError('⛔ हा ईमेल आयडी सिस्टममध्ये नोंदलेला नाही.');
-        setAuthLoading(false);
-        return;
-      }
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: window.location.origin,
-      });
-      if (error) { setAuthError(error.message); }
-      else {
-        setAuthSuccess('✅ पासवर्ड रिसेट करण्याची लिंक तुमच्या ईमेलवर पाठवली आहे!');
-        setAuthMode('login');
-      }
-    } catch { setAuthError('रिसेट लिंक पाठवण्यात अडचण आली.'); }
-    finally { setAuthLoading(false); }
-  };
-
   const handleSupabaseLogout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
     setLoggedInEmail('');
-    setOtpSent(false);
-    setOtpCode('');
     setAuthPassword('');
   };
 
@@ -1354,7 +1222,6 @@ export default function DashboardPage() {
     { id: 'settings', label: 'Settings & Meta API', icon: Settings }
   ];
 
-  // सेशन तपासत असताना लोडर
   if (authChecking) {
     return (
       <div className="min-h-screen bg-[#07090e] text-slate-100 flex items-center justify-center">
@@ -1366,7 +1233,7 @@ export default function DashboardPage() {
     );
   }
 
-  // लॉगिन स्क्रीन (फक्त सिस्टममध्ये नोंदलेल्या ईमेलसाठी OTP + Password)
+  // थेट Email + Password लॉगिन स्क्रीन (OTP शिवाय)
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-[#07090e] text-slate-100 flex items-center justify-center p-4">
@@ -1377,39 +1244,8 @@ export default function DashboardPage() {
             </div>
             <h1 className="text-xl font-black text-white">AI Growth CRM Login</h1>
             <p className="text-xs text-slate-400">
-              फक्त आमच्या सिस्टममध्ये नोंदणीकृत ईमेल आयडीनेच लॉगिन करता येईल.
+              तुमचा नोंदणीकृत Email ID आणि Password टाकून थेट लॉगिन करा.
             </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 bg-[#080b12] p-1 rounded-2xl border border-slate-800 text-xs">
-            <button
-              type="button"
-              onClick={() => {
-                setLoginMethod('otp');
-                setAuthMode('login');
-                setAuthError('');
-                setAuthSuccess('');
-              }}
-              className={`py-2 rounded-xl font-bold transition cursor-pointer ${
-                loginMethod === 'otp' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              📧 Email OTP (Best)
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLoginMethod('password');
-                setOtpSent(false);
-                setAuthError('');
-                setAuthSuccess('');
-              }}
-              className={`py-2 rounded-xl font-bold transition cursor-pointer ${
-                loginMethod === 'password' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              🔑 Password Login
-            </button>
           </div>
 
           {authError && (
@@ -1418,147 +1254,43 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {authSuccess && (
-            <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 font-semibold">
-              {authSuccess}
-            </div>
-          )}
-
-          {loginMethod === 'otp' ? (
-            !otpSent ? (
-              <form onSubmit={handleSendEmailOtp} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1.5">तुमचा नोंदणीकृत ईमेल आयडी</label>
-                  <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
-                    <Mail size={15} className="text-blue-400" />
-                    <input
-                      type="email"
-                      required
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                      placeholder="client@example.com"
-                      className="bg-transparent text-white outline-none w-full"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
-                >
-                  {authLoading ? 'तपासत आहे...' : 'ईमेलवर OTP पाठवा'}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyEmailOtp} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1.5">ईमेलवर आलेला OTP कोड टाका</label>
-                  <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
-                    <KeyRound size={15} className="text-emerald-400" />
-                    <input
-                      type="text"
-                      required
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                      placeholder="6-अंकी OTP कोड"
-                      className="bg-transparent text-white outline-none w-full font-mono tracking-widest"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
-                >
-                  {authLoading ? 'पडताळणी सुरू आहे...' : 'OTP व्हेरिफाय करून लॉगिन करा'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtpCode('');
-                    setAuthError('');
-                  }}
-                  className="w-full py-2 text-slate-400 hover:text-white font-semibold cursor-pointer"
-                >
-                  ← ईमेल बदला किंवा पुन्हा OTP पाठवा
-                </button>
-              </form>
-            )
-          ) : authMode === 'login' ? (
-            <form onSubmit={handleSupabaseLogin} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-300 font-bold mb-1.5">नोंदणीकृत ईमेल आयडी</label>
-                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
-                  <Mail size={15} className="text-blue-400" />
-                  <input
-                    type="email"
-                    required
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="client@example.com"
-                    className="bg-transparent text-white outline-none w-full"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-slate-300 font-bold mb-1.5">पासवर्ड</label>
-                <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
-                  <KeyRound size={15} className="text-blue-400" />
-                  <input
-                    type="password"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="bg-transparent text-white outline-none w-full"
-                  />
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
-              >
-                {authLoading ? 'लॉगिन होत आहे...' : 'लॉगिन करा'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMode('forgot')}
-                className="w-full text-center text-blue-400 hover:underline font-semibold cursor-pointer"
-              >
-                पासवर्ड विसरलात का?
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSupabaseForgotPassword} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-300 font-bold mb-1.5">नोंदणीकृत ईमेल आयडी</label>
+          <form onSubmit={handleSupabaseLogin} className="space-y-4 text-xs">
+            <div>
+              <label className="block text-slate-300 font-bold mb-1.5">नोंदणीकृत ईमेल आयडी</label>
+              <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
+                <Mail size={15} className="text-blue-400" />
                 <input
                   type="email"
                   required
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
                   placeholder="client@example.com"
-                  className="w-full bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white outline-none"
+                  className="bg-transparent text-white outline-none w-full"
                 />
               </div>
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl cursor-pointer"
-              >
-                {authLoading ? 'लिंक पाठवत आहे...' : 'रिसेट लिंक पाठवा'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMode('login')}
-                className="w-full text-center text-slate-400 hover:text-white cursor-pointer"
-              >
-                ← लॉगिनवर परत जा
-              </button>
-            </form>
-          )}
+            </div>
+            <div>
+              <label className="block text-slate-300 font-bold mb-1.5">पासवर्ड</label>
+              <div className="flex items-center gap-2 bg-[#080b12] border border-slate-700 rounded-xl px-3.5 py-2.5">
+                <KeyRound size={15} className="text-blue-400" />
+                <input
+                  type="password"
+                  required
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-transparent text-white outline-none w-full"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
+            >
+              {authLoading ? 'लॉगिन होत आहे...' : 'लॉगिन करा'}
+            </button>
+          </form>
         </div>
       </div>
     );
@@ -2226,22 +1958,22 @@ export default function DashboardPage() {
 
             {activeTab === 'settings' && (
               <div className="space-y-8" style={{ maxWidth: '960px' }}>
-                {/* १. क्लायंट ईमेल व प्लॅननुसार मॉड्यूल Lock/Unlock मॅनेजर */}
+                {/* १. क्लायंट Email + Password व मॉड्यूल Lock/Unlock मॅनेजर */}
                 <div className="bg-[#0d1424] border border-blue-500/40 rounded-3xl p-6 space-y-5 shadow-2xl">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                     <div>
                       <h2 className="text-lg font-black text-white flex items-center gap-2">
-                        <Lock size={18} className="text-amber-400" /> Client Email Access & Module Lock/Unlock Manager
+                        <Lock size={18} className="text-amber-400" /> Client Login (Email + Password) & Module Lock/Unlock
                       </h2>
                       <p className="text-xs text-slate-400 mt-1">
-                        इथे ज्या क्लायंटचा ईमेल टाकाल, <b>फक्त त्याच ईमेलला लॉगिन करता येईल</b> आणि निवडलेलेच मॉड्यूल्स अनलॉक राहतील.
+                        इथे क्लायंटचा <b>Email ID</b>, <b>Password</b> आणि <b>Unlocked Modules</b> सेट करा — क्लायंटला कोणत्याही OTP शिवाय थेट पासवर्डने लॉगिन करता येईल.
                       </p>
                     </div>
                   </div>
 
                   {allClientsList.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase">नोंदणीकृत क्लायंट्स (निवडण्यासाठी क्लिक करा):</span>
+                      <span className="text-[11px] font-bold text-slate-400 uppercase">नोंदणीकृत क्लायंट्स (एडिट करण्यासाठी क्लिक करा):</span>
                       <div className="flex flex-wrap gap-2">
                         {allClientsList.map((cl, idx) => (
                           <button
@@ -2262,7 +1994,7 @@ export default function DashboardPage() {
                   )}
 
                   <form onSubmit={handleSaveManagedClientAccess} className="space-y-5 text-xs">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-slate-300 font-bold mb-1.5">क्लायंट ईमेल आयडी (Login Email) *</label>
                         <input
@@ -2274,6 +2006,21 @@ export default function DashboardPage() {
                           className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
                         />
                       </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1.5">
+                          क्लायंट पासवर्ड (किमान ६ अक्षरे) *
+                        </label>
+                        <input
+                          type="text"
+                          value={managedClientPassword}
+                          onChange={(e) => setManagedClientPassword(e.target.value)}
+                          placeholder="उदा. Ravi@1234 (जुनाच ठेवायचा असल्यास रिकामा सोडा)"
+                          className="w-full bg-[#080b12] border border-slate-700 rounded-xl p-2.5 text-emerald-300 font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-slate-300 font-bold mb-1.5">क्लायंटचे नाव</label>
                         <input
@@ -2372,7 +2119,7 @@ export default function DashboardPage() {
                     >
                       {savingClientPlan
                         ? 'सेव्ह होत आहे...'
-                        : '💾 क्लायंट ईमेल व मॉड्यूल Lock/Unlock सेटिंग्स सेव्ह करा'}
+                        : '💾 क्लायंट Email + Password व मॉड्यूल Lock/Unlock सेव्ह करा'}
                     </button>
                   </form>
                 </div>
