@@ -229,7 +229,6 @@ export default function DashboardPage() {
   const [isSubscriptionExpired, setIsSubscriptionExpired] = useState<boolean>(false);
   const [selectedRenewalCycle, setSelectedRenewalCycle] = useState<'monthly' | 'six_months' | 'yearly'>('monthly');
 
-  // Plan-wise & Duration-wise Manual Pricing State
   const [planPricing, setPlanPricing] = useState<PlanPricingMatrix>({
     whatsapp_starter: { ...DEFAULT_PLAN_PRICING.whatsapp_starter },
     growth: { ...DEFAULT_PLAN_PRICING.growth },
@@ -312,7 +311,125 @@ export default function DashboardPage() {
   const [dbMessages, setDbMessages] = useState<ChatMessage[]>([]);
   const [inboxLoading, setInboxLoading] = useState<boolean>(false);
 
+  // खऱ्या AI Workflow Builder साठी स्टेट व फंक्शन्स
+  const [workflowsList, setWorkflowsList] = useState<any[]>([]);
+  const [wfLoading, setWfLoading] = useState<boolean>(false);
+  const [newWfForm, setNewWfForm] = useState({
+    name: '',
+    trigger_keywords: '',
+    action_type: 'custom_reply',
+    reply_template: '',
+    lead_service: 'AI Digital Skills Masterclass',
+    lead_value: '999',
+  });
+
   const isAdminUser = loggedInEmail.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  const fetchClientWorkflows = async () => {
+    setWfLoading(true);
+    try {
+      const phoneId = String(clientSettings.metaPhoneId || '').trim();
+      const email = String(loggedInEmail || '').trim().toLowerCase();
+      let query = supabase.from('workflows').select('*').order('created_at', { ascending: false });
+      if (phoneId) {
+        query = query.eq('meta_phone_id', phoneId);
+      } else if (email) {
+        query = query.ilike('client_email', email);
+      }
+      const { data, error } = await query;
+      if (!error && data) setWorkflowsList(data);
+    } catch (e) {
+      console.error('Workflows fetch error:', e);
+    } finally {
+      setWfLoading(false);
+    }
+  };
+
+  const fetchClientLeadsFromSupabase = async () => {
+    try {
+      const phoneId = String(clientSettings.metaPhoneId || '').trim();
+      if (!phoneId) return;
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('meta_phone_id', phoneId)
+        .order('created_at', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        setLeads(
+          data.map((row: any) => ({
+            id: String(row.id),
+            name: row.name || 'WhatsApp Lead',
+            phone: row.phone || '',
+            service: row.service || 'WhatsApp Inquiry',
+            deal_value: Number(row.deal_value) || 0,
+            status: row.status || 'New Lead',
+            source: row.source || 'WhatsApp Workflow',
+            sentiment: row.sentiment || 'Interested',
+            notes: row.notes || '',
+            created_at: row.created_at ? new Date(row.created_at).toLocaleString() : 'Live',
+            pipeline_id: row.pipeline_id || 'default_main',
+          }))
+        );
+      }
+    } catch (e) {
+      console.error('Leads fetch error:', e);
+    }
+  };
+
+  const handleCreateLiveWorkflow = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWfForm.name.trim() || !newWfForm.trigger_keywords.trim()) {
+      alert('कृपया वर्कफ्लोचे नाव आणि Trigger Keywords टाका!');
+      return;
+    }
+    const phoneId = String(clientSettings.metaPhoneId || '').trim();
+    if (!phoneId) {
+      alert('⚠️ आधी Settings & Meta API मध्ये तुमचा Meta Phone Number ID सेव्ह करा!');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('workflows').insert([
+        {
+          client_email: loggedInEmail.toLowerCase(),
+          meta_phone_id: phoneId,
+          name: newWfForm.name.trim(),
+          trigger_keywords: newWfForm.trigger_keywords.trim(),
+          action_type: newWfForm.action_type,
+          reply_template: newWfForm.reply_template.trim(),
+          lead_service: newWfForm.lead_service.trim() || 'WhatsApp Inquiry',
+          lead_value: Number(newWfForm.lead_value) || 2000,
+          is_active: true,
+        },
+      ]);
+      if (error) throw error;
+
+      setNewWfForm({
+        name: '',
+        trigger_keywords: '',
+        action_type: 'custom_reply',
+        reply_template: '',
+        lead_service: 'AI Digital Skills Masterclass',
+        lead_value: '999',
+      });
+      await fetchClientWorkflows();
+      alert('✅ खरा AI Workflow नियम सेव्ह झाला! आता ग्राहकाला मेसेज आल्यावर लीड आपोआप सेव्ह होईल आणि रिप्लाय जाईल.');
+    } catch (err: any) {
+      alert(`❌ त्रुटी: ${err?.message || 'Supabase मध्ये workflows टेबल असल्याची खात्री करा.'}`);
+    }
+  };
+
+  const handleToggleWorkflowStatus = async (wf: any) => {
+    await supabase.from('workflows').update({ is_active: !wf.is_active }).eq('id', wf.id);
+    fetchClientWorkflows();
+  };
+
+  const handleDeleteLiveWorkflow = async (id: string) => {
+    if (!confirm('हा वर्कफ्लो नियम कायमचा डिलीट करायचा का?')) return;
+    await supabase.from('workflows').delete().eq('id', id);
+    fetchClientWorkflows();
+  };
 
   useEffect(() => {
     if (activeTab === 'inbox' && isLoggedIn && !isSubscriptionExpired) {
@@ -320,6 +437,12 @@ export default function DashboardPage() {
     }
     if (activeTab === 'settings' && isLoggedIn && isAdminUser) {
       fetchAllRegisteredClients();
+    }
+    if (activeTab === 'workflow' && isLoggedIn && !isSubscriptionExpired) {
+      fetchClientWorkflows();
+    }
+    if ((activeTab === 'leads' || activeTab === 'pipeline' || activeTab === 'dashboard') && isLoggedIn && !isSubscriptionExpired) {
+      fetchClientLeadsFromSupabase();
     }
   }, [activeTab, isLoggedIn, isSubscriptionExpired, clientSettings.metaPhoneId]);
 
@@ -792,6 +915,7 @@ export default function DashboardPage() {
       } else {
         setLeads([]);
       }
+      fetchClientLeadsFromSupabase();
     } else {
       setLeads([]);
     }
@@ -994,11 +1118,6 @@ export default function DashboardPage() {
     setCustomTemplateName(''); setCustomTemplateText('');
     alert('नवीन मेसेज टेम्पलेट यशस्वीरीत्या तयार झाले!');
   };
-
-  const [customWorkflows, setCustomWorkflows] = useState([
-    { id: '1', trigger: 'New Lead from Meta Ads', action: 'Instant WhatsApp Auto-Reply' },
-    { id: '2', trigger: 'Payment Link Clicked', action: 'Send 10% Discount Coupon' }
-  ]);
 
   const [isMetaConnected, setIsMetaConnected] = useState(false);
   const [metaAdAccount] = useState('act_982347892347');
@@ -1473,7 +1592,6 @@ export default function DashboardPage() {
     );
   }
 
-  // मुदत संपल्यावर (Subscription Expired) क्लायंटला त्याच्याच प्लॅनची अचूक किंमत व QR दाखवणारी स्क्रीन
   if (isSubscriptionExpired && !isAdminUser) {
     const activePlanKey = (['whatsapp_starter', 'growth', 'full_crm'].includes(clientSettings.plan_type)
       ? clientSettings.plan_type
@@ -1503,7 +1621,6 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* फक्त क्लायंटच्या सध्याच्या प्लॅनची (1M / 6M / 1Y) किंमत निवडण्याचा पर्याय */}
           <div className="grid grid-cols-3 gap-2 text-xs">
             {(
               [
@@ -1723,6 +1840,7 @@ export default function DashboardPage() {
                 <div className="bg-[#0d1424] border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-wrap justify-between items-center gap-3">
                   <div><h2 className="text-lg font-black text-white">Growth Leads Directory ({filteredLeads.length})</h2><p className="text-xs text-slate-400">तुमच्या खात्यातील सर्व इनबाउंड व आऊटबाउंड लीड्स.</p></div>
                   <div className="flex gap-2">
+                    <button onClick={fetchClientLeadsFromSupabase} className="px-3.5 py-2.5 bg-slate-800 text-blue-400 border border-slate-700 rounded-xl text-xs font-bold cursor-pointer">🔄 Sync DB</button>
                     <button onClick={handleOpenAddModal} className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer">+ Add Lead</button>
                     <button onClick={() => fileInputRef.current?.click()} className="px-3.5 py-2.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"><Upload size={14} /> Import CSV</button>
                     <button onClick={handleExportCSV} className="px-3.5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"><Download size={14} /> Export CSV</button>
@@ -1734,7 +1852,7 @@ export default function DashboardPage() {
                       <thead className="bg-[#080c18] text-slate-400 uppercase text-[10px]"><tr><th className="p-4">Name & Phone</th><th className="p-4">Service</th><th className="p-4">Deal Value</th><th className="p-4">Status</th><th className="p-4 text-center">Actions</th></tr></thead>
                       <tbody className="divide-y divide-slate-800/60 text-slate-300">
                         {filteredLeads.length === 0 ? (
-                          <tr><td colSpan={5} className="p-8 text-center text-slate-500">तुमच्या खात्यात अजून कोणतीही लीड जोडलेली नाही. "+ Add Lead" वर क्लिक करा.</td></tr>
+                          <tr><td colSpan={5} className="p-8 text-center text-slate-500">तुमच्या खात्यात अजून कोणतीही लीड जोडलेली नाही. "+ Add Lead" वर क्लिक करा किंवा Workflow मधून ऑटो-लीड कॅप्चर करा.</td></tr>
                         ) : filteredLeads.map((l) => (
                           <tr key={l.id} className="hover:bg-slate-800/30">
                             <td className="p-4"><p className="font-bold text-white">{l.name}</p><span className="text-[11px] text-slate-400">+91 {l.phone}</span></td>
@@ -2030,54 +2148,186 @@ export default function DashboardPage() {
               </div>
             )}
 
+            {/* खरा AI Workflow Builder (WhatsApp Trigger -> Auto-Save Lead + Custom/AI Auto-Reply) */}
             {activeTab === 'workflow' && (
-              <div className="space-y-6 text-xs animate-fadeIn">
-                <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-6 shadow-2xl relative overflow-hidden">
+              <div className="space-y-6 text-xs">
+                <div className="bg-[#0d1424] border border-blue-500/30 rounded-3xl p-6 space-y-6 shadow-2xl">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-lg shadow-blue-600/40"><GitBranch size={24} /></div>
+                      <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-lg shadow-blue-600/40">
+                        <GitBranch size={24} />
+                      </div>
                       <div>
-                        <h2 className="text-base font-black text-white">AI Workflow Builder & Smart Nodes Studio ({clientSettings.ownerName || loggedInEmail})</h2>
-                        <p className="text-xs text-slate-400">साध्या भाषेमध्ये किंवा प्रॉम्प्ट देऊन सेकंदात संपूर्ण ऑटोमेशन फ्लो तयार करा.</p>
+                        <h2 className="text-base font-black text-white">
+                          Real-Time AI Workflow Builder (WhatsApp Trigger ➔ Auto Lead + Auto Reply)
+                        </h2>
+                        <p className="text-xs text-slate-400">
+                          ग्राहकाने विशिष्ट शब्द पाठवल्यास लीड आपोआप Leads Directory मध्ये सेव्ह होईल आणि अचूक रिप्लाय जाईल.
+                        </p>
                       </div>
                     </div>
-                    <span className="px-3.5 py-1.5 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full font-bold text-[10px] flex items-center gap-1.5 shadow">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> AI Engine Live & Ready
+                    <span className="px-3.5 py-1.5 bg-emerald-950 text-emerald-400 border border-emerald-500/40 rounded-full font-bold text-[10px] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Live Webhook Connected
                     </span>
                   </div>
-                  <div className="bg-[#080b12] border border-blue-500/40 rounded-2xl p-5 space-y-4 shadow-2xl">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold text-xs"><Sparkles size={16} /><span>Build with AI: Describe your automation goal</span></div>
-                    <div className="flex gap-2.5">
-                      <input type="text" id="newAiWorkflowInput" placeholder="उदा. 'जेव्हा नवीन लीड येईल तेव्हा लगेच WhatsApp मेसेज पाठवा'..." className="flex-1 bg-[#07090e] border border-slate-700 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-blue-500 font-medium" />
-                      <button onClick={() => {
-                        const inputEl = document.getElementById('newAiWorkflowInput') as HTMLInputElement;
-                        const val = inputEl?.value;
-                        if (!val || !val.trim()) { alert('कृपया आधी प्रॉम्प्ट टाईप करा!'); return; }
-                        setCustomWorkflows(prev => [{ id: Date.now().toString(), trigger: `AI Prompt: ${val}`, action: 'Smart AI Execution ➔ WhatsApp ➔ CRM DB' }, ...prev]);
-                        inputEl.value = ''; alert('🤖 AI ने नोड्स जनरेट केले!');
-                      }} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer flex items-center gap-2">Build with AI</button>
+
+                  <form onSubmit={handleCreateLiveWorkflow} className="bg-[#080b12] border border-blue-500/40 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-blue-400 font-bold text-xs">
+                      <Sparkles size={16} />
+                      <span>+ नवीन ऑटोमेशन फ्लो तयार करा (Trigger ➔ Save Lead ➔ Send Reply)</span>
                     </div>
-                  </div>
-                  <div className="space-y-3 pt-2">
-                    <h3 className="font-bold text-white text-xs uppercase tracking-wider">Active Generated Workflow Nodes ({customWorkflows.length})</h3>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {customWorkflows.map((w, idx) => (
-                        <div key={w.id || idx} className="p-5 bg-[#080b12] border border-slate-800 rounded-2xl space-y-3.5 shadow-xl">
-                          <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                            <span className="text-[10px] bg-blue-950 text-blue-400 px-2.5 py-0.5 rounded-full font-bold font-mono">Node Flow ID: #{w.id}</span>
-                            <span className="text-[10px] text-emerald-400 font-bold">● Active & Running</span>
-                          </div>
-                          <div className="space-y-2 text-xs">
-                            <p className="text-slate-200 font-bold bg-[#07090e] p-2.5 rounded-xl border border-slate-800">Trigger: {w.trigger}</p>
-                            <div className="pl-4 border-l-2 border-blue-500/50 my-2 py-1 space-y-1.5">
-                              <p className="text-slate-300 text-[11px]">➔ Action 1: Webhook & DB Log</p>
-                              <p className="text-slate-300 text-[11px]">➔ Action 2: WhatsApp Dispatch</p>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Workflow नाव *</label>
+                        <input
+                          type="text"
+                          required
+                          value={newWfForm.name}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, name: e.target.value })}
+                          placeholder="उदा. Masterclass Price & Brochure Flow"
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Trigger Keywords (स्वल्पविराम देऊन लिहा, किंवा सर्व मेसेजसाठी * लिहा) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newWfForm.trigger_keywords}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, trigger_keywords: e.target.value })}
+                          placeholder="उदा. price, fee, course, mahiti, किंमत, माहिती"
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-2.5 text-emerald-300 font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Lead Service नाव</label>
+                        <input
+                          type="text"
+                          value={newWfForm.lead_service}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, lead_service: e.target.value })}
+                          placeholder="उदा. AI Masterclass"
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Deal Value (₹)</label>
+                        <input
+                          type="number"
+                          value={newWfForm.lead_value}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, lead_value: e.target.value })}
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-2.5 text-amber-400 font-bold outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Action Type</label>
+                        <select
+                          value={newWfForm.action_type}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, action_type: e.target.value })}
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                        >
+                          <option value="custom_reply">1. Save Lead + Send Custom Template Reply</option>
+                          <option value="ai_reply">2. Save Lead + Gemini AI Smart Reply</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {newWfForm.action_type === 'custom_reply' && (
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          WhatsApp Auto-Reply मेसेज ({'{Name}'}, {'{Service}'}, {'{Amount}'} वापरू शकता):
+                        </label>
+                        <textarea
+                          rows={3}
+                          required
+                          value={newWfForm.reply_template}
+                          onChange={(e) => setNewWfForm({ ...newWfForm, reply_template: e.target.value })}
+                          placeholder="उदा. नमस्कार {Name} जी! 🙏 आपल्या {Service} ची फी फक्त ₹{Amount} आहे. आत्ताच नाव नोंदवा!"
+                          className="w-full bg-[#07090e] border border-slate-700 rounded-xl p-3 text-white outline-none"
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg cursor-pointer"
+                    >
+                      🚀 Activate Live Workflow Rule
+                    </button>
+                  </form>
+
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-bold text-white text-xs uppercase tracking-wider">
+                        Saved Live Automation Rules ({workflowsList.length})
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={fetchClientWorkflows}
+                        className="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg font-bold cursor-pointer"
+                      >
+                        🔄 Refresh
+                      </button>
+                    </div>
+
+                    {wfLoading ? (
+                      <p className="text-slate-400 py-6 text-center">लोड होत आहे...</p>
+                    ) : workflowsList.length === 0 ? (
+                      <p className="text-slate-500 py-8 text-center bg-[#080b12] rounded-2xl border border-slate-800">
+                        अजून कोणताही लाईव्ह वर्कफ्लो तयार केलेला नाही. वरील फॉर्ममधून पहिला नियम तयार करा!
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {workflowsList.map((wf) => (
+                          <div key={wf.id} className="p-5 bg-[#080b12] border border-slate-800 rounded-2xl space-y-3 shadow-xl">
+                            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                              <span className="font-black text-white text-sm">{wf.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleWorkflowStatus(wf)}
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer ${
+                                  wf.is_active
+                                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40'
+                                    : 'bg-slate-800 text-slate-400'
+                                }`}
+                              >
+                                {wf.is_active ? '● Active' : '⏸ Paused'}
+                              </button>
+                            </div>
+
+                            <div className="space-y-1.5 text-xs">
+                              <p className="text-slate-300">
+                                <b>Trigger Keywords:</b>{' '}
+                                <span className="text-blue-400 font-mono">{wf.trigger_keywords}</span>
+                              </p>
+                              <p className="text-slate-300">
+                                <b>Auto Lead:</b> {wf.lead_service} (<span className="text-emerald-400">₹{wf.lead_value}</span>)
+                              </p>
+                              {wf.reply_template && (
+                                <p className="bg-[#0d1424] p-2.5 rounded-xl text-slate-300 border border-slate-800 mt-1">
+                                  {wf.reply_template}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="pt-2 flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteLiveWorkflow(wf.id)}
+                                className="text-rose-400 hover:text-rose-300 font-bold text-[11px] cursor-pointer"
+                              >
+                                🗑️ Delete Rule
+                              </button>
                             </div>
                           </div>
-                          <button onClick={() => setCustomWorkflows(prev => prev.filter(item => item.id !== w.id))} className="text-rose-400 hover:text-rose-300 font-bold text-[11px] cursor-pointer">Delete Flow Node</button>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2252,7 +2502,6 @@ export default function DashboardPage() {
               <div className="space-y-8" style={{ maxWidth: '960px' }}>
                 {isAdminUser && (
                   <>
-                    {/* १. Client Onboarding, Validity & Module Lock/Unlock Manager */}
                     <div className="bg-[#0d1424] border border-blue-500/40 rounded-3xl p-6 space-y-5 shadow-2xl">
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                         <div>
@@ -2343,7 +2592,6 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {/* निवडलेल्या प्लॅननुसार 1 Month / 6 Months / 1 Year ची मॅन्युअल किंमत */}
                         <div className="space-y-2">
                           <label className="block text-slate-300 font-bold">
                             सबस्क्रिप्शन कालावधी निवडा ({PLAN_PRESETS[managedPlanType]?.shortName || managedPlanType} साठी किंमत):
@@ -2437,7 +2685,6 @@ export default function DashboardPage() {
                       </form>
                     </div>
 
-                    {/* २. प्रत्येक प्लॅन व कालावधीची मॅन्युअल किंमत सेट करण्याचा पॅनल (Offers / Discounts साठी) */}
                     <div className="bg-[#0d1424] border border-amber-500/30 rounded-3xl p-6 space-y-5 shadow-2xl text-xs">
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                         <div>
@@ -2504,7 +2751,6 @@ export default function DashboardPage() {
                   </>
                 )}
 
-                {/* ३. प्रत्येक युजरच्या स्वतःच्या Meta API आणि बिझनेस सेटिंग्स */}
                 <div>
                   <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#38bdf8', marginBottom: '8px' }}>⚙️ My Business & Meta API Settings</h1>
                   <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '20px' }}>
@@ -2568,7 +2814,6 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* Client List Popup — प्रत्येक क्लायंटच्या नावासमोरच 1 Month / 6 Months / 1 Year / Lock Now बटणे */}
         {isClientListModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#0d1424] border border-slate-700 rounded-3xl p-6 w-full max-w-3xl space-y-4 shadow-2xl text-xs">

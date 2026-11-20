@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     const changes = entry?.changes?.[0];
     const value = changes?.value;
     const messages = value?.messages;
+    const contactName = String(value?.contacts?.[0]?.profile?.name || '').trim();
     const phoneNumberId = String(value?.metadata?.phone_number_id || '').trim();
 
     if (messages && messages.length > 0) {
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
       if (supabaseUrl && supabaseKey) {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // १. Inbox मध्ये मेसेज सेव्ह करणे
         await supabase.from('messages').insert([
           {
             sender: senderPhone,
@@ -82,13 +84,11 @@ export async function POST(request: NextRequest) {
             .eq('metaPhoneId', phoneNumberId)
             .maybeSingle();
 
-          // प्लॅनची मुदत संपली आहे का ते तपासणे
           const isPlanExpired =
             client?.billing_cycle === 'expired' ||
             (client?.plan_expires_at && new Date(client.plan_expires_at).getTime() < Date.now());
 
           if (isPlanExpired) {
-            console.log('Skipping Auto-Reply: Client subscription expired for', phoneNumberId);
             return NextResponse.json({ success: true, expired: true }, { status: 200 });
           }
 
@@ -96,7 +96,9 @@ export async function POST(request: NextRequest) {
             ? client.allowed_modules
             : ['inbox', 'agents'];
           const hasModuleAccess =
-            allowedList.includes('inbox') || allowedList.includes('agents');
+            allowedList.includes('inbox') ||
+            allowedList.includes('agents') ||
+            allowedList.includes('workflow');
 
           let apiKey = String(client?.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
           if (!apiKey) {
@@ -114,35 +116,105 @@ export async function POST(request: NextRequest) {
           const systemPrompt = String(client?.systemPrompt || '').trim();
           const autoReplyEnabled = client?.aiAutoReply !== false;
 
-          if (autoReplyEnabled && hasModuleAccess && accessToken) {
-            let aiReply: string | null = null;
+          // २. AI Workflow Builder मधील सक्रिय नियम (Triggers) तपासणे
+          const lowerMsg = messageText.toLowerCase();
+          const { data: activeWorkflows } = await supabase
+            .from('workflows')
+            .select('*')
+            .eq('meta_phone_id', phoneNumberId)
+            .eq('is_active', true);
 
-            if (apiKey) {
+          let matchedWorkflow: any = null;
+          if (Array.isArray(activeWorkflows)) {
+            for (const wf of activeWorkflows) {
+              const keywords = String(wf.trigger_keywords || '')
+                .split(',')
+                .map((k) => k.trim().toLowerCase())
+                .filter(Boolean);
+
+              if (keywords.includes('*') || keywords.some((kw) => lowerMsg.includes(kw))) {
+                matchedWorkflow = wf;
+                break;
+              }
+            }
+          }
+
+          // ३. जर Workflow मॅच झाला तर लीड आपोआप Leads Directory मध्ये सेव्ह करणे
+          if (matchedWorkflow) {
+            const cleanPhone = senderPhone.replace(/^91/, '');
+            const { data: existingLead } = await supabase
+              .from('leads')
+              .select('id')
+              .eq('meta_phone_id', phoneNumberId)
+              .eq('phone', cleanPhone)
+              .maybeSingle();
+
+            if (existingLead?.id) {
+              await supabase
+                .from('leads')
+                .update({
+                  notes: `Latest WhatsApp (${matchedWorkflow.name}): ${messageText}`,
+                  status: 'Contacted',
+                })
+                .eq('id', existingLead.id);
+            } else {
+              await supabase.from('leads').insert([
+                {
+                  client_email: client?.client_email || '',
+                  meta_phone_id: phoneNumberId,
+                  name: contactName || `WhatsApp User (${cleanPhone.slice(-4)})`,
+                  phone: cleanPhone,
+                  service: matchedWorkflow.lead_service || 'WhatsApp Inquiry',
+                  deal_value: Number(matchedWorkflow.lead_value) || 2000,
+                  status: 'New Lead',
+                  source: `Workflow: ${matchedWorkflow.name}`,
+                  sentiment: 'Highly Interested',
+                  notes: `Auto-captured via WhatsApp: "${messageText}"`,
+                  pipeline_id: 'default_main',
+                },
+              ]);
+            }
+          }
+
+          // ४. रिप्लाय पाठवणे (Workflow Custom Reply किंवा Gemini AI Reply)
+          if (autoReplyEnabled && hasModuleAccess && accessToken) {
+            let finalReply = '';
+
+            if (matchedWorkflow && matchedWorkflow.action_type === 'custom_reply' && matchedWorkflow.reply_template) {
+              finalReply = String(matchedWorkflow.reply_template)
+                .replace(/\{Name\}/gi, contactName || 'मित्र')
+                .replace(/\{Service\}/gi, matchedWorkflow.lead_service || 'आमची सेवा')
+                .replace(/\{Amount\}/gi, String(matchedWorkflow.lead_value || ''));
+            } else if (apiKey) {
               try {
                 const origin = request.nextUrl.origin;
+                const workflowHint = matchedWorkflow
+                  ? `\n\n[Active Workflow Triggered: ${matchedWorkflow.name} | Service: ${matchedWorkflow.lead_service} | Price: ₹${matchedWorkflow.lead_value}. Answer accordingly and encourage booking.]`
+                  : '';
+
                 const chatRes = await fetch(`${origin}/api/gemini-chat`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     apiKey,
                     message: messageText,
-                    systemPrompt,
+                    systemPrompt: `${systemPrompt}${workflowHint}`,
                   }),
                 });
                 const chatData = await chatRes.json().catch(() => ({}));
                 if (chatRes.ok && chatData?.reply) {
-                  aiReply = String(chatData.reply).trim();
+                  finalReply = String(chatData.reply).trim();
                 }
               } catch (chatErr: any) {
                 console.error('Internal /api/gemini-chat fetch failed:', chatErr?.message || chatErr);
               }
             }
 
-            const finalReply =
-              aiReply ||
-              `नमस्कार! 🙏 ${
+            if (!finalReply) {
+              finalReply = `नमस्कार! 🙏 ${
                 client?.businessName || 'AI Growth CRM'
               } कडून आपला मेसेज प्राप्त झाला आहे. आम्ही लवकरच आपल्याशी संपर्क साधतो.`;
+            }
 
             await sendWhatsAppReply(phoneNumberId, accessToken, senderPhone, finalReply);
           }
